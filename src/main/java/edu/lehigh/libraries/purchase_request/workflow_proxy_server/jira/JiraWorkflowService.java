@@ -9,6 +9,7 @@ import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
+import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
 import org.springframework.stereotype.Service;
@@ -20,9 +21,11 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServi
 @Service
 public class JiraWorkflowService implements WorkflowService {
 
-    JiraRestClient client;
+    private JiraRestClient client;
+    private Config config;
 
     public JiraWorkflowService(Config config) {
+        this.config = config;
         String url = config.getJira().getUrl();
         String username = config.getJira().getUsername();
         String password = config.getJira().getToken();
@@ -50,9 +53,16 @@ public class JiraWorkflowService implements WorkflowService {
         return list;
     }
 
+    public void save(PurchaseRequest purchaseRequest) {
+        IssueInputBuilder issueBuilder = new IssueInputBuilder("PR", config.getJira().getIssueTypeId());
+        issueBuilder.setSummary(purchaseRequest.getTitle());
+        issueBuilder.setFieldValue(config.getJira().getContributorFieldId(), purchaseRequest.getContributor());
+        client.getIssueClient().createIssue(issueBuilder.build()).claim();
+    }
+
     private PurchaseRequest toPurchaseRequest(Issue issue) {
         PurchaseRequest purchaseRequest = new PurchaseRequest();
-        purchaseRequest.setSummary(issue.getSummary());
+        purchaseRequest.setTitle(issue.getSummary());
         return purchaseRequest;
     }
     

@@ -19,6 +19,8 @@ public class Config {
         private String url;        
         private String username;
         private String token;
+        private Long issueTypeId;
+        private String contributorFieldId;
 
     }
 }

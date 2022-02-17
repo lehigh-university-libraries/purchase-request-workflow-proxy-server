@@ -1,14 +1,17 @@
 package edu.lehigh.libraries.purchase_request.model;
 
+import javax.validation.constraints.NotNull;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter @Setter
 public class PurchaseRequest {
+
+    @NotNull
+    private String title;
     
-    private String summary;
+    @NotNull
+    private String contributor;
 
-    public String getSummary() {
-        return summary;
-    }
-
-    public void setSummary(String summary) {
-        this.summary = summary;
-    }
 }
