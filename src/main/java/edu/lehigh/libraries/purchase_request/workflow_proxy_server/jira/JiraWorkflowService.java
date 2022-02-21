@@ -86,6 +86,7 @@ public class JiraWorkflowService implements WorkflowService {
 
     private PurchaseRequest toPurchaseRequest(Issue issue) {
         PurchaseRequest purchaseRequest = new PurchaseRequest();
+        purchaseRequest.setId(issue.getId());
         purchaseRequest.setTitle(issue.getSummary());
         purchaseRequest.setContributor((String)issue.getField(CONTRIBUTOR_FIELD_ID).getValue());
         return purchaseRequest;
