@@ -12,18 +12,16 @@ import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class JiraWorkflowService implements WorkflowService {
-
-    private static Logger log = LoggerFactory.getLogger(WorkflowService.class);
 
     private JiraRestClient client;
     private Config config;
