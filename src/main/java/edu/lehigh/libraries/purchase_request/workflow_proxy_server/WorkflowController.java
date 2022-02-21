@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,15 @@ public class WorkflowController {
     List<PurchaseRequest> all() {
         return service.findAll();
     }
+
+    @GetMapping("/purchase-requests/{key}")
+    ResponseEntity<PurchaseRequest> getByKey(@PathVariable String key) {
+        PurchaseRequest purchaseRequest = service.findByKey(key);
+        if (purchaseRequest == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return new ResponseEntity<PurchaseRequest>(purchaseRequest, HttpStatus.OK);
+    }    
 
     @PostMapping("/purchase-requests")
     ResponseEntity<PurchaseRequest> addPurchaseRequest(@Valid @RequestBody PurchaseRequest purchaseRequest) {

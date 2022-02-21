@@ -5,8 +5,10 @@ import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.atlassian.httpclient.api.HttpStatus;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
+import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
@@ -68,9 +70,18 @@ public class JiraWorkflowService implements WorkflowService {
         return list;
     }
 
-    private PurchaseRequest findByKey(String key) {
-        Issue issue = client.getIssueClient().getIssue(key).claim();
-        return toPurchaseRequest(issue);
+    @Override
+    public PurchaseRequest findByKey(String key) {
+        try {
+            Issue issue = client.getIssueClient().getIssue(key).claim();
+            return toPurchaseRequest(issue);
+        }
+        catch (RestClientException ex) {
+            if (ex.getStatusCode().get() == HttpStatus.NOT_FOUND.code) {
+                return null;
+            }
+            throw ex;
+        }
     }
 
     @Override
@@ -86,6 +97,7 @@ public class JiraWorkflowService implements WorkflowService {
 
     private PurchaseRequest toPurchaseRequest(Issue issue) {
         PurchaseRequest purchaseRequest = new PurchaseRequest();
+        purchaseRequest.setKey(issue.getKey());
         purchaseRequest.setId(issue.getId());
         purchaseRequest.setTitle(issue.getSummary());
         purchaseRequest.setContributor((String)issue.getField(CONTRIBUTOR_FIELD_ID).getValue());
