@@ -12,6 +12,8 @@ import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -20,6 +22,8 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServi
 
 @Service
 public class JiraWorkflowService implements WorkflowService {
+
+    private static Logger log = LoggerFactory.getLogger(WorkflowService.class);
 
     private JiraRestClient client;
     private Config config;
@@ -59,7 +63,9 @@ public class JiraWorkflowService implements WorkflowService {
         .claim();
         List<PurchaseRequest> list = new LinkedList<PurchaseRequest>();
         result.getIssues().forEach((issue) -> {
-            list.add(toPurchaseRequest(issue));
+            PurchaseRequest purchaseRequest = toPurchaseRequest(issue);
+            log.debug("Found purchase request: " + purchaseRequest);
+            list.add(purchaseRequest);
         });
         return list;
     }

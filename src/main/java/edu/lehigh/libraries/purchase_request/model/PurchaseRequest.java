@@ -2,10 +2,12 @@ package edu.lehigh.libraries.purchase_request.model;
 
 import javax.validation.constraints.NotNull;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-@Getter @Setter
+@Getter @Setter @EqualsAndHashCode @ToString
 public class PurchaseRequest {
 
     @NotNull
