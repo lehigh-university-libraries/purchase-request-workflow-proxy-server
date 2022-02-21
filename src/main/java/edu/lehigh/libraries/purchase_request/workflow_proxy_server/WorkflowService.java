@@ -8,6 +8,6 @@ public interface WorkflowService {
     
     List<PurchaseRequest> findAll();
 
-    void save(PurchaseRequest purchaseRequest);
+    PurchaseRequest save(PurchaseRequest purchaseRequest);
 
 }

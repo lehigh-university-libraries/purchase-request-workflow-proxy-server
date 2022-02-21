@@ -53,11 +53,20 @@ public class JiraWorkflowService implements WorkflowService {
         return list;
     }
 
-    public void save(PurchaseRequest purchaseRequest) {
+    private PurchaseRequest findByKey(String key) {
+        Issue issue = client.getIssueClient().getIssue(key).claim();
+        return toPurchaseRequest(issue);
+    }
+
+    @Override
+    public PurchaseRequest save(PurchaseRequest purchaseRequest) {
         IssueInputBuilder issueBuilder = new IssueInputBuilder("PR", config.getJira().getIssueTypeId());
         issueBuilder.setSummary(purchaseRequest.getTitle());
         issueBuilder.setFieldValue(config.getJira().getContributorFieldId(), purchaseRequest.getContributor());
-        client.getIssueClient().createIssue(issueBuilder.build()).claim();
+        String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
+
+        PurchaseRequest createdRequest = findByKey(key);
+        return createdRequest;
     }
 
     private PurchaseRequest toPurchaseRequest(Issue issue) {

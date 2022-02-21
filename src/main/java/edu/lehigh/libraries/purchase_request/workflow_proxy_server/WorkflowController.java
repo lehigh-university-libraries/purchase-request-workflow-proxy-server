@@ -30,9 +30,9 @@ public class WorkflowController {
     }
 
     @PostMapping("/purchase-requests")
-    ResponseEntity<String> addPurchaseRequest(@Valid @RequestBody PurchaseRequest purchaseRequest) {
-        service.save(purchaseRequest); 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    ResponseEntity<PurchaseRequest> addPurchaseRequest(@Valid @RequestBody PurchaseRequest purchaseRequest) {
+        PurchaseRequest savedRequest = service.save(purchaseRequest); 
+        return new ResponseEntity<PurchaseRequest>(savedRequest, HttpStatus.CREATED);
     }
 
 }
