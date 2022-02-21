@@ -24,8 +24,12 @@ public class JiraWorkflowService implements WorkflowService {
     private JiraRestClient client;
     private Config config;
 
+    private String CONTRIBUTOR_FIELD_ID;
+
     public JiraWorkflowService(Config config) {
         this.config = config;
+        initMetadata();
+
         String url = config.getJira().getUrl();
         String username = config.getJira().getUsername();
         String password = config.getJira().getToken();
@@ -38,6 +42,10 @@ public class JiraWorkflowService implements WorkflowService {
         catch (URISyntaxException e) {
             e.printStackTrace();
         }
+    }
+
+    private void initMetadata() {
+        CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
     }
 
     @Override
@@ -62,7 +70,7 @@ public class JiraWorkflowService implements WorkflowService {
     public PurchaseRequest save(PurchaseRequest purchaseRequest) {
         IssueInputBuilder issueBuilder = new IssueInputBuilder("PR", config.getJira().getIssueTypeId());
         issueBuilder.setSummary(purchaseRequest.getTitle());
-        issueBuilder.setFieldValue(config.getJira().getContributorFieldId(), purchaseRequest.getContributor());
+        issueBuilder.setFieldValue(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
         String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
 
         PurchaseRequest createdRequest = findByKey(key);
@@ -72,6 +80,7 @@ public class JiraWorkflowService implements WorkflowService {
     private PurchaseRequest toPurchaseRequest(Issue issue) {
         PurchaseRequest purchaseRequest = new PurchaseRequest();
         purchaseRequest.setTitle(issue.getSummary());
+        purchaseRequest.setContributor((String)issue.getField(CONTRIBUTOR_FIELD_ID).getValue());
         return purchaseRequest;
     }
     
