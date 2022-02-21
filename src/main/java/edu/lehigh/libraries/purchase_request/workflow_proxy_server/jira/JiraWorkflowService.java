@@ -29,7 +29,14 @@ public class JiraWorkflowService implements WorkflowService {
     public JiraWorkflowService(Config config) {
         this.config = config;
         initMetadata();
+        initConnection();
+    }
 
+    private void initMetadata() {
+        CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
+    }
+
+    private void initConnection() {
         String url = config.getJira().getUrl();
         String username = config.getJira().getUsername();
         String password = config.getJira().getToken();
@@ -42,10 +49,6 @@ public class JiraWorkflowService implements WorkflowService {
         catch (URISyntaxException e) {
             e.printStackTrace();
         }
-    }
-
-    private void initMetadata() {
-        CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
     }
 
     @Override
