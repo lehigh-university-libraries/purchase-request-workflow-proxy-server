@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServiceListener;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -29,15 +30,21 @@ public class JiraWorkflowService implements WorkflowService {
     private Config config;
 
     private String CONTRIBUTOR_FIELD_ID;
+    private Long APPROVED_STATUS_ID;
+
+    private List<WorkflowServiceListener> listeners;
 
     public JiraWorkflowService(Config config) {
         this.config = config;
         initMetadata();
         initConnection();
+
+        listeners = new LinkedList<WorkflowServiceListener>();
     }
 
     private void initMetadata() {
         CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
+        APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
     }
 
     private void initConnection() {
@@ -72,9 +79,13 @@ public class JiraWorkflowService implements WorkflowService {
 
     @Override
     public PurchaseRequest findByKey(String key) {
+        Issue issue = getByKey(key);
+        return toPurchaseRequest(issue);
+    }
+
+    private Issue getByKey(String key) {
         try {
-            Issue issue = client.getIssueClient().getIssue(key).claim();
-            return toPurchaseRequest(issue);
+            return client.getIssueClient().getIssue(key).claim();
         }
         catch (RestClientException ex) {
             if (ex.getStatusCode().get() == HttpStatus.NOT_FOUND.code) {
@@ -95,6 +106,11 @@ public class JiraWorkflowService implements WorkflowService {
         return createdRequest;
     }
 
+    @Override
+    public void addListener(WorkflowServiceListener listener) {
+        listeners.add(listener);
+    }
+
     private PurchaseRequest toPurchaseRequest(Issue issue) {
         PurchaseRequest purchaseRequest = new PurchaseRequest();
         purchaseRequest.setKey(issue.getKey());
@@ -102,6 +118,24 @@ public class JiraWorkflowService implements WorkflowService {
         purchaseRequest.setTitle(issue.getSummary());
         purchaseRequest.setContributor((String)issue.getField(CONTRIBUTOR_FIELD_ID).getValue());
         return purchaseRequest;
+    }
+
+    void confirmPurchaseApproved(String key) {
+        Issue issue = getByKey(key);
+        if (issue == null) {
+            log.warn("Got purchase approved message for unknown key: " + key);
+        }
+        else if (APPROVED_STATUS_ID.equals(issue.getStatus().getId())) {
+            issue.getChangelog();
+            // TODO Confirm that the status was just set in the last minute or so, to verify.
+            PurchaseRequest purchaseRequest = toPurchaseRequest(issue);
+            for (WorkflowServiceListener listener : listeners) {
+                listener.purchaseApproved(purchaseRequest);
+            }
+        }
+        else {
+            log.warn("Ignoring purchase approval with wrong status: " + issue.getStatus().getId());
+        }
     }
     
 }

@@ -12,4 +12,6 @@ public interface WorkflowService {
 
     PurchaseRequest save(PurchaseRequest purchaseRequest);
 
+    void addListener(WorkflowServiceListener listener);
+
 }
