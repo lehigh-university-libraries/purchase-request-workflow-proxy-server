@@ -73,6 +73,11 @@ public class Config {
         private String host;
 
         /**
+         * Database name
+         */
+        private String name;
+
+        /**
          * Database username
          */
         private String username;
