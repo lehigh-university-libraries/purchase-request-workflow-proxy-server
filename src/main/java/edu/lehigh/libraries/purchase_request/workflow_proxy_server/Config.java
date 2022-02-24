@@ -15,6 +15,7 @@ public class Config {
     
     private Jira jira;
     private Database db;
+    private GoogleSheets googleSheets;
 
     @Getter @Setter
     public static class Jira {
@@ -57,6 +58,13 @@ public class Config {
          */
         private String contributorFieldId;
 
+        /**
+         * ID of the Jira custom field representing the item's ISBN.
+         * 
+         * A list of fields with IDs can be retrieved with {{jira.url}}/field
+         */
+        private String isbnFieldId;
+
     }
 
     @Getter @Setter
@@ -87,6 +95,25 @@ public class Config {
          */
         private String password;
 
+    }
+
+    @Getter @Setter
+    public static class GoogleSheets {
+
+        /**
+         * ID of the Google Sheets spreadsheet on which to write the ISBNs.
+         */
+        private String spreadsheetId;
+
+        /**
+         * Path to the google-sheets-client-secret.json file used to connect to the API.
+         */
+        private String credentialsFilePath;
+        
+        /**
+         * Header text for the column of ISBNs.
+         */
+        private String isbnColumnHeader;
     }
 
 }

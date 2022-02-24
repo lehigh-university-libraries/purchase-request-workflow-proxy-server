@@ -30,6 +30,7 @@ public class JiraWorkflowService implements WorkflowService {
     private Config config;
 
     private String CONTRIBUTOR_FIELD_ID;
+    private String ISBN_FIELD_ID;
     private Long APPROVED_STATUS_ID;
 
     private List<WorkflowServiceListener> listeners;
@@ -44,6 +45,7 @@ public class JiraWorkflowService implements WorkflowService {
 
     private void initMetadata() {
         CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
+        ISBN_FIELD_ID = config.getJira().getIsbnFieldId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
     }
 
@@ -117,6 +119,7 @@ public class JiraWorkflowService implements WorkflowService {
         purchaseRequest.setId(issue.getId());
         purchaseRequest.setTitle(issue.getSummary());
         purchaseRequest.setContributor((String)issue.getField(CONTRIBUTOR_FIELD_ID).getValue());
+        purchaseRequest.setIsbn((String)issue.getField(ISBN_FIELD_ID).getValue());
         return purchaseRequest;
     }
 

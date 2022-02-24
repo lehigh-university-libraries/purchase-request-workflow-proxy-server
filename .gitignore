@@ -34,3 +34,6 @@ build/
 
 ### Spring ###
 **/application.properties
+
+### Google ###
+google-sheets-client-secret.json

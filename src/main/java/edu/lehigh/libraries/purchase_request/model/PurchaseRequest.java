@@ -22,4 +22,6 @@ public class PurchaseRequest {
     @NotNull
     private String contributor;
 
+    private String isbn;
+
 }
