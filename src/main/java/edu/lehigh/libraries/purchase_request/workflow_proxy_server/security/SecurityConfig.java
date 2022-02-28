@@ -34,6 +34,8 @@ public class SecurityConfig {
         httpSecurity
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
+            .cors()
+            .and()
             .csrf().disable()
             .authorizeHttpRequests().requestMatchers(PROTECTED_URLS).authenticated()
             .and()
