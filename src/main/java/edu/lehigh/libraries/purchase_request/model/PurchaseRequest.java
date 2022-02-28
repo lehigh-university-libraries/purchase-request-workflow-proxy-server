@@ -10,10 +10,8 @@ import lombok.ToString;
 @Getter @Setter @EqualsAndHashCode @ToString
 public class PurchaseRequest {
 
-    @NotNull
     private String key;
 
-    @NotNull
     private Long id;
 
     @NotNull
