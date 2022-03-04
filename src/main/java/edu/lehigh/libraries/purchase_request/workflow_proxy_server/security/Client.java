@@ -13,8 +13,8 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "users")
-public class User {
+@Table(name = "clients")
+public class Client {
   
     @Id
     @Column(unique = true)
@@ -22,7 +22,7 @@ public class User {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String username;
+    private String clientName;
 
     private String password;
 

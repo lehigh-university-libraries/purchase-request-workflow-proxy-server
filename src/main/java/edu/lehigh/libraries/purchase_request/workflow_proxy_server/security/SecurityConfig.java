@@ -52,13 +52,13 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService() {
         return new UserDetailsService() { 
             @Autowired
-            private UserRepository userRepository;
+            private ClientRepository userRepository;
 
             @Override
-            public UserDetails loadUserByUsername(String username) {
-                User user = Optional.ofNullable(userRepository.findByUsername(username))
-                    .orElseThrow(() -> new UsernameNotFoundException("Cannot find user: " + username));
-                return new WorkflowUserDetails(user);
+            public UserDetails loadUserByUsername(String clientName) {
+                Client client = Optional.ofNullable(userRepository.findByClientName(clientName))
+                    .orElseThrow(() -> new UsernameNotFoundException("Cannot find client: " + clientName));
+                return new WorkflowClientDetails(client);
             }
         };
     }

@@ -9,9 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class WorkflowUserDetails implements UserDetails {
+public class WorkflowClientDetails implements UserDetails {
 
-    private User user;
+    private Client client;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -20,12 +20,12 @@ public class WorkflowUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return user.getPassword();
+        return client.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return client.getClientName();
     }
 
     @Override
