@@ -8,7 +8,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnNotWebApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.security.SecurityConfig;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.security.User;
@@ -76,5 +78,11 @@ public class UsersApplication implements CommandLineRunner {
         application.run(args);
         log.info("Users Application finished");
     }
+
+    // Only for this controller
+	@Bean(name = "mvcHandlerMappingIntrospector")
+	public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
+		return new HandlerMappingIntrospector();
+	}
 
 }
