@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Validated
+@Slf4j
 public class WorkflowController {
     
     private final WorkflowService service;
@@ -27,11 +29,13 @@ public class WorkflowController {
 
     @GetMapping("/purchase-requests")
     List<PurchaseRequest> all() {
+        log.info("Request: GET /purchase-requests");
         return service.findAll();
     }
 
     @GetMapping("/purchase-requests/{key}")
     ResponseEntity<PurchaseRequest> getByKey(@PathVariable String key) {
+        log.info("Request: GET /purchase-requests/" + key);
         PurchaseRequest purchaseRequest = service.findByKey(key);
         if (purchaseRequest == null) {
             return ResponseEntity.notFound().build();
@@ -41,6 +45,7 @@ public class WorkflowController {
 
     @PostMapping("/purchase-requests")
     ResponseEntity<PurchaseRequest> addPurchaseRequest(@Valid @RequestBody PurchaseRequest purchaseRequest) {
+        log.info("Request: POST /purchase-requests " + purchaseRequest);
         PurchaseRequest savedRequest = service.save(purchaseRequest); 
         return new ResponseEntity<PurchaseRequest>(savedRequest, HttpStatus.CREATED);
     }
