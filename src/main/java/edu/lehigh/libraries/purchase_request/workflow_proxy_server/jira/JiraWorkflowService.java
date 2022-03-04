@@ -32,6 +32,7 @@ public class JiraWorkflowService implements WorkflowService {
     private String CONTRIBUTOR_FIELD_ID;
     private String ISBN_FIELD_ID;
     private String CLIENT_NAME_FIELD_ID;
+    private String REPORTER_NAME_FIELD_ID;
     private Long APPROVED_STATUS_ID;
 
     private List<WorkflowServiceListener> listeners;
@@ -48,6 +49,7 @@ public class JiraWorkflowService implements WorkflowService {
         CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
         ISBN_FIELD_ID = config.getJira().getIsbnFieldId();
         CLIENT_NAME_FIELD_ID = config.getJira().getClientNameFieldId();
+        REPORTER_NAME_FIELD_ID = config.getJira().getReporterNameFieldId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
     }
 
@@ -101,14 +103,26 @@ public class JiraWorkflowService implements WorkflowService {
 
     @Override
     public PurchaseRequest save(PurchaseRequest purchaseRequest) {
-        IssueInputBuilder issueBuilder = new IssueInputBuilder("PR", config.getJira().getIssueTypeId());
+        IssueInputBuilder issueBuilder = new IssueInputBuilder("PR", config.getJira().getIssueTypeId());        
         issueBuilder.setSummary(purchaseRequest.getTitle());
         issueBuilder.setFieldValue(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
         issueBuilder.setFieldValue(CLIENT_NAME_FIELD_ID, purchaseRequest.getClientName());
+        setReporter(issueBuilder, purchaseRequest);
         String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
 
         PurchaseRequest createdRequest = findByKey(key);
         return createdRequest;
+    }
+
+    private void setReporter(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
+        if (REPORTER_NAME_FIELD_ID == null) {
+            // Using the built-in setReporterName() should work with Jira Server, just not Jira Cloud.
+            // https://community.atlassian.com/t5/Jira-questions/Create-an-issue-with-rest-api-set-reporter-name/qaq-p/1535911
+            issueBuilder.setReporterName(purchaseRequest.getReporterName());
+        }
+        else {
+            issueBuilder.setFieldValue(REPORTER_NAME_FIELD_ID, purchaseRequest.getReporterName());
+        }
     }
 
     @Override

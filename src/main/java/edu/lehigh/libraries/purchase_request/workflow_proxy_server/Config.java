@@ -66,11 +66,22 @@ public class Config {
         private String isbnFieldId;
 
         /**
-         * ID of the Jira custom field representing the client who submitted a purchase request.
+         * ID of the Jira custom field representing the client system that submitted a purchase request.
          * 
          * A list of fields with IDs can be retrieved with {{jira.url}}/field
          */
         private String clientNameFieldId;
+
+        /**
+         * ID of the Jira custom field representing the human reporter who submitted a purchase request.
+         * 
+         * A custom field is only necessary for Jira Cloud, where the native Reporter field only supports
+         * people with actual Jira accounts.  For self-hosted Jira, the default Reporter field can be 
+         * used and set to any string name.
+         * 
+         * A list of fields with IDs can be retrieved with {{jira.url}}/field
+         */
+        private String reporterNameFieldId;
 
     }
 

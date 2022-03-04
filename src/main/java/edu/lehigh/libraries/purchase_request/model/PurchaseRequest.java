@@ -24,4 +24,6 @@ public class PurchaseRequest {
 
     private String clientName;
 
+    private String reporterName;
+
 }
