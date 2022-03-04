@@ -65,6 +65,13 @@ public class Config {
          */
         private String isbnFieldId;
 
+        /**
+         * ID of the Jira custom field representing the client who submitted a purchase request.
+         * 
+         * A list of fields with IDs can be retrieved with {{jira.url}}/field
+         */
+        private String clientNameFieldId;
+
     }
 
     @Getter @Setter

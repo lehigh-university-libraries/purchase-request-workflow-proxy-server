@@ -31,6 +31,7 @@ public class JiraWorkflowService implements WorkflowService {
 
     private String CONTRIBUTOR_FIELD_ID;
     private String ISBN_FIELD_ID;
+    private String CLIENT_NAME_FIELD_ID;
     private Long APPROVED_STATUS_ID;
 
     private List<WorkflowServiceListener> listeners;
@@ -46,6 +47,7 @@ public class JiraWorkflowService implements WorkflowService {
     private void initMetadata() {
         CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
         ISBN_FIELD_ID = config.getJira().getIsbnFieldId();
+        CLIENT_NAME_FIELD_ID = config.getJira().getClientNameFieldId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
     }
 
@@ -102,6 +104,7 @@ public class JiraWorkflowService implements WorkflowService {
         IssueInputBuilder issueBuilder = new IssueInputBuilder("PR", config.getJira().getIssueTypeId());
         issueBuilder.setSummary(purchaseRequest.getTitle());
         issueBuilder.setFieldValue(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
+        issueBuilder.setFieldValue(CLIENT_NAME_FIELD_ID, purchaseRequest.getClientName());
         String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
 
         PurchaseRequest createdRequest = findByKey(key);
@@ -120,6 +123,7 @@ public class JiraWorkflowService implements WorkflowService {
         purchaseRequest.setTitle(issue.getSummary());
         purchaseRequest.setContributor((String)issue.getField(CONTRIBUTOR_FIELD_ID).getValue());
         purchaseRequest.setIsbn((String)issue.getField(ISBN_FIELD_ID).getValue());
+        purchaseRequest.setClientName((String)issue.getField(CLIENT_NAME_FIELD_ID).getValue());
         return purchaseRequest;
     }
 

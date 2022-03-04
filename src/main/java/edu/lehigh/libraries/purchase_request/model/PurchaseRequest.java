@@ -22,4 +22,6 @@ public class PurchaseRequest {
 
     private String isbn;
 
+    private String clientName;
+
 }
