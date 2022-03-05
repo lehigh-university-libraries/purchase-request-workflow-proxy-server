@@ -101,6 +101,7 @@ public class JiraWorkflowService implements WorkflowService {
         IssueInputBuilder issueBuilder = new IssueInputBuilder("PR", config.getJira().getIssueTypeId());        
         issueBuilder.setSummary(purchaseRequest.getTitle());
         issueBuilder.setFieldValue(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
+        issueBuilder.setFieldValue(ISBN_FIELD_ID, purchaseRequest.getIsbn());
         issueBuilder.setFieldValue(CLIENT_NAME_FIELD_ID, purchaseRequest.getClientName());
         setReporter(issueBuilder, purchaseRequest);
         String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
