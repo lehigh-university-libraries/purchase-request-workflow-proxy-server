@@ -26,4 +26,6 @@ public class PurchaseRequest {
 
     private String reporterName;
 
+    private String creationDate;
+
 }
