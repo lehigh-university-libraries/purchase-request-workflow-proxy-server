@@ -17,6 +17,7 @@ import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientF
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
+import edu.lehigh.libraries.purchase_request.model.SearchQuery;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServiceListener;
@@ -70,17 +71,8 @@ public class JiraWorkflowService implements WorkflowService {
 
     @Override
     public List<PurchaseRequest> findAll() {
-        SearchResult result = client.getSearchClient().searchJql(
-            "project=PR"
-        )
-        .claim();
-        List<PurchaseRequest> list = new LinkedList<PurchaseRequest>();
-        result.getIssues().forEach((issue) -> {
-            PurchaseRequest purchaseRequest = toPurchaseRequest(issue);
-            log.debug("Found purchase request: " + purchaseRequest);
-            list.add(purchaseRequest);
-        });
-        return list;
+        String jql = "project=PR";
+        return searchJql(jql);
     }
 
     @Override
@@ -123,6 +115,35 @@ public class JiraWorkflowService implements WorkflowService {
         else {
             issueBuilder.setFieldValue(REPORTER_NAME_FIELD_ID, purchaseRequest.getReporterName());
         }
+    }
+
+    @Override
+    public List<PurchaseRequest> search(SearchQuery query) {
+        String jql = "project=PR and " +
+            formatCustomFieldIdForQuery(REPORTER_NAME_FIELD_ID) + " ~ '" + query.getReporterName() + "' " +
+            "order by created DESC";
+        log.debug("jql: " + jql);
+        return searchJql(jql);
+    }
+
+    /**
+     * Translate to custom field ID format used in JQL.
+     * 
+     * i.e. from "customfield_12345" to "cf[12345]"
+     */
+    private String formatCustomFieldIdForQuery(String customFieldId) {
+        return "cf[" + customFieldId.replaceAll("[\\D]*", "") + "]";
+    }
+
+    private List<PurchaseRequest> searchJql(String jql) {
+        SearchResult result = client.getSearchClient().searchJql(jql).claim();
+        List<PurchaseRequest> list = new LinkedList<PurchaseRequest>();
+        result.getIssues().forEach((issue) -> {
+            PurchaseRequest purchaseRequest = toPurchaseRequest(issue);
+            log.debug("Found purchase request: " + purchaseRequest);
+            list.add(purchaseRequest);
+        });
+        return list;
     }
 
     @Override
