@@ -94,7 +94,6 @@ public class LehighHoldingsEnrichment implements EnrichmentService {
     }
 
     @Override
-    @Async
     public void enrichPurchaseRequest(PurchaseRequest purchaseRequest) {
         log.debug("Enriching request for " + purchaseRequest);
 
