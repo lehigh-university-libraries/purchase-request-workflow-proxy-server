@@ -21,7 +21,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -31,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class LehighHoldingsEnrichment implements EnrichmentService {
+public class LocalHoldingsEnrichment implements EnrichmentService {
 
     private static final String LOGIN_PATH = "/authn/login";
     private static final String INSTANCES_PATH = "/inventory/instances";
@@ -44,14 +43,14 @@ public class LehighHoldingsEnrichment implements EnrichmentService {
     private CloseableHttpClient client;
     private String token;
 
-    LehighHoldingsEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) throws Exception {
+    LocalHoldingsEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) throws Exception {
         this.config = config;
         this.workflowService = workflowService;
         initConnection();
         initToken();
 
         manager.addListener(this);
-        log.debug("LehighHoldingsEnrichment listening.");
+        log.debug("LocalHoldingsEnrichment listening.");
     }
 
     private void initConnection() {
