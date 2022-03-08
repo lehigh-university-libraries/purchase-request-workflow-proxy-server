@@ -15,6 +15,7 @@ public class Config {
     
     private Jira jira;
     private Database db;
+    private Folio folio;
     private GoogleSheets googleSheets;
 
     @Getter @Setter
@@ -112,6 +113,31 @@ public class Config {
          * Database password
          */
         private String password;
+
+    }
+
+    @Getter @Setter
+    public static class Folio {
+
+        /**
+         * FOLIO API username
+         */
+        private String username;
+
+        /**
+         * FOLIO API password
+         */
+        private String password;
+
+        /**
+         * FOLIO API tenant ID
+         */
+        private String tenantId;
+
+        /**
+         * FOLIO API base OKAPI url
+         */
+        private String baseUrl;
 
     }
 

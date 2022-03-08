@@ -9,11 +9,13 @@ import com.atlassian.httpclient.api.HttpStatus;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
 import com.atlassian.jira.rest.client.api.RestClientException;
+import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -24,6 +26,7 @@ import edu.lehigh.libraries.purchase_request.model.SearchQuery;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServiceListener;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -148,6 +151,33 @@ public class JiraWorkflowService implements WorkflowService {
             list.add(purchaseRequest);
         });
         return list;
+    }
+
+    @Override
+    public void enrich(PurchaseRequest purchaseRequest, EnrichmentType type, String message) {
+        if (EnrichmentType.LOCAL_HOLDINGS == type) {
+            enrichComment(purchaseRequest, message);
+        }
+        else {
+            throw new IllegalArgumentException("Unknown enrichment type " + type);
+        }
+    }
+
+    private void enrichComment(PurchaseRequest purchaseRequest, String message) {
+        URI uri;
+        String baseUrl = config.getJira().getUrl();
+        try {
+            uri = new URIBuilder(baseUrl)
+                .setPath("rest/api/2/issue/" + purchaseRequest.getId() + "/comment")
+                .build();
+        }
+        catch (URISyntaxException e) {
+            log.error("URI Syntax Exception when trying to enrich comment. ", e);
+            return;
+        }
+        Comment comment = Comment.valueOf(message);
+        client.getIssueClient().addComment(uri, comment).claim();
+        log.debug("Added comment");
     }
 
     @Override

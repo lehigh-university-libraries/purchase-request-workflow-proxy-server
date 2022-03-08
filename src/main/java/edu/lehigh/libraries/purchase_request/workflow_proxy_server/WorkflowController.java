@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.model.SearchQuery;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -25,9 +26,11 @@ import lombok.extern.slf4j.Slf4j;
 public class WorkflowController {
     
     private final WorkflowService service;
+    private final EnrichmentManager enrichmentManager;
 
-    WorkflowController(WorkflowService service) {
+    WorkflowController(WorkflowService service, EnrichmentManager enrichmentManager) {
         this.service = service;
+        this.enrichmentManager = enrichmentManager;
     }
 
     @GetMapping("/purchase-requests")
@@ -54,6 +57,8 @@ public class WorkflowController {
         log.info("Request: POST /purchase-requests " + purchaseRequest);
         purchaseRequest.setClientName(authentication.getName());
         PurchaseRequest savedRequest = service.save(purchaseRequest); 
+        enrichmentManager.notifyNewPurchaseRequest(savedRequest);
+
         return new ResponseEntity<PurchaseRequest>(savedRequest, HttpStatus.CREATED);
     }
 
