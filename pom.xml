@@ -15,6 +15,7 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>11</java.version>
+		<start-class>edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowApplication</start-class>
 	</properties>
 
 	<repositories>
