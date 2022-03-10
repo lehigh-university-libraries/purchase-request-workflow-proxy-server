@@ -2,17 +2,21 @@ package edu.lehigh.libraries.purchase_request.workflow_proxy_server;
 
 import java.util.List;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -40,8 +44,8 @@ public class WorkflowController {
     }
 
     @GetMapping("/purchase-requests/{key}")
-    ResponseEntity<PurchaseRequest> getByKey(@PathVariable String key) {
-        log.info("Request: GET /purchase-requests/" + key);
+    ResponseEntity<PurchaseRequest> getByKey(@PathVariable @Pattern(regexp = PurchaseRequest.KEY_PATTERN) String key) {
+            log.info("Request: GET /purchase-requests/" + key);
         PurchaseRequest purchaseRequest = service.findByKey(key);
         if (purchaseRequest == null) {
             return ResponseEntity.notFound().build();
@@ -63,13 +67,20 @@ public class WorkflowController {
     }
 
     @GetMapping("/search")
-    List<PurchaseRequest> search(@RequestParam String reporterName) {
+    List<PurchaseRequest> search(@RequestParam @Pattern(regexp = PurchaseRequest.SANITIZED_STRING_PATTERN) String reporterName) {
         log.info("Request: GET /search/ " + reporterName);
         SearchQuery query = new SearchQuery();
         if (reporterName != null) {
             query.setReporterName(reporterName);
         }
         return service.search(query);
+    }
+
+    @ResponseStatus(value=HttpStatus.BAD_REQUEST, reason="Constraint violation")
+    @ExceptionHandler(ConstraintViolationException.class)
+    public void constraintViolation() {
+        // no op
+        log.debug("found constraint violation");
     }
 
 }
