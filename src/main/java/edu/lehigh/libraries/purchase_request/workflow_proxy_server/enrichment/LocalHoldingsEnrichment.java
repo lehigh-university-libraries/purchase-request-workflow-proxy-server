@@ -84,8 +84,7 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
         int responseCode = response.getStatusLine().getStatusCode();
         token = response.getFirstHeader(TOKEN_HEADER).getValue();
 
-        log.debug("got auth response from folio with response code: " + responseCode + 
-            " and body: " + responseString);
+        log.debug("got auth response from folio with response code: " + responseCode);
 
         if (responseCode > 399) {
             throw new Exception(responseString);
