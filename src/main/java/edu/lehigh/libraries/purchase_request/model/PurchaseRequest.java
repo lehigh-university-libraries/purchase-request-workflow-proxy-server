@@ -13,6 +13,7 @@ public class PurchaseRequest {
 
     // for sanitation; not validation for a specific WorkflowService key
     public static final String SANITIZED_STRING_PATTERN = "^[A-Za-z0-9-_\\s]+$";
+    public static final String SANITIZED_TITLE_PATTERN = "^[A-Za-z0-9-_\\s:/]+$";
     public static final String KEY_PATTERN = SANITIZED_STRING_PATTERN;
 
     @Pattern(regexp = SANITIZED_STRING_PATTERN)
@@ -21,7 +22,7 @@ public class PurchaseRequest {
     private Long id;
 
     @NotNull
-    @Pattern(regexp = SANITIZED_STRING_PATTERN)
+    @Pattern(regexp = SANITIZED_TITLE_PATTERN)
     private String title;
     
     @NotNull
