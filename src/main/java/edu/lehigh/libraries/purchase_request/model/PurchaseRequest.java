@@ -37,6 +37,12 @@ public class PurchaseRequest {
     private String format;
 
     @Pattern(regexp = SANITIZED_STRING_PATTERN)
+    private String speed;
+
+    @Pattern(regexp = SANITIZED_STRING_PATTERN)
+    private String destination;
+
+    @Pattern(regexp = SANITIZED_STRING_PATTERN)
     private String clientName;
 
     @Pattern(regexp = SANITIZED_STRING_PATTERN)

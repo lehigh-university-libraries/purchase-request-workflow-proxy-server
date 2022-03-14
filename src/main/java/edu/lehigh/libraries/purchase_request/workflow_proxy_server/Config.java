@@ -74,6 +74,20 @@ public class Config {
         private String formatFieldId;
 
         /**
+         * ID of the Jira custom field representing the item's requested delivery speed.
+         * 
+         * A list of fields with IDs can be retrieved with {{jira.url}}/field
+         */
+        private String speedFieldId;
+
+        /**
+         * ID of the Jira custom field representing the item's requested pick-up or delivery destination.
+         * 
+         * A list of fields with IDs can be retrieved with {{jira.url}}/field
+         */
+        private String destinationFieldId;
+
+        /**
          * ID of the Jira custom field representing the client system that submitted a purchase request.
          * 
          * A list of fields with IDs can be retrieved with {{jira.url}}/field

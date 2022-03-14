@@ -39,6 +39,8 @@ public class JiraWorkflowService implements WorkflowService {
     private String CONTRIBUTOR_FIELD_ID;
     private String ISBN_FIELD_ID;
     private String FORMAT_FIELD_ID;
+    private String SPEED_FIELD_ID;
+    private String DESTINATION_FIELD_ID;
     private String CLIENT_NAME_FIELD_ID;
     private String REPORTER_NAME_FIELD_ID;
     private Long APPROVED_STATUS_ID;
@@ -57,6 +59,8 @@ public class JiraWorkflowService implements WorkflowService {
         CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
         ISBN_FIELD_ID = config.getJira().getIsbnFieldId();
         FORMAT_FIELD_ID = config.getJira().getFormatFieldId();
+        SPEED_FIELD_ID = config.getJira().getSpeedFieldId();
+        DESTINATION_FIELD_ID = config.getJira().getDestinationFieldId();
         CLIENT_NAME_FIELD_ID = config.getJira().getClientNameFieldId();
         REPORTER_NAME_FIELD_ID = config.getJira().getReporterNameFieldId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
@@ -108,6 +112,8 @@ public class JiraWorkflowService implements WorkflowService {
         issueBuilder.setFieldValue(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
         issueBuilder.setFieldValue(ISBN_FIELD_ID, purchaseRequest.getIsbn());
         issueBuilder.setFieldValue(FORMAT_FIELD_ID, purchaseRequest.getFormat());
+        issueBuilder.setFieldValue(SPEED_FIELD_ID, purchaseRequest.getSpeed());
+        issueBuilder.setFieldValue(DESTINATION_FIELD_ID, purchaseRequest.getDestination());
         issueBuilder.setFieldValue(CLIENT_NAME_FIELD_ID, purchaseRequest.getClientName());
         setReporter(issueBuilder, purchaseRequest);
         String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
@@ -196,6 +202,8 @@ public class JiraWorkflowService implements WorkflowService {
         purchaseRequest.setContributor((String)issue.getField(CONTRIBUTOR_FIELD_ID).getValue());
         purchaseRequest.setIsbn((String)issue.getField(ISBN_FIELD_ID).getValue());
         purchaseRequest.setFormat((String)issue.getField(FORMAT_FIELD_ID).getValue());
+        purchaseRequest.setSpeed((String)issue.getField(SPEED_FIELD_ID).getValue());
+        purchaseRequest.setDestination((String)issue.getField(DESTINATION_FIELD_ID).getValue());
         purchaseRequest.setClientName((String)issue.getField(CLIENT_NAME_FIELD_ID).getValue());
         purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
         return purchaseRequest;
