@@ -1,6 +1,8 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -97,11 +99,12 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
 
         String url = config.getFolio().getBaseUrl() + INSTANCES_PATH;
         String isbn = purchaseRequest.getIsbn();
+        String queryString = "(identifiers =/@value '" + isbn + "')";
         HttpUriRequest getRequest = RequestBuilder.get()
             .setUri(url)
             .setHeader(TENANT_HEADER, config.getFolio().getTenantId())
             .setHeader(TOKEN_HEADER, token)
-            .addParameter("query", "(identifiers =/@value '" + isbn + "')")
+            .addParameter("query", queryString)
             .build();
 
         CloseableHttpResponse response;
@@ -122,7 +125,11 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
 
         String message;
         if (totalRecords > 0) {
-            message = "Local holdings: Lehigh (FOLIO) has " + totalRecords + " instances matching this ISBN.";
+            String encodedQuery = URLEncoder.encode(queryString, StandardCharsets.UTF_8);
+            String recordsUrl = config.getFolio().getBaseUrl() 
+                + "/inventory?qindex=querySearch&query=" + encodedQuery + "&sort=title";
+                String recordsLink = "<a href='" + recordsUrl.toString() + "'>" + totalRecords + " instances</a>";
+                message = "Local holdings: Lehigh (FOLIO) has " + recordsLink + " instances matching this ISBN.";
         }
         else {
             message = "NO Local holdings: Lehigh (FOLIO) has no instances matching this ISBN.";
