@@ -34,6 +34,9 @@ public class PurchaseRequest {
     private String isbn;
 
     @Pattern(regexp = SANITIZED_STRING_PATTERN)
+    private String format;
+
+    @Pattern(regexp = SANITIZED_STRING_PATTERN)
     private String clientName;
 
     @Pattern(regexp = SANITIZED_STRING_PATTERN)
