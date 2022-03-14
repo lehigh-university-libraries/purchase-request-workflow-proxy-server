@@ -16,6 +16,7 @@ public class Config {
     private Jira jira;
     private Database db;
     private Folio folio;
+    private Email email;
     private GoogleSheets googleSheets;
 
     @Getter @Setter
@@ -159,6 +160,21 @@ public class Config {
          * FOLIO API base OKAPI url
          */
         private String baseUrl;
+
+    }
+
+    @Getter @Setter
+    public static class Email {
+
+        /**
+         * From address to use in email notifications.
+         */
+        private String fromAddress;
+
+        /**
+         * List of comma-separated emailed addresses to notify when a new purchase request is submitted.
+         */
+        private String purchaseRequestedAddresses;
 
     }
 

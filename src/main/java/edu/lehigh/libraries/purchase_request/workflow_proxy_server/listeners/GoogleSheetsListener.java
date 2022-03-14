@@ -75,6 +75,11 @@ public class GoogleSheetsListener implements WorkflowServiceListener {
     }
 
     @Override
+    public void purchaseRequested(PurchaseRequest purchaseRequest) {
+        // no op
+    }
+
+    @Override
     public void purchaseApproved(PurchaseRequest purchaseRequest) {
         try {
             String isbn = purchaseRequest.getIsbn();

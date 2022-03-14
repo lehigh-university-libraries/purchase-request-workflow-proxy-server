@@ -119,6 +119,10 @@ public class JiraWorkflowService implements WorkflowService {
         String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
 
         PurchaseRequest createdRequest = findByKey(key);
+        for (WorkflowServiceListener listener : listeners) {
+            listener.purchaseRequested(createdRequest);
+        }
+
         return createdRequest;
     }
 

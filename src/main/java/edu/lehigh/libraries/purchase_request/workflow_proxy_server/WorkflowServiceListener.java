@@ -4,6 +4,8 @@ import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 
 public interface WorkflowServiceListener {
 
+    void purchaseRequested(PurchaseRequest purchaseRequest);
+
     void purchaseApproved(PurchaseRequest purchaseRequest);
     
 }
