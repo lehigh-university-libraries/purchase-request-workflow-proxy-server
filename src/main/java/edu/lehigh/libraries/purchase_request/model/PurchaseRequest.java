@@ -26,7 +26,6 @@ public class PurchaseRequest {
     @Pattern(regexp = SANITIZED_TITLE_PATTERN)
     private String title;
     
-    @NotNull
     @Pattern(regexp = SANITIZED_CONTRIBUTOR_PATTERN)
     private String contributor;
 
