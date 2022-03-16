@@ -12,6 +12,7 @@ import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
+import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
@@ -38,6 +39,7 @@ public class JiraWorkflowService implements WorkflowService {
 
     private String CONTRIBUTOR_FIELD_ID;
     private String ISBN_FIELD_ID;
+    private String OCLC_NUMBER_FIELD_ID;
     private String FORMAT_FIELD_ID;
     private String SPEED_FIELD_ID;
     private String DESTINATION_FIELD_ID;
@@ -58,6 +60,7 @@ public class JiraWorkflowService implements WorkflowService {
     private void initMetadata() {
         CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
         ISBN_FIELD_ID = config.getJira().getIsbnFieldId();
+        OCLC_NUMBER_FIELD_ID = config.getJira().getOclcNumberFieldId();
         FORMAT_FIELD_ID = config.getJira().getFormatFieldId();
         SPEED_FIELD_ID = config.getJira().getSpeedFieldId();
         DESTINATION_FIELD_ID = config.getJira().getDestinationFieldId();
@@ -111,6 +114,7 @@ public class JiraWorkflowService implements WorkflowService {
         issueBuilder.setSummary(purchaseRequest.getTitle());
         issueBuilder.setFieldValue(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
         issueBuilder.setFieldValue(ISBN_FIELD_ID, purchaseRequest.getIsbn());
+        issueBuilder.setFieldValue(OCLC_NUMBER_FIELD_ID, purchaseRequest.getOclcNumber());
         issueBuilder.setFieldValue(FORMAT_FIELD_ID, purchaseRequest.getFormat());
         issueBuilder.setFieldValue(SPEED_FIELD_ID, purchaseRequest.getSpeed());
         issueBuilder.setFieldValue(DESTINATION_FIELD_ID, purchaseRequest.getDestination());
@@ -167,9 +171,12 @@ public class JiraWorkflowService implements WorkflowService {
     }
 
     @Override
-    public void enrich(PurchaseRequest purchaseRequest, EnrichmentType type, String message) {
+    public void enrich(PurchaseRequest purchaseRequest, EnrichmentType type, Object data) {
         if (EnrichmentType.LOCAL_HOLDINGS == type) {
-            enrichComment(purchaseRequest, message);
+            enrichComment(purchaseRequest, (String)data);
+        }
+        else if (EnrichmentType.OCLC_NUMBER == type) {
+            enrichOclcNumber(purchaseRequest, (String)data);
         }
         else {
             throw new IllegalArgumentException("Unknown enrichment type " + type);
@@ -193,6 +200,13 @@ public class JiraWorkflowService implements WorkflowService {
         log.debug("Added comment");
     }
 
+    private void enrichOclcNumber(PurchaseRequest purchaseRequest, String oclcNumber) {
+        IssueInput input = new IssueInputBuilder()
+            .setFieldValue(OCLC_NUMBER_FIELD_ID, oclcNumber)
+            .build();
+        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+    }
+
     @Override
     public void addListener(WorkflowServiceListener listener) {
         listeners.add(listener);
@@ -205,6 +219,7 @@ public class JiraWorkflowService implements WorkflowService {
         purchaseRequest.setTitle(issue.getSummary());
         purchaseRequest.setContributor((String)issue.getField(CONTRIBUTOR_FIELD_ID).getValue());
         purchaseRequest.setIsbn((String)issue.getField(ISBN_FIELD_ID).getValue());
+        purchaseRequest.setOclcNumber((String)issue.getField(OCLC_NUMBER_FIELD_ID).getValue());
         purchaseRequest.setFormat((String)issue.getField(FORMAT_FIELD_ID).getValue());
         purchaseRequest.setSpeed((String)issue.getField(SPEED_FIELD_ID).getValue());
         purchaseRequest.setDestination((String)issue.getField(DESTINATION_FIELD_ID).getValue());

@@ -98,7 +98,11 @@
 			<artifactId>google-api-services-sheets</artifactId>
 			<version>v4-rev20210629-1.32.1</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.github.scribejava</groupId>
+			<artifactId>scribejava-httpclient-apache</artifactId>
+			<version>8.3.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>

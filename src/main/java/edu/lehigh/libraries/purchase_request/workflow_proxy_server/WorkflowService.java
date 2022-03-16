@@ -16,7 +16,7 @@ public interface WorkflowService {
 
     List<PurchaseRequest> search(SearchQuery query);
 
-    void enrich(PurchaseRequest purchaseRequest, EnrichmentType enrichmentType, String message);
+    void enrich(PurchaseRequest purchaseRequest, EnrichmentType enrichmentType, Object data);
 
     void addListener(WorkflowServiceListener listener);
 

@@ -15,6 +15,7 @@ public class Config {
     
     private Jira jira;
     private Database db;
+    private Oclc oclc;
     private Folio folio;
     private Email email;
     private GoogleSheets googleSheets;
@@ -66,6 +67,13 @@ public class Config {
          * A list of fields with IDs can be retrieved with {{jira.url}}/field
          */
         private String isbnFieldId;
+
+        /**
+         * ID of the Jira custom field representing the item's OCLC number.
+         * 
+         * A list of fields with IDs can be retrieved with {{jira.url}}/field
+         */
+        private String oclcNumberFieldId;
 
         /**
          * ID of the Jira custom field representing the item's requested format: print, electronic or any.
@@ -135,6 +143,21 @@ public class Config {
          * Database password
          */
         private String password;
+
+    }
+
+    @Getter @Setter
+    public static class Oclc {
+
+        /**
+         * The WSKey, or Oauth2 Client ID (Client Credentials grant type), for OCLC APIs
+         */
+        private String wsKey;
+
+        /**
+         * Oauth2 Client Secret (Client Credentials grant type) for OCLC APIs
+         */
+        private String secret;
 
     }
 
