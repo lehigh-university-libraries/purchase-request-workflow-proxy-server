@@ -74,7 +74,7 @@ public class WorldCatEnrichment implements EnrichmentService {
 
         // TODO Change logic to use MatchMARC or something else to choose the right result
         String url = "https://americas.discovery.api.oclc.org/worldcat/search/v2";
-        url += "/bibs?heldBy=DLC&q=(bn:" + isbn + ")";
+        url += "/bibs?q=(bn:" + isbn + ")";
 
         OAuthRequest request = new OAuthRequest(Verb.GET, url);
         request.addHeader("Accept", "application/json");
