@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpVersion;
@@ -95,11 +96,23 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
 
     @Override
     public void enrichPurchaseRequest(PurchaseRequest purchaseRequest) {
-        log.debug("Enriching request for " + purchaseRequest);
+        String message = StringUtils.EMPTY;
+        message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getIsbn(), "ISBN");
+        message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getOclcNumber(), "OCLC number");
+        workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
+        log.debug("Done creating enrichment for " + purchaseRequest);
+    }
+
+    private String findMatchesOnIdentifier(PurchaseRequest purchaseRequest, String identifier, String identifierName) {
+        if (identifier == null) {
+            log.debug("Cannot enrich with local holdings, no " + identifierName);
+            return StringUtils.EMPTY;
+        }
+
+        log.debug("Enriching local holdings by " + identifierName + " request for " + purchaseRequest);
 
         String url = config.getFolio().getBaseUrl() + INSTANCES_PATH;
-        String isbn = purchaseRequest.getIsbn();
-        String queryString = "(identifiers =/@value '" + isbn + "')";
+        String queryString = "(identifiers =/@value '" + identifier + "')";
         HttpUriRequest getRequest = RequestBuilder.get()
             .setUri(url)
             .setHeader(TENANT_HEADER, config.getFolio().getTenantId())
@@ -116,7 +129,7 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
             }
         catch(Exception e) {
             log.error("Exception enriching request: ", e);
-            return;
+            return StringUtils.EMPTY;
         }
         log.debug("Got response with code " + response.getStatusLine() + " and entity " + response.getEntity());
 
@@ -129,13 +142,12 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
             String recordsUrl = config.getFolio().getBaseUrl() 
                 + "/inventory?qindex=querySearch&query=" + encodedQuery + "&sort=title";
                 String recordsLink = "<a href='" + recordsUrl.toString() + "'>" + totalRecords + " instances</a>";
-                message = "Local holdings: Lehigh (FOLIO) has " + recordsLink + " instances matching this ISBN.";
+                message = "Local holdings: Lehigh (FOLIO) has " + recordsLink + " instances matching this " + identifierName + ".\n";
         }
         else {
-            message = "NO Local holdings: Lehigh (FOLIO) has no instances matching this ISBN.";
+            message = "NO Local holdings: Lehigh (FOLIO) has no instances matching this " + identifierName + ".\n";
         }
-        workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
-        log.debug("Done creating enrichment for " + purchaseRequest);
+        return message;
     }
 
 }
