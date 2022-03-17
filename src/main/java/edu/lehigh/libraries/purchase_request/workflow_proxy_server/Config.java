@@ -182,7 +182,12 @@ public class Config {
         /**
          * FOLIO API base OKAPI url
          */
-        private String baseUrl;
+        private String okapiBaseUrl;
+
+        /**
+         * FOLIO website base URL
+         */
+        private String websiteBaseUrl;
 
     }
 

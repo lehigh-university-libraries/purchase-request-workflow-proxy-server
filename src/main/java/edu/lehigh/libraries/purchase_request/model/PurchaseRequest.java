@@ -19,6 +19,8 @@ public class PurchaseRequest {
     public static final String SANITIZED_OCLC_NUMBER_PATTERN = SANITIZED_NUMERIC_PATTERN;
     public static final String KEY_PATTERN = SANITIZED_STRING_PATTERN;
 
+    private static final String OCLC_NUMBER_PREFIX = "(OCoLC)";
+
     @Pattern(regexp = SANITIZED_STRING_PATTERN)
     private String key;
 
@@ -54,5 +56,9 @@ public class PurchaseRequest {
 
     @Pattern(regexp = SANITIZED_STRING_PATTERN)
     private String creationDate;
+
+    public String getPrefixedOclcNumber() {
+        return OCLC_NUMBER_PREFIX + oclcNumber;
+    }
 
 }

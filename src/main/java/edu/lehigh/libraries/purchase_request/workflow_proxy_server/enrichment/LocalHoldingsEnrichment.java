@@ -1,8 +1,6 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment;
 
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -66,7 +64,7 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
     }
 
     private void initToken() throws Exception {
-        String url = config.getFolio().getBaseUrl() + LOGIN_PATH;
+        String url = config.getFolio().getOkapiBaseUrl() + LOGIN_PATH;
         URI uri = new URIBuilder(url).build();
 
         JsonObject postData = new JsonObject();
@@ -97,13 +95,16 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
     @Override
     public void enrichPurchaseRequest(PurchaseRequest purchaseRequest) {
         String message = StringUtils.EMPTY;
-        message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getIsbn(), "ISBN");
-        message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getOclcNumber(), "OCLC number");
+        message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getIsbn(), "ISBN", null);
+        message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getOclcNumber(), "OCLC number", 
+            purchaseRequest.getPrefixedOclcNumber());
         workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
         log.debug("Done creating enrichment for " + purchaseRequest);
     }
 
-    private String findMatchesOnIdentifier(PurchaseRequest purchaseRequest, String identifier, String identifierName) {
+    private String findMatchesOnIdentifier(PurchaseRequest purchaseRequest, String identifier, 
+        String identifierName, String identifierForWebsiteUrl) {
+        
         if (identifier == null) {
             log.debug("Cannot enrich with local holdings, no " + identifierName);
             return StringUtils.EMPTY;
@@ -111,7 +112,7 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
 
         log.debug("Enriching local holdings by " + identifierName + " request for " + purchaseRequest);
 
-        String url = config.getFolio().getBaseUrl() + INSTANCES_PATH;
+        String url = config.getFolio().getOkapiBaseUrl() + INSTANCES_PATH;
         String queryString = "(identifiers =/@value '" + identifier + "')";
         HttpUriRequest getRequest = RequestBuilder.get()
             .setUri(url)
@@ -138,10 +139,11 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
 
         String message;
         if (totalRecords > 0) {
-            String encodedQuery = URLEncoder.encode(queryString, StandardCharsets.UTF_8);
-            String recordsUrl = config.getFolio().getBaseUrl() 
-                + "/inventory?qindex=querySearch&query=" + encodedQuery + "&sort=title";
-                String recordsLink = "<a href='" + recordsUrl.toString() + "'>" + totalRecords + " instances</a>";
+            String recordsUrl = config.getFolio().getWebsiteBaseUrl() 
+                + "/inventory?qindex=identifier&query=" 
+                + (identifierForWebsiteUrl != null ? identifierForWebsiteUrl : identifier) 
+                + "&sort=title";
+                String recordsLink = "<a href=\"" + recordsUrl.toString() + "\">" + totalRecords + " instances</a>";
                 message = "Local holdings: Lehigh (FOLIO) has " + recordsLink + " instances matching this " + identifierName + ".\n";
         }
         else {
