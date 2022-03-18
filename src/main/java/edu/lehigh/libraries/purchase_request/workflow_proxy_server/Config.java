@@ -16,7 +16,9 @@ public class Config {
     private Jira jira;
     private Database db;
     private Oclc oclc;
+    private LocalHoldings localHoldings;
     private Folio folio;
+    private VuFind vuFind;
     private Email email;
     private GoogleSheets googleSheets;
 
@@ -162,6 +164,20 @@ public class Config {
     }
 
     @Getter @Setter
+    public static class LocalHoldings {
+
+        public enum LinkDestination {
+            VuFind, FOLIO;
+        }
+
+        /**
+         * System to link to in the LocalHoldingsEnrichment text: "VuFind" or "FOLIO"
+         */
+        private LinkDestination linkTo;
+
+    }
+
+    @Getter @Setter
     public static class Folio {
 
         /**
@@ -188,6 +204,16 @@ public class Config {
          * FOLIO website base URL
          */
         private String websiteBaseUrl;
+
+    }
+
+    @Getter @Setter
+    public static class VuFind {
+
+        /**
+         * Base URL of VuFind instance.
+         */
+        private String baseUrl;
 
     }
 

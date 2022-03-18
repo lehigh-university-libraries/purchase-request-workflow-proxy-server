@@ -44,6 +44,10 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
     private CloseableHttpClient client;
     private String token;
 
+    private enum IdentifierType { 
+        ISBN, OclcNumber; 
+    }
+
     LocalHoldingsEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) throws Exception {
         this.config = config;
         this.workflowService = workflowService;
@@ -95,22 +99,22 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
     @Override
     public void enrichPurchaseRequest(PurchaseRequest purchaseRequest) {
         String message = StringUtils.EMPTY;
-        message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getIsbn(), "ISBN", null);
-        message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getOclcNumber(), "OCLC number", 
+        message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getIsbn(), IdentifierType.ISBN, null);
+        message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getOclcNumber(), IdentifierType.OclcNumber, 
             purchaseRequest.getPrefixedOclcNumber());
         workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
         log.debug("Done creating enrichment for " + purchaseRequest);
     }
 
     private String findMatchesOnIdentifier(PurchaseRequest purchaseRequest, String identifier, 
-        String identifierName, String identifierForWebsiteUrl) {
+        IdentifierType identifierType, String identifierForWebsiteUrl) {
         
         if (identifier == null) {
-            log.debug("Cannot enrich with local holdings, no " + identifierName);
+            log.debug("Cannot enrich with local holdings, no " + identifierType);
             return StringUtils.EMPTY;
         }
 
-        log.debug("Enriching local holdings by " + identifierName + " request for " + purchaseRequest);
+        log.debug("Enriching local holdings by " + identifierType + " request for " + purchaseRequest);
 
         String url = config.getFolio().getOkapiBaseUrl() + INSTANCES_PATH;
         String queryString = "(identifiers =/@value '" + identifier + "')";
@@ -139,15 +143,24 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
 
         String message;
         if (totalRecords > 0) {
-            String recordsUrl = config.getFolio().getWebsiteBaseUrl() 
-                + "/inventory?qindex=identifier&query=" 
-                + (identifierForWebsiteUrl != null ? identifierForWebsiteUrl : identifier) 
-                + "&sort=title";
-                String recordsLink = "<a href=\"" + recordsUrl.toString() + "\">" + totalRecords + " instances</a>";
-                message = "Local holdings: Lehigh (FOLIO) has " + recordsLink + " instances matching this " + identifierName + ".\n";
+            String recordsUrl;
+            if (Config.LocalHoldings.LinkDestination.VuFind == (config.getLocalHoldings().getLinkTo()) &&
+                // VuFind may only support ISBN search
+                IdentifierType.ISBN == identifierType) {
+                recordsUrl = config.getVuFind().getBaseUrl()
+                    + "/Search/Results?lookfor=" + identifier + "&type=AllFields&limit=20";
+            }
+            else {
+                recordsUrl = config.getFolio().getWebsiteBaseUrl() 
+                    + "/inventory?qindex=identifier&query=" 
+                    + (identifierForWebsiteUrl != null ? identifierForWebsiteUrl : identifier) 
+                    + "&sort=title";
+            }
+            String recordsLink = "<a href=\"" + recordsUrl.toString() + "\">" + totalRecords + " instances</a>";
+            message = "Local holdings: Lehigh (FOLIO) has " + recordsLink + " instances matching this " + identifierType + ".\n";
         }
         else {
-            message = "NO Local holdings: Lehigh (FOLIO) has no instances matching this " + identifierName + ".\n";
+            message = "NO Local holdings: Lehigh (FOLIO) has no instances matching this " + identifierType + ".\n";
         }
         return message;
     }
