@@ -161,6 +161,10 @@ public class Config {
          */
         private String secret;
 
+        /**
+         * Three-character(?) OCLC institution symbol for local holdings
+         */
+        private String localInstitutionSymbol;
     }
 
     @Getter @Setter

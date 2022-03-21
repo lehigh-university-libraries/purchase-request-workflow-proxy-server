@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @ConditionalOnProperty(name="workflow.localHoldings.dataSource", havingValue="FOLIO")
-public class FolioLocalHoldingsEnrichment implements EnrichmentService {
+public class FolioLocalHoldingsEnrichment extends LocalHoldingsEnrichment {
 
     private static final String LOGIN_PATH = "/authn/login";
     private static final String INSTANCES_PATH = "/inventory/instances";
@@ -42,22 +42,17 @@ public class FolioLocalHoldingsEnrichment implements EnrichmentService {
     private static final String TOKEN_HEADER = "x-okapi-token";
 
     private final WorkflowService workflowService;
-    private final Config config;
     private CloseableHttpClient client;
     private String token;
 
-    private enum IdentifierType { 
-        ISBN, OclcNumber; 
-    }
-
     FolioLocalHoldingsEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) throws Exception {
-        this.config = config;
+        super(config);
         this.workflowService = workflowService;
         initConnection();
         initToken();
 
         manager.addListener(this);
-        log.debug("LocalHoldingsEnrichment listening.");
+        log.debug("FolioLocalHoldingsEnrichment listening.");
     }
 
     private void initConnection() {
@@ -143,28 +138,7 @@ public class FolioLocalHoldingsEnrichment implements EnrichmentService {
         JsonObject responseObject = JsonParser.parseString(responseString).getAsJsonObject();
         long totalRecords = responseObject.get("totalRecords").getAsLong();
 
-        String message;
-        if (totalRecords > 0) {
-            String recordsUrl;
-            if (Config.LocalHoldings.LinkDestination.VuFind == (config.getLocalHoldings().getLinkTo()) &&
-                // VuFind may only support ISBN search
-                IdentifierType.ISBN == identifierType) {
-                recordsUrl = config.getVuFind().getBaseUrl()
-                    + "/Search/Results?lookfor=" + identifier + "&type=AllFields&limit=20";
-            }
-            else {
-                recordsUrl = config.getFolio().getWebsiteBaseUrl() 
-                    + "/inventory?qindex=identifier&query=" 
-                    + (identifierForWebsiteUrl != null ? identifierForWebsiteUrl : identifier) 
-                    + "&sort=title";
-            }
-            String recordsLink = "<a href=\"" + recordsUrl.toString() + "\">" + totalRecords + " instances</a>";
-            message = "Local holdings: Lehigh (FOLIO) has " + recordsLink + " instances matching this " + identifierType + ".\n";
-        }
-        else {
-            message = "NO Local holdings: Lehigh (FOLIO) has no instances matching this " + identifierType + ".\n";
-        }
-        return message;
+        return buildEnrichmentMessage(totalRecords, identifier, identifierType, identifierForWebsiteUrl);
     }
 
 }
