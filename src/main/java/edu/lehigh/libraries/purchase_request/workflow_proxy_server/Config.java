@@ -236,9 +236,14 @@ public class Config {
     public static class GoogleSheets {
 
         /**
-         * ID of the Google Sheets spreadsheet on which to write the ISBNs.
+         * ID of the Google Sheets spreadsheet on which to write the ISBNs of requested items.
          */
-        private String spreadsheetId;
+        private String requestedSpreadsheetId;
+
+        /**
+         * ID of the Google Sheets spreadsheet on which to write the ISBNs of approved items.
+         */
+        private String approvedSpreadsheetId;
 
         /**
          * Path to the google-sheets-client-secret.json file used to connect to the API.

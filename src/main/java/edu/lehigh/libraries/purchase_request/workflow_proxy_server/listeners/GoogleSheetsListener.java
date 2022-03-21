@@ -32,7 +32,9 @@ public class GoogleSheetsListener implements WorkflowServiceListener {
     private static String APPLICATION_NAME = "Purchase Request Workflow Proxy Server";
     private static String VALUE_INPUT_OPTION_RAW = "RAW";
 
-    private String SPREADSHEET_ID;
+    private String REQUESTED_SPREADSHEET_ID;
+    private String APPROVED_SPREADSHEET_ID;
+    private List<String> ALL_SHEETS_TO_TEST;
     private String CREDENTIALS_FILE_PATH;
     private String ISBN_COLUMN_HEADER;
 
@@ -48,7 +50,9 @@ public class GoogleSheetsListener implements WorkflowServiceListener {
     }
 
     private void initMetadata() {
-        SPREADSHEET_ID = config.getGoogleSheets().getSpreadsheetId();
+        REQUESTED_SPREADSHEET_ID = config.getGoogleSheets().getRequestedSpreadsheetId();
+        APPROVED_SPREADSHEET_ID = config.getGoogleSheets().getApprovedSpreadsheetId();
+        ALL_SHEETS_TO_TEST = Arrays.asList(new String[] {REQUESTED_SPREADSHEET_ID, APPROVED_SPREADSHEET_ID});
         CREDENTIALS_FILE_PATH = config.getGoogleSheets().getCredentialsFilePath();
         ISBN_COLUMN_HEADER = config.getGoogleSheets().getIsbnColumnHeader();
     }
@@ -68,19 +72,27 @@ public class GoogleSheetsListener implements WorkflowServiceListener {
     private void confirmWritePermission(Credential credential) throws IOException {
         // Set the column header as both a convenience and a start-time test of write permissions.
         ValueRange body = singleValueRange(ISBN_COLUMN_HEADER);
-        sheetsService.spreadsheets().values()
-            .update(SPREADSHEET_ID, "A1:A1", body)
-            .setValueInputOption(VALUE_INPUT_OPTION_RAW)
-            .execute();
+        for (String spreadsheetId: ALL_SHEETS_TO_TEST) {
+            sheetsService.spreadsheets().values()
+                .update(spreadsheetId, "A1:A1", body)
+                .setValueInputOption(VALUE_INPUT_OPTION_RAW)
+                .execute();
+        }
     }
 
     @Override
     public void purchaseRequested(PurchaseRequest purchaseRequest) {
-        // no op
+        log.debug("Writing purchase request.");
+        writePurchase(purchaseRequest, REQUESTED_SPREADSHEET_ID);
     }
 
     @Override
     public void purchaseApproved(PurchaseRequest purchaseRequest) {
+        log.debug("Writing approved purchase.");
+        writePurchase(purchaseRequest, APPROVED_SPREADSHEET_ID);
+    }
+
+    private void writePurchase(PurchaseRequest purchaseRequest, String spreadsheetId) {
         try {
             String isbn = purchaseRequest.getIsbn();
             if (isbn == null) {
@@ -89,10 +101,10 @@ public class GoogleSheetsListener implements WorkflowServiceListener {
             }
             ValueRange body = singleValueRange(isbn);
             sheetsService.spreadsheets().values()
-                .append(SPREADSHEET_ID, "A1:A1", body)
+                .append(spreadsheetId, "A1:A1", body)
                 .setValueInputOption(VALUE_INPUT_OPTION_RAW)
                 .execute();
-            log.debug("Wrote approved purchase to Google Sheet: " + isbn);
+            log.debug("Wrote purchase to Google Sheet: " + isbn);
         }
         catch (IOException ex) {
             log.error("Caught IOException: ", ex);
