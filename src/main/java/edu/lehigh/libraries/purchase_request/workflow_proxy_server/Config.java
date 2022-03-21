@@ -166,9 +166,18 @@ public class Config {
     @Getter @Setter
     public static class LocalHoldings {
 
+        public enum DataSource {
+            FOLIO, OCLC;
+        }
+
         public enum LinkDestination {
             VuFind, FOLIO;
         }
+
+        /**
+         * DataSource to use for Local Holdings enrichment.  Exclude property to disabled this enrichment.
+         */
+        private DataSource dataSource;
 
         /**
          * System to link to in the LocalHoldingsEnrichment text: "VuFind" or "FOLIO"

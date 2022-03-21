@@ -22,6 +22,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -31,7 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class LocalHoldingsEnrichment implements EnrichmentService {
+@ConditionalOnProperty(name="workflow.localHoldings.dataSource", havingValue="FOLIO")
+public class FolioLocalHoldingsEnrichment implements EnrichmentService {
 
     private static final String LOGIN_PATH = "/authn/login";
     private static final String INSTANCES_PATH = "/inventory/instances";
@@ -48,7 +50,7 @@ public class LocalHoldingsEnrichment implements EnrichmentService {
         ISBN, OclcNumber; 
     }
 
-    LocalHoldingsEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) throws Exception {
+    FolioLocalHoldingsEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) throws Exception {
         this.config = config;
         this.workflowService = workflowService;
         initConnection();
