@@ -1,5 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server;
 
+import java.util.List;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -17,6 +19,7 @@ public class Config {
     private Database db;
     private Oclc oclc;
     private LocalHoldings localHoldings;
+    private GroupHoldings groupHoldings;
     private Folio folio;
     private VuFind vuFind;
     private Email email;
@@ -187,6 +190,16 @@ public class Config {
          * System to link to in the LocalHoldingsEnrichment text: "VuFind" or "FOLIO"
          */
         private LinkDestination linkTo;
+
+    }
+
+    @Getter @Setter
+    public static class GroupHoldings {
+
+        /**
+         * List of OCLC symbols for affiliated groups to check for holdings, comma-separated.
+         */
+        private List<String> oclcSymbols;
 
     }
 

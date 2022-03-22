@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @ConditionalOnProperty(name="workflow.localHoldings.dataSource", havingValue="FOLIO")
-public class FolioLocalHoldingsEnrichment extends LocalHoldingsEnrichment {
+public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
 
     private static final String LOGIN_PATH = "/authn/login";
     private static final String INSTANCES_PATH = "/inventory/instances";
@@ -138,8 +138,25 @@ public class FolioLocalHoldingsEnrichment extends LocalHoldingsEnrichment {
         JsonObject responseObject = JsonParser.parseString(responseString).getAsJsonObject();
         long totalRecords = responseObject.get("totalRecords").getAsLong();
 
-        return buildEnrichmentMessage(totalRecords, identifier, identifierType, identifierForWebsiteUrl);
+        return buildEnrichmentMessage(totalRecords, identifier, identifierType, identifierForWebsiteUrl, null);
     }
+
+    @Override
+    String buildEnrichmentMessage(long totalRecords, String identifier, IdentifierType identifierType,
+        String identifierForWebsiteUrl, String holdingsType) {
+
+        String message;
+        if (totalRecords > 0) {
+            String recordsUrl = buildRecordsUrl(identifier, identifierType, identifierForWebsiteUrl);
+            String recordsLink = "<a href=\"" + recordsUrl.toString() + "\">" + totalRecords + " instances</a>";
+            message = "Local holdings found in FOLIO: " + recordsLink + " instances matching this " + identifierType + ".\n";
+        }
+        else {
+            message = "NO Local holdings found in FOLIO: No instances matching this " + identifierType + ".\n";
+        }
+        return message;
+    }
+
 
 }
 
