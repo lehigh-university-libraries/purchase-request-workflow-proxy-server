@@ -22,6 +22,7 @@ public class Config {
     private GroupHoldings groupHoldings;
     private Folio folio;
     private VuFind vuFind;
+    private Ldap ldap;
     private Email email;
     private GoogleSheets googleSheets;
 
@@ -255,6 +256,21 @@ public class Config {
          * Base URL of VuFind instance.
          */
         private String baseUrl;
+
+    }
+
+    @Getter @Setter
+    public static class Ldap {
+
+        /**
+         * LDAP field to query with a given username.
+         */
+        private String usernameQueryField;
+
+        /**
+         * LDAP field in the query result containing the user's role.
+         */
+        private String roleResultField;
 
     }
 

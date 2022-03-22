@@ -21,12 +21,18 @@ public class RequesterEnrichment implements EnrichmentService {
     @Autowired
     private LdapTemplate ldapTemplate;
 
+    private final String LDAP_USERNAME_QUERY_FIELD;
+    private final String LDAP_ROLE_RESULT_FIELD;
+
     private final WorkflowService workflowService;
 
     RequesterEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) {
         this.workflowService = workflowService;
-        manager.addListener(this);
 
+        LDAP_USERNAME_QUERY_FIELD = config.getLdap().getUsernameQueryField();
+        LDAP_ROLE_RESULT_FIELD = config.getLdap().getRoleResultField();
+
+        manager.addListener(this);
         log.debug("RequesterEnrichment ready");
     }
 
@@ -39,27 +45,13 @@ public class RequesterEnrichment implements EnrichmentService {
         }
 
         LdapQuery query = LdapQueryBuilder.query()
-            .where("uid").is(username);
+            .where(LDAP_USERNAME_QUERY_FIELD).is(username);
         List<String> result = ldapTemplate.search(query, 
-            (AttributesMapper<String>) attributes -> (String)attributes.get("description").get()
+            (AttributesMapper<String>) attributes -> (String)attributes.get(LDAP_ROLE_RESULT_FIELD).get()
         );
 
-        String description = result.get(0);
-        String role = trimToRole(description);
+        String role = result.get(0);
         workflowService.enrich(purchaseRequest, EnrichmentType.REQUESTER_ROLE, role);        
     }
-
-    /**
-     * Trim anything after a hyphen.
-     */
-    private String trimToRole(String description){
-        int end = description.indexOf("-");
-        if (end > -1) {
-            return description.substring(0, end).trim();
-        }
-        else {
-            return description;
-        }
-    }
-    
+  
 }
