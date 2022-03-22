@@ -1,4 +1,4 @@
-package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment;
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.holdings;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -7,7 +7,7 @@ import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.OclcConnection;
-
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import lombok.extern.slf4j.Slf4j;
 
 @Service

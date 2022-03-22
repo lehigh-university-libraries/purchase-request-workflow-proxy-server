@@ -1,6 +1,7 @@
-package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment;
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.holdings;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentService;
 
 abstract class HoldingsEnrichment implements EnrichmentService {
     
