@@ -45,6 +45,8 @@ public class JiraWorkflowService implements WorkflowService {
     private String DESTINATION_FIELD_ID;
     private String CLIENT_NAME_FIELD_ID;
     private String REPORTER_NAME_FIELD_ID;
+    private String REQUESTER_USERNAME_FIELD_ID;
+    private String REQUESTER_ROLE_FIELD_ID;
     private Long APPROVED_STATUS_ID;
 
     private List<WorkflowServiceListener> listeners;
@@ -66,6 +68,8 @@ public class JiraWorkflowService implements WorkflowService {
         DESTINATION_FIELD_ID = config.getJira().getDestinationFieldId();
         CLIENT_NAME_FIELD_ID = config.getJira().getClientNameFieldId();
         REPORTER_NAME_FIELD_ID = config.getJira().getReporterNameFieldId();
+        REQUESTER_USERNAME_FIELD_ID = config.getJira().getRequesterUsernameFieldId();
+        REQUESTER_ROLE_FIELD_ID = config.getJira().getRequesterRoleFieldId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
     }
 
@@ -119,6 +123,8 @@ public class JiraWorkflowService implements WorkflowService {
         issueBuilder.setFieldValue(SPEED_FIELD_ID, purchaseRequest.getSpeed());
         issueBuilder.setFieldValue(DESTINATION_FIELD_ID, purchaseRequest.getDestination());
         issueBuilder.setFieldValue(CLIENT_NAME_FIELD_ID, purchaseRequest.getClientName());
+        issueBuilder.setFieldValue(REQUESTER_USERNAME_FIELD_ID, purchaseRequest.getRequesterUsername());
+        issueBuilder.setFieldValue(REQUESTER_ROLE_FIELD_ID, purchaseRequest.getRequesterRole());
         setReporter(issueBuilder, purchaseRequest);
         String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
 
@@ -178,6 +184,9 @@ public class JiraWorkflowService implements WorkflowService {
         else if (EnrichmentType.OCLC_NUMBER == type) {
             enrichOclcNumber(purchaseRequest, (String)data);
         }
+        else if (EnrichmentType.REQUESTER_ROLE == type) {
+            enrichRequesterType(purchaseRequest, (String)data);
+        }
         else {
             throw new IllegalArgumentException("Unknown enrichment type " + type);
         }
@@ -207,6 +216,13 @@ public class JiraWorkflowService implements WorkflowService {
         client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
     }
 
+    private void enrichRequesterType(PurchaseRequest purchaseRequest, String requesterType) {
+        IssueInput input = new IssueInputBuilder()
+            .setFieldValue(REQUESTER_ROLE_FIELD_ID, requesterType)
+            .build();
+        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+    }
+
     @Override
     public void addListener(WorkflowServiceListener listener) {
         listeners.add(listener);
@@ -224,6 +240,8 @@ public class JiraWorkflowService implements WorkflowService {
         purchaseRequest.setSpeed((String)issue.getField(SPEED_FIELD_ID).getValue());
         purchaseRequest.setDestination((String)issue.getField(DESTINATION_FIELD_ID).getValue());
         purchaseRequest.setClientName((String)issue.getField(CLIENT_NAME_FIELD_ID).getValue());
+        purchaseRequest.setRequesterUsername((String)issue.getField(REQUESTER_USERNAME_FIELD_ID).getValue());
+        purchaseRequest.setRequesterRole((String)issue.getField(REQUESTER_ROLE_FIELD_ID).getValue());
         purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
         return purchaseRequest;
     }

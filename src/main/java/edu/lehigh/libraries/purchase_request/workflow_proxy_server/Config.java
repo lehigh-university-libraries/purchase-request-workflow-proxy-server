@@ -119,6 +119,21 @@ public class Config {
          */
         private String reporterNameFieldId;
 
+        /**
+         * ID of the Jira custom field representing the username of the person who requested the item.
+         * 
+         * A list of fields with IDs can be retrieved with {{jira.url}}/field
+         */
+        private String requesterUsernameFieldId;
+
+        /**
+         * ID of the Jira custom field representing the role (faculty, undergraduate, etc.) of the person 
+         * who requested the item.
+         * 
+         * A list of fields with IDs can be retrieved with {{jira.url}}/field
+         */
+        private String requesterRoleFieldId;
+
     }
 
     @Getter @Setter

@@ -55,6 +55,12 @@ public class PurchaseRequest {
     private String reporterName;
 
     @Pattern(regexp = SANITIZED_STRING_PATTERN)
+    private String requesterUsername;
+
+    @Pattern(regexp = SANITIZED_STRING_PATTERN)
+    private String requesterRole;
+
+    @Pattern(regexp = SANITIZED_STRING_PATTERN)
     private String creationDate;
 
     public String getPrefixedOclcNumber() {
