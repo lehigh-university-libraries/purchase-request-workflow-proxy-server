@@ -1,0 +1,107 @@
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.match;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import org.springframework.stereotype.Service;
+
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.OclcConnection;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@Slf4j
+public class OclcLocalMatchService implements MatchService {
+
+    private static final String SCOPE = "wcapi";
+
+    private final OclcConnection oclcConnection;
+
+    private final String LOCAL_OCLC_SYMBOL;
+
+    OclcLocalMatchService(Config config) throws Exception {
+        this.oclcConnection = new OclcConnection(config, SCOPE);
+
+        LOCAL_OCLC_SYMBOL = config.getOclc().getLocalInstitutionSymbol();
+    }
+
+    @Override
+    public List<Match> search(MatchQuery query) {
+        String url = OclcConnection.WORLDCAT_BASE_URL 
+            + "/bibs"
+            + "?heldBySymbol=" + LOCAL_OCLC_SYMBOL
+            + "&q=("
+            + "ti:" + urlEncode(query.getTitle());
+        if (query.getContributor() != null) {
+            url += urlEncode(" AND au:\"" + query.getContributor() + "\"");
+        }
+        url += ")";
+
+        JsonObject responseObject;
+        try {
+            log.debug("Searching for matches: " + url);
+            responseObject = oclcConnection.execute(url);
+        }
+        catch (Exception e) {
+            log.error("Caught exception getting local holdings from OCLC: ", e);
+            return null;
+        }
+
+        long totalRecords = responseObject.get("numberOfRecords").getAsLong();
+        if (totalRecords == 0) {
+            log.debug("No WorldCat records found, cannot enrich.");
+            return null;
+        }
+
+        JsonArray bibRecords = responseObject.getAsJsonArray("bibRecords");
+        List<Match> matches = new LinkedList<Match>();
+        for (JsonElement bibRecordElement : bibRecords) {
+            JsonObject bibRecord = (JsonObject)bibRecordElement;
+            Match match = parseBibRecord(bibRecord);
+            matches.add(match);
+        }
+
+        log.debug("Found " + totalRecords + " matches.");
+        return matches;
+    }
+
+    private static String urlEncode(String raw) {
+        return URLEncoder.encode(raw, StandardCharsets.UTF_8);
+    }
+
+    private Match parseBibRecord(JsonObject bibRecord) {
+        Match match = new Match();
+        addIdentifier(bibRecord, match);
+        addTitle(bibRecord, match);
+        addContributor(bibRecord, match);
+        return match;
+    }
+
+    private void addIdentifier(JsonObject bibRecord, Match match) {
+        JsonObject identifier = bibRecord.getAsJsonObject("identifier");
+        String oclcNumber = identifier.get("oclcNumber").getAsString();
+        match.setOclcNumber(oclcNumber);
+    }
+    
+    private void addTitle(JsonObject bibRecord, Match match) {
+        JsonObject title = bibRecord.getAsJsonObject("title");
+        JsonArray mainTitles = title.getAsJsonArray("mainTitles");
+        JsonObject mainTitle = mainTitles.get(0).getAsJsonObject();
+        String titleText = mainTitle.get("text").getAsString();
+        match.setTitle(titleText);
+    }
+
+    private void addContributor(JsonObject bibRecord, Match match) {
+        JsonObject contributor = bibRecord.getAsJsonObject("contributor");
+        JsonObject statementOfResponsibility = contributor.getAsJsonObject("statementOfResponsibility");
+        String contributorText = statementOfResponsibility.get("text").getAsString();
+        match.setContributor(contributorText);
+    }
+
+}

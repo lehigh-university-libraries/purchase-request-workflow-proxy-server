@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.model.SearchQuery;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.Match;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.MatchQuery;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.MatchService;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -30,10 +33,14 @@ import lombok.extern.slf4j.Slf4j;
 public class WorkflowController {
     
     private final WorkflowService service;
+    private final MatchService matchService;
     private final EnrichmentManager enrichmentManager;
 
-    WorkflowController(WorkflowService service, EnrichmentManager enrichmentManager) {
+    WorkflowController(WorkflowService service, MatchService matchService, 
+        EnrichmentManager enrichmentManager) {
+    
         this.service = service;
+        this.matchService = matchService;
         this.enrichmentManager = enrichmentManager;
     }
 
@@ -74,6 +81,12 @@ public class WorkflowController {
             query.setReporterName(reporterName);
         }
         return service.search(query);
+    }
+
+    @GetMapping("/searchMatches")
+    List<Match> searchMatches(MatchQuery query) {
+        log.info("Request: GET /searchMatches? " + query);
+        return matchService.search(query);
     }
 
     @ResponseStatus(value=HttpStatus.BAD_REQUEST, reason="Constraint violation")

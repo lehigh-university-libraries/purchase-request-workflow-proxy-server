@@ -11,11 +11,21 @@ import lombok.ToString;
 @Getter @Setter @EqualsAndHashCode @ToString
 public class PurchaseRequest {
 
+    public static final String MATCHING_CHARS_START = "^[";
+    public static final String MATCHING_CHARS_END = "]+$";
+
     // for sanitation; not validation for a specific WorkflowService key
     public static final String SANITIZED_STRING_PATTERN = "^[A-Za-z0-9-_\\s]+$";
     public static final String SANITIZED_NUMERIC_PATTERN = "^[0-9]+$";
-    public static final String SANITIZED_TITLE_PATTERN = "^[A-Za-z0-9-_\\s:/]+$";
-    public static final String SANITIZED_CONTRIBUTOR_PATTERN = "^[A-Za-z0-9-_\\s,\\.]+$";
+
+    public static final String SANITIZED_TITLE_CHARACTERS = "A-Za-z0-9-_\\s:/";
+    public static final String SANITIZED_TITLE_PATTERN = 
+        MATCHING_CHARS_START + SANITIZED_TITLE_CHARACTERS + MATCHING_CHARS_END;
+
+    public static final String SANITIZED_CONTRIBUTOR_CHARACTERS = "A-Za-z0-9-_\\s,\\.";
+    public static final String SANITIZED_CONTRIBUTOR_PATTERN = 
+        MATCHING_CHARS_START + SANITIZED_CONTRIBUTOR_CHARACTERS + MATCHING_CHARS_END;
+
     public static final String SANITIZED_OCLC_NUMBER_PATTERN = SANITIZED_NUMERIC_PATTERN;
     public static final String KEY_PATTERN = SANITIZED_STRING_PATTERN;
 
