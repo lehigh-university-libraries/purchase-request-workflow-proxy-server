@@ -18,7 +18,7 @@ public class PurchaseRequest {
     public static final String SANITIZED_STRING_PATTERN = "^[A-Za-z0-9-_\\s]+$";
     public static final String SANITIZED_NUMERIC_PATTERN = "^[0-9]+$";
 
-    public static final String SANITIZED_TITLE_CHARACTERS = "A-Za-z0-9-_\\s:/";
+    public static final String SANITIZED_TITLE_CHARACTERS = "A-Za-z0-9-_\\s:/,'";
     public static final String SANITIZED_TITLE_PATTERN = 
         MATCHING_CHARS_START + SANITIZED_TITLE_CHARACTERS + MATCHING_CHARS_END;
 
