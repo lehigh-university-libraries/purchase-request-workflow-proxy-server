@@ -184,6 +184,9 @@ public class JiraWorkflowService implements WorkflowService {
         else if (EnrichmentType.OCLC_NUMBER == type) {
             enrichOclcNumber(purchaseRequest, (String)data);
         }
+        else if (EnrichmentType.PRICING == type) {
+            enrichComment(purchaseRequest, (String)data);
+        }
         else if (EnrichmentType.REQUESTER_ROLE == type) {
             enrichRequesterType(purchaseRequest, (String)data);
         }

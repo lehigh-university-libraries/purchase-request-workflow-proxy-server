@@ -107,6 +107,11 @@
 			<artifactId>scribejava-httpclient-apache</artifactId>
 			<version>8.3.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20211205</version>
+		</dependency>
 	</dependencies>
 
 	<build>

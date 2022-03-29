@@ -23,6 +23,7 @@ public class Config {
     private Folio folio;
     private VuFind vuFind;
     private Ldap ldap;
+    private IsbnDb isbnDb;
     private Email email;
     private GoogleSheets googleSheets;
 
@@ -272,6 +273,16 @@ public class Config {
          */
         private String roleResultField;
 
+    }
+
+    @Getter @Setter
+    public static class IsbnDb {
+
+        /**
+         * IsbnDb.com API key for pricing information
+         */
+        private String apiKey;
+        
     }
 
     @Getter @Setter
