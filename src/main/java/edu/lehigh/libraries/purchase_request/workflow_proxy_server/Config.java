@@ -278,10 +278,22 @@ public class Config {
     @Getter @Setter
     public static class IsbnDb {
 
+        private TitleSearch titleSearch;
+
         /**
          * IsbnDb.com API key for pricing information
          */
         private String apiKey;
+        
+        @Getter @Setter
+        public static class TitleSearch {
+
+            /**
+             * Filters the title matches on contributor as well, matching any part of the contributor's name.
+             */
+            private boolean filterOnContributor;
+
+        }
         
     }
 

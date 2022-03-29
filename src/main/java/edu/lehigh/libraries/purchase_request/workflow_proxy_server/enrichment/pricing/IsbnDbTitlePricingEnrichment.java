@@ -1,5 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.pricing;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,8 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
 
+    private final boolean FILTER_ON_CONTRIBUTOR;
+
     IsbnDbTitlePricingEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) {
         super(manager, workflowService, config);
+        FILTER_ON_CONTRIBUTOR = config.getIsbnDb().getTitleSearch().isFilterOnContributor();
         log.debug("IsbnDbTitlePricingEnrichment ready");
     }
 
@@ -31,7 +36,13 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
             return;
         }
 
-        List<IsbnDbSearchResult> results = searchByTitle(title);
+        List<IsbnDbSearchResult> results = search(purchaseRequest);
+        log.debug("results size: " + results.size());
+        if (FILTER_ON_CONTRIBUTOR) {
+            results = filterByContributor(results, purchaseRequest.getContributor());
+            log.debug("after filtering on contributor, results size: " + results.size());
+        }
+
         String comment = "Pricing by title: " + title;
         if (results.size() == 0) {
             comment += "\n No ISBNs with list price found for this title.";
@@ -47,8 +58,8 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
         workflowService.enrich(purchaseRequest, EnrichmentType.PRICING, comment);
     }
 
-    private List<IsbnDbSearchResult> searchByTitle(String title) {
-        String encodedTitle = connection.encode("\"" + title + "\"");
+    private List<IsbnDbSearchResult> search(PurchaseRequest purchaseRequest) {
+        String encodedTitle = connection.encode("\"" + purchaseRequest.getTitle() + "\"");
         String url = BASE_URL + "/books/" + encodedTitle + "?column=title";
         JSONObject jsonResult = connection.execute(url);
         List<IsbnDbSearchResult> searchResults = parseResults(jsonResult);
@@ -80,7 +91,6 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
         // StandardDateFormat.  Just pull out the year.
         String dateString = bookJson.optString(IsbnDbSearchResult.PUBLICATION_YEAR_FIELD, null);
         if (dateString != null && dateString.length() > 0) {
-            log.debug("parsing non null date string: " + dateString + " For isbn " + book.getIsbn());
             book.setPublicationYear(dateString.substring(0, 4));
         }
 
@@ -94,6 +104,29 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
             values[i] = value;
         }
         return values;
+    }
+
+    private List<IsbnDbSearchResult> filterByContributor(List<IsbnDbSearchResult> results, String targetContributor) {
+        Iterator<IsbnDbSearchResult> resultsIterator = results.iterator();
+        List<String> targetContributorNames = Arrays.asList(targetContributor.split("[, ]"));
+        while (resultsIterator.hasNext()) {
+            boolean foundMatch = false;
+            String[] resultContributors = resultsIterator.next().getContributors();
+            for (int i=0; i < resultContributors.length; i++) {
+                String resultContributor = resultContributors[i];
+                Iterator<String> targetContributorNamesIterator = targetContributorNames.iterator();
+                while (targetContributorNamesIterator.hasNext()) {
+                    String targetName = targetContributorNamesIterator.next();
+                    if (resultContributor.contains(targetName)) {
+                        foundMatch = true;
+                    }
+                }
+            }
+            if (!foundMatch) {
+                resultsIterator.remove();
+            }
+        }
+        return results;
     }
 
 }
