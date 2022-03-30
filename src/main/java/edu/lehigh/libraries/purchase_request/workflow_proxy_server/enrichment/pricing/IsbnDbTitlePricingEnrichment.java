@@ -81,9 +81,9 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
 
     private IsbnDbSearchResult parseSearchResult(JSONObject bookJson) {
         IsbnDbSearchResult book = new IsbnDbSearchResult();
-        book.setContributors(parseStringArray(bookJson.getJSONArray(IsbnDbSearchResult.CONTRIBUTORS_FIELD)));
-        book.setBinding(bookJson.getString(IsbnDbSearchResult.BINDING_FIELD));
-        book.setIsbn(bookJson.getString(IsbnDbSearchResult.ISBN_FIELD));
+        book.setContributors(parseStringArray(bookJson.optJSONArray(IsbnDbSearchResult.CONTRIBUTORS_FIELD)));
+        book.setBinding(bookJson.optString(IsbnDbSearchResult.BINDING_FIELD, null));
+        book.setIsbn(bookJson.optString(IsbnDbSearchResult.ISBN_FIELD, null));
         book.setMsrp(bookJson.optString(IsbnDbSearchResult.MSRP_FIELD, null));
         book.setTitle(bookJson.getString(IsbnDbSearchResult.TITLE_FIELD));
 
@@ -98,6 +98,9 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
     }   
 
     private String[] parseStringArray(JSONArray jsonArray) {
+        if (jsonArray == null) {
+            return null;
+        }
         String[] values = new String[jsonArray.length()];
         for (int i=0; i < jsonArray.length(); i++) {
             String value = jsonArray.getString(i);
@@ -112,13 +115,15 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
         while (resultsIterator.hasNext()) {
             boolean foundMatch = false;
             String[] resultContributors = resultsIterator.next().getContributors();
-            for (int i=0; i < resultContributors.length; i++) {
-                String resultContributor = resultContributors[i];
-                Iterator<String> targetContributorNamesIterator = targetContributorNames.iterator();
-                while (targetContributorNamesIterator.hasNext()) {
-                    String targetName = targetContributorNamesIterator.next();
-                    if (resultContributor.contains(targetName)) {
-                        foundMatch = true;
+            if (resultContributors != null) {
+                for (int i=0; i < resultContributors.length; i++) {
+                    String resultContributor = resultContributors[i];
+                    Iterator<String> targetContributorNamesIterator = targetContributorNames.iterator();
+                    while (targetContributorNamesIterator.hasNext()) {
+                        String targetName = targetContributorNamesIterator.next();
+                        if (resultContributor.contains(targetName)) {
+                            foundMatch = true;
+                        }
                     }
                 }
             }
