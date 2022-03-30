@@ -31,6 +31,11 @@ public class Config {
     public static class Jira {
 
         /**
+         * Hosting environment.  "cloud" or "server".
+         */
+        private String hosting;
+
+        /**
          * URL to Jira, i.e. https://mydomain.atlassian.net/
          */
         private String url;        
@@ -46,6 +51,11 @@ public class Config {
          * See https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/
          */
         private String token;
+
+        /** 
+         * Jira project code
+         */
+        private String project;
 
         /**
          * ID of the Jira issue type that should be created for purchase requests.

@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.atlassian.httpclient.api.HttpStatus;
+import com.atlassian.httpclient.api.Request.Builder;
+import com.atlassian.jira.rest.client.api.AuthenticationHandler;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
 import com.atlassian.jira.rest.client.api.RestClientException;
@@ -16,6 +18,7 @@ import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.utils.URIBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -37,6 +40,11 @@ public class JiraWorkflowService implements WorkflowService {
     private JiraRestClient client;
     private Config config;
 
+    private static final String 
+        HOSTING_CLOUD = "cloud",
+        HOSTING_SERVER = "server";
+
+    private String PROJECT_CODE;
     private String CONTRIBUTOR_FIELD_ID;
     private String ISBN_FIELD_ID;
     private String OCLC_NUMBER_FIELD_ID;
@@ -60,6 +68,7 @@ public class JiraWorkflowService implements WorkflowService {
     }
 
     private void initMetadata() {
+        PROJECT_CODE = config.getJira().getProject();
         CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
         ISBN_FIELD_ID = config.getJira().getIsbnFieldId();
         OCLC_NUMBER_FIELD_ID = config.getJira().getOclcNumberFieldId();
@@ -74,6 +83,19 @@ public class JiraWorkflowService implements WorkflowService {
     }
 
     private void initConnection() {
+        String hosting = config.getJira().getHosting();
+        if (HOSTING_CLOUD.equals(hosting)) {
+            initCloudConnection();
+        }
+        else if (HOSTING_SERVER.equals(hosting)) {
+            initServerConnection();
+        }
+        else {
+            log.error("Unknown hosting environment: " + hosting);
+        }
+    }
+
+    private void initCloudConnection() {
         String url = config.getJira().getUrl();
         String username = config.getJira().getUsername();
         String password = config.getJira().getToken();
@@ -88,9 +110,27 @@ public class JiraWorkflowService implements WorkflowService {
         }
     }
 
+    private void initServerConnection() {
+        String url = config.getJira().getUrl();
+        String token = config.getJira().getToken();
+
+        JiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
+        try {
+            URI uri = new URI(url);
+            client = factory.create(uri, new AuthenticationHandler() {
+                public void configure(Builder builder) {
+                    builder.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+                }
+            });
+        }
+        catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public List<PurchaseRequest> findAll() {
-        String jql = "project=PR";
+        String jql = "project=" + PROJECT_CODE;
         return searchJql(jql);
     }
 
@@ -114,7 +154,7 @@ public class JiraWorkflowService implements WorkflowService {
 
     @Override
     public PurchaseRequest save(PurchaseRequest purchaseRequest) {
-        IssueInputBuilder issueBuilder = new IssueInputBuilder("PR", config.getJira().getIssueTypeId());        
+        IssueInputBuilder issueBuilder = new IssueInputBuilder(PROJECT_CODE, config.getJira().getIssueTypeId());        
         issueBuilder.setSummary(purchaseRequest.getTitle());
         issueBuilder.setFieldValue(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
         issueBuilder.setFieldValue(ISBN_FIELD_ID, purchaseRequest.getIsbn());
@@ -137,19 +177,20 @@ public class JiraWorkflowService implements WorkflowService {
     }
 
     private void setReporter(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
-        if (REPORTER_NAME_FIELD_ID == null) {
+        String reporterName = purchaseRequest.getReporterName();
+        if (REPORTER_NAME_FIELD_ID == null && reporterName != null) {
             // Using the built-in setReporterName() should work with Jira Server, just not Jira Cloud.
             // https://community.atlassian.com/t5/Jira-questions/Create-an-issue-with-rest-api-set-reporter-name/qaq-p/1535911
-            issueBuilder.setReporterName(purchaseRequest.getReporterName());
+            issueBuilder.setReporterName(reporterName);
         }
         else {
-            issueBuilder.setFieldValue(REPORTER_NAME_FIELD_ID, purchaseRequest.getReporterName());
+            issueBuilder.setFieldValue(REPORTER_NAME_FIELD_ID, reporterName);
         }
     }
 
     @Override
     public List<PurchaseRequest> search(SearchQuery query) {
-        String jql = "project=PR and " +
+        String jql = "project=" + PROJECT_CODE + " and " +
             formatCustomFieldIdForQuery(REPORTER_NAME_FIELD_ID) + " ~ '" + query.getReporterName() + "' " +
             "order by created DESC";
         log.debug("jql: " + jql);
