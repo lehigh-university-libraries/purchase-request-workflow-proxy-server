@@ -1,9 +1,11 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.pricing;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,6 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
+
+    private static final Comparator<IsbnDbSearchResult> RESULTS_ORDER = new ResultsOrder();
 
     private final boolean FILTER_ON_CONTRIBUTOR;
 
@@ -42,6 +46,7 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
             results = filterByContributor(results, purchaseRequest.getContributor());
             log.debug("after filtering on contributor, results size: " + results.size());
         }
+        results.sort(RESULTS_ORDER);
 
         String comment = "Pricing by title: " + title;
         if (results.size() == 0) {
@@ -132,6 +137,48 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
             }
         }
         return results;
+    }
+
+    private static class ResultsOrder implements Comparator<IsbnDbSearchResult> {
+
+        private BindingOrder BINDING_ORDER = new BindingOrder();
+
+        @Override
+        public int compare(IsbnDbSearchResult result1, IsbnDbSearchResult result2) {
+            // Sort first by binding.
+            int bindingCompare = BINDING_ORDER.compare(result1.getBinding(), result2.getBinding());
+            if (bindingCompare != 0) {
+                return bindingCompare;
+            }
+
+            // Within a binding, sort by publication year (recent first)
+            if (result1.getPublicationYear() == null) {
+                return 1;
+            }
+            return -1 * result1.getPublicationYear().compareTo(result2.getPublicationYear());
+        }
+
+        
+    }
+
+    private static class BindingOrder implements Comparator<String> {
+
+        private static final String HARDCOVER = "Hardcover";
+
+        @Override
+        public int compare(String binding1, String binding2) {
+            // Sort hardcovers at the top
+            if (!Objects.equals(binding1, binding2)) {
+                if (HARDCOVER.equals(binding1)) {
+                    return -1;
+                }
+                else if (HARDCOVER.equals(binding2)) {
+                    return 1;
+                }
+            }
+            return binding1.compareTo(binding2);
+        }
+
     }
 
 }
