@@ -44,6 +44,7 @@ public class JiraWorkflowService implements WorkflowService {
         HOSTING_CLOUD = "cloud",
         HOSTING_SERVER = "server";
 
+    private String HOSTING;
     private String PROJECT_CODE;
     private String CONTRIBUTOR_FIELD_ID;
     private String ISBN_FIELD_ID;
@@ -68,6 +69,7 @@ public class JiraWorkflowService implements WorkflowService {
     }
 
     private void initMetadata() {
+        HOSTING = config.getJira().getHosting();
         PROJECT_CODE = config.getJira().getProject();
         CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
         ISBN_FIELD_ID = config.getJira().getIsbnFieldId();
@@ -83,15 +85,14 @@ public class JiraWorkflowService implements WorkflowService {
     }
 
     private void initConnection() {
-        String hosting = config.getJira().getHosting();
-        if (HOSTING_CLOUD.equals(hosting)) {
+        if (HOSTING_CLOUD.equals(HOSTING)) {
             initCloudConnection();
         }
-        else if (HOSTING_SERVER.equals(hosting)) {
+        else if (HOSTING_SERVER.equals(HOSTING)) {
             initServerConnection();
         }
         else {
-            log.error("Unknown hosting environment: " + hosting);
+            log.error("Unknown hosting environment: " + HOSTING);
         }
     }
 
@@ -178,23 +179,38 @@ public class JiraWorkflowService implements WorkflowService {
 
     private void setReporter(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
         String reporterName = purchaseRequest.getReporterName();
-        if (REPORTER_NAME_FIELD_ID == null && reporterName != null) {
+        if (HOSTING_CLOUD.equals(HOSTING)) {
+            issueBuilder.setFieldValue(REPORTER_NAME_FIELD_ID, reporterName);
+        }
+        else if (HOSTING_SERVER.equals(HOSTING)) {
             // Using the built-in setReporterName() should work with Jira Server, just not Jira Cloud.
             // https://community.atlassian.com/t5/Jira-questions/Create-an-issue-with-rest-api-set-reporter-name/qaq-p/1535911
             issueBuilder.setReporterName(reporterName);
         }
         else {
-            issueBuilder.setFieldValue(REPORTER_NAME_FIELD_ID, reporterName);
+            throw new IllegalArgumentException("Unknown hosting environment: " + HOSTING);
         }
     }
 
     @Override
     public List<PurchaseRequest> search(SearchQuery query) {
-        String jql = "project=" + PROJECT_CODE + " and " +
-            formatCustomFieldIdForQuery(REPORTER_NAME_FIELD_ID) + " ~ '" + query.getReporterName() + "' " +
-            "order by created DESC";
-        log.debug("jql: " + jql);
-        return searchJql(jql);
+        if (HOSTING_CLOUD.equals(HOSTING)) {
+            String jql = "project=" + PROJECT_CODE + " and " +
+                formatCustomFieldIdForQuery(REPORTER_NAME_FIELD_ID) + " ~ '" + query.getReporterName() + "' " +
+                "order by created DESC";
+            log.debug("jql: " + jql);
+            return searchJql(jql);
+        }
+        else if (HOSTING_SERVER.equals(HOSTING)) {
+            String jql = "project=" + PROJECT_CODE + " and " +
+                "reporter = '" + query.getReporterName() + "' " +
+                "order by created DESC";
+            log.debug("jql: " + jql);
+            return searchJql(jql);
+        }
+        else {
+            throw new IllegalArgumentException("Unknown hosting environment: " + HOSTING);
+        }
     }
 
     /**
