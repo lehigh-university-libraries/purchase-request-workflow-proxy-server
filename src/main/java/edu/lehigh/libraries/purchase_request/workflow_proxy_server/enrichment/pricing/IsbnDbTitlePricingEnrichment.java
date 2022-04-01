@@ -43,7 +43,13 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
         List<IsbnDbSearchResult> results = search(purchaseRequest);
         log.debug("results size: " + results.size());
         if (FILTER_ON_CONTRIBUTOR) {
-            results = filterByContributor(results, purchaseRequest.getContributor());
+            String contributor = purchaseRequest.getContributor();
+            if (contributor == null) {
+                log.debug("cannot filter on null contributor");
+            }
+            else {
+                results = filterByContributor(results, purchaseRequest.getContributor());
+            }
             log.debug("after filtering on contributor, results size: " + results.size());
         }
         results.sort(RESULTS_ORDER);
