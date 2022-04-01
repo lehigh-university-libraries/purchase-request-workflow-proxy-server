@@ -68,6 +68,9 @@ public class PurchaseRequest {
     private String requesterUsername;
 
     @Pattern(regexp = SANITIZED_STRING_PATTERN)
+    private String requesterComments;
+
+    @Pattern(regexp = SANITIZED_STRING_PATTERN)
     private String requesterRole;
 
     @Pattern(regexp = SANITIZED_STRING_PATTERN)

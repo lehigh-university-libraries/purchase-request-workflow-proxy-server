@@ -167,6 +167,9 @@ public class JiraWorkflowService implements WorkflowService {
         issueBuilder.setFieldValue(REQUESTER_USERNAME_FIELD_ID, purchaseRequest.getRequesterUsername());
         issueBuilder.setFieldValue(REQUESTER_ROLE_FIELD_ID, purchaseRequest.getRequesterRole());
         setReporter(issueBuilder, purchaseRequest);
+        if (purchaseRequest.getRequesterComments() != null) {            
+            issueBuilder.setDescription("Patron Comment: " + purchaseRequest.getRequesterComments());        
+        }
         String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
 
         PurchaseRequest createdRequest = findByKey(key);
@@ -302,6 +305,7 @@ public class JiraWorkflowService implements WorkflowService {
         purchaseRequest.setClientName((String)issue.getField(CLIENT_NAME_FIELD_ID).getValue());
         purchaseRequest.setRequesterUsername((String)issue.getField(REQUESTER_USERNAME_FIELD_ID).getValue());
         purchaseRequest.setRequesterRole((String)issue.getField(REQUESTER_ROLE_FIELD_ID).getValue());
+        purchaseRequest.setRequesterComments(issue.getDescription());
         purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
         return purchaseRequest;
     }
