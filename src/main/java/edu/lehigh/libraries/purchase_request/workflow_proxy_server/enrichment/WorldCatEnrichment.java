@@ -51,6 +51,7 @@ public class WorldCatEnrichment implements EnrichmentService {
     private void enrichByTitleAndContributor(PurchaseRequest purchaseRequest) {
         log.debug("Enriching by title and contributor.");
         String url = OclcConnection.WORLDCAT_BASE_URL + "/bibs?"
+            + "heldBySymbol=DLC"
             + "&q=("
             + "ti:" + ConnectionUtil.encodeUrl(purchaseRequest.getTitle())
             + ConnectionUtil.encodeUrl(" AND au:\"" + purchaseRequest.getContributor() + "\"")
