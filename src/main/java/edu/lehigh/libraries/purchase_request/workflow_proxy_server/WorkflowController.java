@@ -83,9 +83,9 @@ public class WorkflowController {
         return service.search(query);
     }
 
-    @GetMapping("/searchMatches")
+    @GetMapping("/search-matches")
     List<Match> searchMatches(MatchQuery query) {
-        log.info("Request: GET /searchMatches? " + query);
+        log.info("Request: GET /search-matches? " + query);
         return matchService.search(query);
     }
 
