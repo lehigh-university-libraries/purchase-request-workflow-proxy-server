@@ -47,7 +47,6 @@ public class IsbnDbConnection {
             response = client.execute(getRequest);
             HttpEntity entity = response.getEntity();
             responseString = EntityUtils.toString(entity);
-            log.debug("got response string: " + responseString);
         }
         catch (Exception e) {
             log.error("Could not get data from IsbnDb.", e);
