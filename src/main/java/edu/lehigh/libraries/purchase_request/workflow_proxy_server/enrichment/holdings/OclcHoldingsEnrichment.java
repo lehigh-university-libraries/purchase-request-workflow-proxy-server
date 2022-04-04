@@ -24,29 +24,62 @@ abstract class OclcHoldingsEnrichment extends HoldingsEnrichment {
         this.oclcConnection = new OclcConnection(config, SCOPE);
     }
 
-    abstract String getQueryUrl(String isbn, String oclcSymbol);
+    String getQueryUrlForIsbn(String isbn, String oclcSymbol) {
+        return OclcConnection.WORLDCAT_BASE_URL
+            + "/bibs-holdings?holdingsAllEditions=true&isbn=" + isbn + "&heldByGroup=" + oclcSymbol;
+    }
 
-    void enrichWithSymbol(PurchaseRequest purchaseRequest, String oclcSymbol) {
+    String getQueryUrlForOclcNumber(String oclcNumber, String oclcSymbol) {
+        return OclcConnection.WORLDCAT_BASE_URL
+            + "/bibs-holdings?holdingsAllEditions=true&oclcNumber=" + oclcNumber + "&heldBySymbol=" + oclcSymbol;
+    }
+
+    void enrichByIsbnWithSymbol(PurchaseRequest purchaseRequest, String oclcSymbol) {
         String isbn = purchaseRequest.getIsbn();
-        String url = getQueryUrl(isbn, oclcSymbol);
-        JsonObject responseObject;
+        String url = getQueryUrlForIsbn(isbn, oclcSymbol);
+
+        long totalHoldingCount;
         try {
-            responseObject = oclcConnection.execute(url);
+            totalHoldingCount = getTotalHoldingCount(url);
         }
         catch (Exception e) {
             log.error("Caught exception getting local holdings from OCLC: ", e);
             return;
         }
-    
-        JsonArray briefRecords = responseObject.getAsJsonArray("briefRecords");
-        JsonObject briefRecord = (JsonObject)briefRecords.get(0);
-        JsonObject institutionHolding = briefRecord.getAsJsonObject("institutionHolding");
-        long totalHoldingCount = institutionHolding.get("totalHoldingCount").getAsLong();
 
         String message = buildEnrichmentMessage(totalHoldingCount, isbn, IdentifierType.ISBN, null,
             oclcSymbol);
         workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
         log.debug("Done creating enrichment for " + purchaseRequest);
+    }
+
+    void enrichByOclcNumberWithSymbol(PurchaseRequest purchaseRequest, String oclcSymbol) {
+        String oclcNumber = purchaseRequest.getOclcNumber();
+        String url = getQueryUrlForOclcNumber(oclcNumber, oclcSymbol);
+
+        long totalHoldingCount;
+        try {
+            totalHoldingCount = getTotalHoldingCount(url);
+        }
+        catch (Exception e) {
+            log.error("Caught exception getting local holdings from OCLC: ", e);
+            return;
+        }
+
+        String message = buildEnrichmentMessage(totalHoldingCount, oclcNumber, IdentifierType.OclcNumber, null,
+            oclcSymbol);
+        workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
+        log.debug("Done creating enrichment for " + purchaseRequest);
+    }
+
+    long getTotalHoldingCount(String url) throws Exception {
+        JsonObject responseObject = oclcConnection.execute(url);
+    
+        JsonArray briefRecords = responseObject.getAsJsonArray("briefRecords");
+        JsonObject briefRecord = (JsonObject)briefRecords.get(0);
+        JsonObject institutionHolding = briefRecord.getAsJsonObject("institutionHolding");
+        long totalHoldingCount = institutionHolding.get("totalHoldingCount").getAsLong();
+        return totalHoldingCount;
     }
 
 }

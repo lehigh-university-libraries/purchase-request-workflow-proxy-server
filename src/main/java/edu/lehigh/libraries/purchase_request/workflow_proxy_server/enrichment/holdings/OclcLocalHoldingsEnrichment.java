@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.OclcConnection;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,11 +27,17 @@ public class OclcLocalHoldingsEnrichment extends OclcHoldingsEnrichment {
 
     @Override
     public void enrichPurchaseRequest(PurchaseRequest purchaseRequest) {
-        if (purchaseRequest.getIsbn() == null) {
-            log.debug("No ISBN, skipping OclcLocalHoldingsEnrichment.");
+        log.debug("Enriching OCLC Local Holdings");
+        if (purchaseRequest.getIsbn() != null) {
+            enrichByIsbnWithSymbol(purchaseRequest, LOCAL_OCLC_SYMBOL);
+        }
+        else if (purchaseRequest.getOclcNumber() != null) {
+            enrichByOclcNumberWithSymbol(purchaseRequest, LOCAL_OCLC_SYMBOL);
+        }
+        else {
+            log.debug("No ISBN or OCLC number, skipping OclcLocalHoldingsEnrichment.");
             return;
         }
-        enrichWithSymbol(purchaseRequest, LOCAL_OCLC_SYMBOL);
     }
 
     @Override
@@ -49,12 +54,6 @@ public class OclcLocalHoldingsEnrichment extends OclcHoldingsEnrichment {
             message = "NO Local holdings found in OCLC: No instances loosely related to this " + identifierType + ".\n";
         }
         return message;
-    }
-
-    @Override
-    String getQueryUrl(String isbn, String oclcSymbol) {
-        return OclcConnection.WORLDCAT_BASE_URL
-            + "/bibs-holdings?holdingsAllEditions=true&isbn=" + isbn + "&heldBySymbol=" + oclcSymbol;
     }
 
 }

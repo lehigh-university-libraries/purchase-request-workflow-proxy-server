@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.OclcConnection;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,20 +31,21 @@ public class OclcGroupHoldingsEnrichment extends OclcHoldingsEnrichment {
 
     @Override
     public void enrichPurchaseRequest(PurchaseRequest purchaseRequest) {
-        if (purchaseRequest.getIsbn() == null) {
-            log.debug("No ISBN, skipping OclcGroupLocalHoldingsEnrichment.");
+        log.debug("Enriching OCLC Group Holdings");
+        if (purchaseRequest.getIsbn() != null) {
+            for (String groupOclcSymbol: GROUP_OCLC_SYMBOLS) {
+                enrichByIsbnWithSymbol(purchaseRequest, groupOclcSymbol);
+            }
+        }
+        else if (purchaseRequest.getOclcNumber() != null) {
+            for (String groupOclcSymbol: GROUP_OCLC_SYMBOLS) {
+                enrichByOclcNumberWithSymbol(purchaseRequest, groupOclcSymbol);
+            }
+        }   
+        else { 
+            log.debug("No ISBN or OCLC number, skipping OclcGroupLocalHoldingsEnrichment.");
             return;
         }
-
-        for (String groupOclcSymbol: GROUP_OCLC_SYMBOLS) {
-            enrichWithSymbol(purchaseRequest, groupOclcSymbol);
-        }
-    }
-
-    @Override
-    String getQueryUrl(String isbn, String oclcSymbol) {
-        return OclcConnection.WORLDCAT_BASE_URL
-            + "/bibs-holdings?holdingsAllEditions=true&isbn=" + isbn + "&heldByGroup=" + oclcSymbol;
     }
 
     @Override
