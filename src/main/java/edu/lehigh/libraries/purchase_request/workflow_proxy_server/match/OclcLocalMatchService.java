@@ -1,7 +1,5 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.match;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,6 +10,7 @@ import com.google.gson.JsonObject;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.OclcConnection;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,9 +36,9 @@ public class OclcLocalMatchService implements MatchService {
             + "/bibs"
             + "?heldBySymbol=" + LOCAL_OCLC_SYMBOL
             + "&q=("
-            + "ti:" + urlEncode(query.getTitle());
+            + "ti:" + ConnectionUtil.encodeUrl(query.getTitle());
         if (query.getContributor() != null) {
-            url += urlEncode(" AND au:\"" + query.getContributor() + "\"");
+            url += ConnectionUtil.encodeUrl(" AND au:\"" + query.getContributor() + "\"");
         }
         url += ")";
 
@@ -69,10 +68,6 @@ public class OclcLocalMatchService implements MatchService {
 
         log.debug("Found " + totalRecords + " matches.");
         return matches;
-    }
-
-    private static String urlEncode(String raw) {
-        return URLEncoder.encode(raw, StandardCharsets.UTF_8);
     }
 
     private Match parseBibRecord(JsonObject bibRecord) {
