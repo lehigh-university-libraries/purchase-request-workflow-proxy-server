@@ -56,7 +56,7 @@ public class OclcLocalMatchService implements MatchService {
         long totalRecords = responseObject.get("numberOfRecords").getAsLong();
         if (totalRecords == 0) {
             log.debug("No WorldCat records found, cannot enrich.");
-            return null;
+            return new LinkedList<Match>();
         }
 
         JsonArray bibRecords = responseObject.getAsJsonArray("bibRecords");
