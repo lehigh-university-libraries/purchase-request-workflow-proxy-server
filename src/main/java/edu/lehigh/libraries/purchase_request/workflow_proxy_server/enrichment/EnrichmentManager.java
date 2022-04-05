@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class EnrichmentManager {
     
     private WorkflowService workflowService;
@@ -54,6 +56,7 @@ public class EnrichmentManager {
                 purchaseRequest = workflowService.findByKey(purchaseRequest.getKey());
             }
         }
+        log.debug("Done with all enrichment.");
     }
 
 }
