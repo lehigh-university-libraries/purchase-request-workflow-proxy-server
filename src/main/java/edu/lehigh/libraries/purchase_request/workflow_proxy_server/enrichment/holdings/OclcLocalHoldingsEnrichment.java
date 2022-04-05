@@ -50,8 +50,8 @@ public class OclcLocalHoldingsEnrichment extends OclcHoldingsEnrichment {
         String message;
         if (totalRecords > 0) {
             String recordsUrl = buildRecordsUrl(identifier, secondaryIdentifier, identifierType, identifierForWebsiteUrl);
-            String recordsLink = "<a href=\"" + recordsUrl.toString() + "\">" + totalRecords + " instances</a>";
-            message = "Local holdings found in OCLC: " + recordsLink + " instances loosely related to this " + identifierType + ".\n";
+            String recordsLink = "[" + totalRecords + " instances|" + recordsUrl + "]";
+            message = "Local holdings found in OCLC: " + recordsLink + " loosely related to this " + identifierType + ".\n";
         }
         else {
             message = "NO Local holdings found in OCLC: No instances loosely related to this " + identifierType + ".\n";

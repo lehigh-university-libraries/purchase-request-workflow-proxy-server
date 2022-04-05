@@ -150,8 +150,8 @@ public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
         String message;
         if (totalRecords > 0) {
             String recordsUrl = buildRecordsUrl(identifier, secondaryIdentifier, identifierType, identifierForWebsiteUrl);
-            String recordsLink = "<a href=\"" + recordsUrl.toString() + "\">" + totalRecords + " instances</a>";
-            message = "Local holdings found in FOLIO: " + recordsLink + " instances matching this " + identifierType + ".\n";
+            String recordsLink = "[" + totalRecords + " instances|" + recordsUrl + "]";
+            message = "Local holdings found in FOLIO: " + recordsLink + " matching this " + identifierType + ".\n";
         }
         else {
             message = "NO Local holdings found in FOLIO: No instances matching this " + identifierType + ".\n";
