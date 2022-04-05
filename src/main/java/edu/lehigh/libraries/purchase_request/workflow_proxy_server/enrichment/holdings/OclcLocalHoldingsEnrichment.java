@@ -28,7 +28,10 @@ public class OclcLocalHoldingsEnrichment extends OclcHoldingsEnrichment {
     @Override
     public void enrichPurchaseRequest(PurchaseRequest purchaseRequest) {
         log.debug("Enriching OCLC Local Holdings");
-        if (purchaseRequest.getIsbn() != null) {
+        if (purchaseRequest.getTitle() != null && purchaseRequest.getContributor() != null) {
+            enrichByTitleAndContributorWithSymbol(purchaseRequest, LOCAL_OCLC_SYMBOL, false);
+        }
+        else if (purchaseRequest.getIsbn() != null) {
             enrichByIsbnWithSymbol(purchaseRequest, LOCAL_OCLC_SYMBOL);
         }
         else if (purchaseRequest.getOclcNumber() != null) {

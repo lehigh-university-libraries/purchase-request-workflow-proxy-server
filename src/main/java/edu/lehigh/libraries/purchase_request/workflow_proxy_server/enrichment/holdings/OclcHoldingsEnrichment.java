@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.OclcConnection;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
 import lombok.extern.slf4j.Slf4j;
@@ -24,19 +25,41 @@ abstract class OclcHoldingsEnrichment extends HoldingsEnrichment {
         this.oclcConnection = new OclcConnection(config, SCOPE);
     }
 
-    String getQueryUrlForIsbn(String isbn, String oclcSymbol) {
-        return OclcConnection.WORLDCAT_BASE_URL
-            + "/bibs-holdings?holdingsAllEditions=true&isbn=" + isbn + "&heldByGroup=" + oclcSymbol;
-    }
+    void enrichByTitleAndContributorWithSymbol(PurchaseRequest purchaseRequest, String oclcSymbol,
+        boolean isGroupSymbol) {
 
-    String getQueryUrlForOclcNumber(String oclcNumber, String oclcSymbol) {
-        return OclcConnection.WORLDCAT_BASE_URL
-            + "/bibs-holdings?holdingsAllEditions=true&oclcNumber=" + oclcNumber + "&heldBySymbol=" + oclcSymbol;
+        log.debug("Enriching by title and contributor.");
+        String title = purchaseRequest.getTitle();
+        String contributor = purchaseRequest.getContributor();
+        String url = OclcConnection.WORLDCAT_BASE_URL 
+            + "/brief-bibs"
+            + "?" + (isGroupSymbol ? "heldByGroup" : "heldBySymbol") + "=" + oclcSymbol
+            + "&q=("
+            + "ti:" + ConnectionUtil.encodeUrl(title)
+            + ConnectionUtil.encodeUrl(" AND ")
+            + "au:" + ConnectionUtil.encodeUrl(contributor) + ""
+            + ")";
+
+        long totalHoldingCount;
+        try {
+            totalHoldingCount = getNumberOfRecords(url);
+        }
+        catch (Exception e) {
+            log.error("Caught exception getting local holdings from OCLC: ", e);
+            return;
+        }
+
+        String message = buildEnrichmentMessage(totalHoldingCount, title, IdentifierType.TitleAndContributor, 
+            null, oclcSymbol);
+        workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
+        log.debug("Done creating enrichment for " + purchaseRequest);
     }
 
     void enrichByIsbnWithSymbol(PurchaseRequest purchaseRequest, String oclcSymbol) {
+        log.debug("Enriching by ISBN.");
         String isbn = purchaseRequest.getIsbn();
-        String url = getQueryUrlForIsbn(isbn, oclcSymbol);
+        String url = OclcConnection.WORLDCAT_BASE_URL
+            + "/bibs-holdings?holdingsAllEditions=true&isbn=" + isbn + "&heldByGroup=" + oclcSymbol;
 
         long totalHoldingCount;
         try {
@@ -54,8 +77,10 @@ abstract class OclcHoldingsEnrichment extends HoldingsEnrichment {
     }
 
     void enrichByOclcNumberWithSymbol(PurchaseRequest purchaseRequest, String oclcSymbol) {
+        log.debug("Enriching by OCLC number.");
         String oclcNumber = purchaseRequest.getOclcNumber();
-        String url = getQueryUrlForOclcNumber(oclcNumber, oclcSymbol);
+        String url = OclcConnection.WORLDCAT_BASE_URL
+            + "/bibs-holdings?holdingsAllEditions=true&oclcNumber=" + oclcNumber + "&heldBySymbol=" + oclcSymbol;
 
         long totalHoldingCount;
         try {
@@ -70,6 +95,12 @@ abstract class OclcHoldingsEnrichment extends HoldingsEnrichment {
             oclcSymbol);
         workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
         log.debug("Done creating enrichment for " + purchaseRequest);
+    }
+
+    long getNumberOfRecords(String url) throws Exception {
+        JsonObject responseObject = oclcConnection.execute(url);
+        long numberOfRecords = responseObject.get("numberOfRecords").getAsLong();
+        return numberOfRecords;
     }
 
     long getTotalHoldingCount(String url) throws Exception {

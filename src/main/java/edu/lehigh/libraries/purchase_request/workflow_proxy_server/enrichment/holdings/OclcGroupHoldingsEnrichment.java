@@ -32,7 +32,12 @@ public class OclcGroupHoldingsEnrichment extends OclcHoldingsEnrichment {
     @Override
     public void enrichPurchaseRequest(PurchaseRequest purchaseRequest) {
         log.debug("Enriching OCLC Group Holdings");
-        if (purchaseRequest.getIsbn() != null) {
+        if (purchaseRequest.getTitle() != null && purchaseRequest.getContributor() != null) {
+            for (String groupOclcSymbol: GROUP_OCLC_SYMBOLS) {
+                enrichByTitleAndContributorWithSymbol(purchaseRequest, groupOclcSymbol, true);
+            }
+        }
+        else if (purchaseRequest.getIsbn() != null) {
             for (String groupOclcSymbol: GROUP_OCLC_SYMBOLS) {
                 enrichByIsbnWithSymbol(purchaseRequest, groupOclcSymbol);
             }

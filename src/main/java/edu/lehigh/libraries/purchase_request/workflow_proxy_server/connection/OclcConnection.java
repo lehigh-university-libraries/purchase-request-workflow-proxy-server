@@ -74,6 +74,7 @@ public class OclcConnection {
         oclcService.signRequest(token, request);
         Response response;
         String responseBody;
+        log.debug("executing URL: " + url);
         response = oclcService.execute(request);
         log.debug("got bib response from oclc:" + response);
         responseBody = response.getBody();

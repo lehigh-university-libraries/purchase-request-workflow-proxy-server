@@ -8,7 +8,7 @@ abstract class HoldingsEnrichment implements EnrichmentService {
     final Config config;
 
     enum IdentifierType { 
-        ISBN, OclcNumber; 
+        TitleAndContributor, ISBN, OclcNumber; 
     }
 
     HoldingsEnrichment(Config config) {
