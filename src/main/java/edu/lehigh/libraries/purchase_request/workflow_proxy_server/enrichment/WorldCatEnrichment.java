@@ -18,12 +18,16 @@ public class WorldCatEnrichment implements EnrichmentService {
 
     private static final String SCOPE = "wcapi";
 
+    private final String CLASSIFICATION_TYPE;
+
     private final WorkflowService workflowService;
     private final OclcConnection oclcConnection;
 
     WorldCatEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) throws Exception {
         this.oclcConnection = new OclcConnection(config, SCOPE);
         this.workflowService = workflowService;
+
+        CLASSIFICATION_TYPE = config.getOclc().getClassificationType();
 
         manager.addListener(this, 1);
         log.debug("WorldCatEnrichment ready");
@@ -87,15 +91,31 @@ public class WorldCatEnrichment implements EnrichmentService {
         }
         JsonArray bibRecords = responseObject.getAsJsonArray("bibRecords");
         JsonObject bibRecord = (JsonObject)bibRecords.get(0);
+
+        enrichOclcNumber(purchaseRequest, bibRecord);
+        enrichCallNumber(purchaseRequest, bibRecord);
+    }
+
+    private void enrichOclcNumber(PurchaseRequest purchaseRequest, JsonObject bibRecord) {
         JsonObject identifier = bibRecord.getAsJsonObject("identifier");
         if (identifier == null) {
-            log.debug("No identifier found, cannot enrich.");
+            log.debug("No identifier found, cannot enrich OCLC number.");
             return;
         }
         String oclcNumber = identifier.get("oclcNumber").getAsString();
         log.debug("Found OCLC number for item: " + oclcNumber);
-
         workflowService.enrich(purchaseRequest, EnrichmentType.OCLC_NUMBER, oclcNumber);
+    }
+
+    private void enrichCallNumber(PurchaseRequest purchaseRequest, JsonObject bibRecord) {
+        JsonObject classification = bibRecord.getAsJsonObject("classification");
+        if (classification == null) {
+            log.debug("No classification found, cannot enrich call number.");
+            return;
+        }
+        String callNumber = classification.get(CLASSIFICATION_TYPE).getAsString();
+        log.debug("found call number for item: " + callNumber);
+        workflowService.enrich(purchaseRequest, EnrichmentType.CALL_NUMBER, callNumber);
     }
 
 }

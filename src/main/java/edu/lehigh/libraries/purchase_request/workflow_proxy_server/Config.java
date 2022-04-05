@@ -93,6 +93,13 @@ public class Config {
         private String oclcNumberFieldId;
 
         /**
+         * ID of the Jira custom field representing the item's Dewey or LC call number.
+         * 
+         * A list of fields with IDs can be retrieved with {{jira.url}}/field
+         */
+        private String callNumberFieldId;
+
+        /**
          * ID of the Jira custom field representing the item's requested format: print, electronic or any.
          * 
          * A list of fields with IDs can be retrieved with {{jira.url}}/field
@@ -195,6 +202,11 @@ public class Config {
          * Three-character(?) OCLC institution symbol for local holdings
          */
         private String localInstitutionSymbol;
+
+        /**
+         * "dewey" or "lc"
+         */
+        private String classificationType;
     }
 
     @Getter @Setter

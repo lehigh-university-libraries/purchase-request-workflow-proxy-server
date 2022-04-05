@@ -49,6 +49,7 @@ public class JiraWorkflowService implements WorkflowService {
     private String CONTRIBUTOR_FIELD_ID;
     private String ISBN_FIELD_ID;
     private String OCLC_NUMBER_FIELD_ID;
+    private String CALL_NUMBER_FIELD_ID;
     private String FORMAT_FIELD_ID;
     private String SPEED_FIELD_ID;
     private String DESTINATION_FIELD_ID;
@@ -74,6 +75,7 @@ public class JiraWorkflowService implements WorkflowService {
         CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
         ISBN_FIELD_ID = config.getJira().getIsbnFieldId();
         OCLC_NUMBER_FIELD_ID = config.getJira().getOclcNumberFieldId();
+        CALL_NUMBER_FIELD_ID = config.getJira().getCallNumberFieldId();
         FORMAT_FIELD_ID = config.getJira().getFormatFieldId();
         SPEED_FIELD_ID = config.getJira().getSpeedFieldId();
         DESTINATION_FIELD_ID = config.getJira().getDestinationFieldId();
@@ -160,6 +162,7 @@ public class JiraWorkflowService implements WorkflowService {
         issueBuilder.setFieldValue(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
         issueBuilder.setFieldValue(ISBN_FIELD_ID, purchaseRequest.getIsbn());
         issueBuilder.setFieldValue(OCLC_NUMBER_FIELD_ID, purchaseRequest.getOclcNumber());
+        issueBuilder.setFieldValue(CALL_NUMBER_FIELD_ID, purchaseRequest.getCallNumber());
         issueBuilder.setFieldValue(FORMAT_FIELD_ID, purchaseRequest.getFormat());
         issueBuilder.setFieldValue(SPEED_FIELD_ID, purchaseRequest.getSpeed());
         issueBuilder.setFieldValue(DESTINATION_FIELD_ID, purchaseRequest.getDestination());
@@ -257,6 +260,9 @@ public class JiraWorkflowService implements WorkflowService {
         else if (EnrichmentType.OCLC_NUMBER == type) {
             enrichOclcNumber(purchaseRequest, (String)data);
         }
+        else if (EnrichmentType.CALL_NUMBER == type) {
+            enrichCallNumber(purchaseRequest, (String)data);
+        }
         else if (EnrichmentType.PRICING == type) {
             enrichComment(purchaseRequest, (String)data);
         }
@@ -292,6 +298,13 @@ public class JiraWorkflowService implements WorkflowService {
         client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
     }
 
+    private void enrichCallNumber(PurchaseRequest purchaseRequest, String callNumber) {
+        IssueInput input = new IssueInputBuilder()
+            .setFieldValue(CALL_NUMBER_FIELD_ID, callNumber)
+            .build();
+        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+    }
+
     private void enrichRequesterType(PurchaseRequest purchaseRequest, String requesterType) {
         IssueInput input = new IssueInputBuilder()
             .setFieldValue(REQUESTER_ROLE_FIELD_ID, requesterType)
@@ -312,6 +325,7 @@ public class JiraWorkflowService implements WorkflowService {
         purchaseRequest.setContributor((String)issue.getField(CONTRIBUTOR_FIELD_ID).getValue());
         purchaseRequest.setIsbn((String)issue.getField(ISBN_FIELD_ID).getValue());
         purchaseRequest.setOclcNumber((String)issue.getField(OCLC_NUMBER_FIELD_ID).getValue());
+        purchaseRequest.setCallNumber((String)issue.getField(CALL_NUMBER_FIELD_ID).getValue());
         purchaseRequest.setFormat((String)issue.getField(FORMAT_FIELD_ID).getValue());
         purchaseRequest.setSpeed((String)issue.getField(SPEED_FIELD_ID).getValue());
         purchaseRequest.setDestination((String)issue.getField(DESTINATION_FIELD_ID).getValue());

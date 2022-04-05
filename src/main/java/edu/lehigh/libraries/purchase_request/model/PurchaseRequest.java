@@ -21,6 +21,7 @@ public class PurchaseRequest {
     public static final String SANITIZED_USERNAME_PATTERN = "^[A-Za-z0-9]+$";
 
     public static final String SANITIZED_OCLC_NUMBER_PATTERN = SANITIZED_NUMERIC_PATTERN;
+    public static final String SANITIZED_CALL_NUMBER_PATTERN = SANITIZED_STRING_PATTERN;
     public static final String KEY_PATTERN = SANITIZED_STRING_PATTERN;
 
     private static final String OCLC_NUMBER_PREFIX = "(OCoLC)";
@@ -42,6 +43,9 @@ public class PurchaseRequest {
 
     @Pattern(regexp = SANITIZED_OCLC_NUMBER_PATTERN)
     private String oclcNumber;
+
+    @Pattern(regexp = SANITIZED_CALL_NUMBER_PATTERN)
+    private String callNumber;
 
     @NoHtml
     private String format;
