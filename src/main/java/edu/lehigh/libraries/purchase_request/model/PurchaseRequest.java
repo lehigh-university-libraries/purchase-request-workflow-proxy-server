@@ -18,6 +18,7 @@ public class PurchaseRequest {
     // for sanitation; not validation for a specific WorkflowService key
     public static final String SANITIZED_STRING_PATTERN = "^[A-Za-z0-9-_\\s]+$";
     public static final String SANITIZED_NUMERIC_PATTERN = "^[0-9]+$";
+    public static final String SANITIZED_USERNAME_PATTERN = "^[A-Za-z0-9]+$";
 
     public static final String SANITIZED_OCLC_NUMBER_PATTERN = SANITIZED_NUMERIC_PATTERN;
     public static final String KEY_PATTERN = SANITIZED_STRING_PATTERN;
@@ -54,7 +55,7 @@ public class PurchaseRequest {
     @NoHtml
     private String clientName;
 
-    @NoHtml
+    @Pattern(regexp = SANITIZED_USERNAME_PATTERN)
     private String reporterName;
 
     @NoHtml

@@ -186,13 +186,26 @@ public class JiraWorkflowService implements WorkflowService {
             issueBuilder.setFieldValue(REPORTER_NAME_FIELD_ID, reporterName);
         }
         else if (HOSTING_SERVER.equals(HOSTING)) {
-            // Using the built-in setReporterName() should work with Jira Server, just not Jira Cloud.
-            // https://community.atlassian.com/t5/Jira-questions/Create-an-issue-with-rest-api-set-reporter-name/qaq-p/1535911
-            issueBuilder.setReporterName(reporterName);
+            if (userExists(reporterName)) {
+                issueBuilder.setReporterName(reporterName);
+            }
+            else {
+                log.warn("Tried to setReporter on unknown username: " + reporterName);
+            }
         }
         else {
             throw new IllegalArgumentException("Unknown hosting environment: " + HOSTING);
         }
+    }
+
+    private boolean userExists(String username) {
+        try {
+            client.getUserClient().getUser(username).claim();
+        }
+        catch (RestClientException e) {
+            return false;
+        }
+        return true;
     }
 
     @Override
