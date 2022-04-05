@@ -54,14 +54,12 @@ public class OclcGroupHoldingsEnrichment extends OclcHoldingsEnrichment {
     }
 
     @Override
-    String buildEnrichmentMessage(long totalRecords, String identifier, IdentifierType identifierType,
-        String identifierForWebsiteUrl, String holdingsType) {
+    String buildEnrichmentMessage(long totalRecords, String identifier, String secondaryIdentifier,
+        IdentifierType identifierType, String identifierForWebsiteUrl, String holdingsType) {
 
         String message;
         if (totalRecords > 0) {
-            String recordsUrl = buildRecordsUrl(identifier, identifierType, identifierForWebsiteUrl);
-            String recordsLink = "<a href=\"" + recordsUrl.toString() + "\">" + totalRecords + " instances</a>";
-            message = holdingsType + " holdings: " + recordsLink + " instances matching this " + identifierType + ".\n";
+            message = holdingsType + " holdings: " + totalRecords + " instances matching this " + identifierType + ".\n";
         }
         else {
             message = "NO " + holdingsType + " holdings: No instances matching this " + identifierType + ".\n";

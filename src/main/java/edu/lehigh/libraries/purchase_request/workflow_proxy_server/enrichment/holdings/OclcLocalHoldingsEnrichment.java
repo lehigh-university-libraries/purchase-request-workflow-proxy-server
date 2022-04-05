@@ -44,12 +44,12 @@ public class OclcLocalHoldingsEnrichment extends OclcHoldingsEnrichment {
     }
 
     @Override
-    String buildEnrichmentMessage(long totalRecords, String identifier, IdentifierType identifierType,
-        String identifierForWebsiteUrl, String holdingsType) {
+    String buildEnrichmentMessage(long totalRecords, String identifier, String secondaryIdentifier,
+        IdentifierType identifierType, String identifierForWebsiteUrl, String holdingsType) {
 
         String message;
         if (totalRecords > 0) {
-            String recordsUrl = buildRecordsUrl(identifier, identifierType, identifierForWebsiteUrl);
+            String recordsUrl = buildRecordsUrl(identifier, secondaryIdentifier, identifierType, identifierForWebsiteUrl);
             String recordsLink = "<a href=\"" + recordsUrl.toString() + "\">" + totalRecords + " instances</a>";
             message = "Local holdings found in OCLC: " + recordsLink + " instances loosely related to this " + identifierType + ".\n";
         }

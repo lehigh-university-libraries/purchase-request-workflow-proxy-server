@@ -49,8 +49,8 @@ abstract class OclcHoldingsEnrichment extends HoldingsEnrichment {
             return;
         }
 
-        String message = buildEnrichmentMessage(totalHoldingCount, title, IdentifierType.TitleAndContributor, 
-            null, oclcSymbol);
+        String message = buildEnrichmentMessage(totalHoldingCount, title, contributor, 
+            IdentifierType.TitleAndContributor, null, oclcSymbol);
         workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
         log.debug("Done creating enrichment for " + purchaseRequest);
     }
@@ -70,7 +70,7 @@ abstract class OclcHoldingsEnrichment extends HoldingsEnrichment {
             return;
         }
 
-        String message = buildEnrichmentMessage(totalHoldingCount, isbn, IdentifierType.ISBN, null,
+        String message = buildEnrichmentMessage(totalHoldingCount, isbn, null, IdentifierType.ISBN, null,
             oclcSymbol);
         workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
         log.debug("Done creating enrichment for " + purchaseRequest);
@@ -91,7 +91,7 @@ abstract class OclcHoldingsEnrichment extends HoldingsEnrichment {
             return;
         }
 
-        String message = buildEnrichmentMessage(totalHoldingCount, oclcNumber, IdentifierType.OclcNumber, null,
+        String message = buildEnrichmentMessage(totalHoldingCount, oclcNumber, null, IdentifierType.OclcNumber, null,
             oclcSymbol);
         workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
         log.debug("Done creating enrichment for " + purchaseRequest);
