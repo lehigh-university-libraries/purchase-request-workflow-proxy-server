@@ -269,6 +269,9 @@ public class JiraWorkflowService implements WorkflowService {
         else if (EnrichmentType.REQUESTER_ROLE == type) {
             enrichRequesterType(purchaseRequest, (String)data);
         }
+        else if (EnrichmentType.LIBRARIAN == type) {
+            enrichAssignee(purchaseRequest, (String)data);
+        }
         else {
             throw new IllegalArgumentException("Unknown enrichment type " + type);
         }
@@ -308,6 +311,18 @@ public class JiraWorkflowService implements WorkflowService {
     private void enrichRequesterType(PurchaseRequest purchaseRequest, String requesterType) {
         IssueInput input = new IssueInputBuilder()
             .setFieldValue(REQUESTER_ROLE_FIELD_ID, requesterType)
+            .build();
+        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+    }
+
+    private void enrichAssignee(PurchaseRequest purchaseRequest, String username) {
+        if (!userExists(username)) {
+            log.error("Enriching assignee fails, no user exists: " + username);
+            return;
+        }
+
+        IssueInput input = new IssueInputBuilder()
+            .setAssigneeName(username)
             .build();
         client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
     }

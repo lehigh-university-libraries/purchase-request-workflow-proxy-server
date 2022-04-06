@@ -24,6 +24,7 @@ public class Config {
     private VuFind vuFind;
     private Ldap ldap;
     private IsbnDb isbnDb;
+    private LibrarianCallNumbers librarianCallNumbers;
     private Email email;
     private GoogleSheets googleSheets;
 
@@ -317,6 +318,16 @@ public class Config {
 
         }
         
+    }
+
+    @Getter @Setter
+    public static class LibrarianCallNumbers {
+
+        /**
+         * Base URL of a web service that retrieves a list of librarians given a call number
+         */
+        private String baseUrl;
+
     }
 
     @Getter @Setter

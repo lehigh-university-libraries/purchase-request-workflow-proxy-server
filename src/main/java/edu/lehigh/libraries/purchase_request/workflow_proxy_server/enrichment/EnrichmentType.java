@@ -5,5 +5,6 @@ public enum EnrichmentType {
     CALL_NUMBER,
     LOCAL_HOLDINGS,
     PRICING,
-    REQUESTER_ROLE;
+    REQUESTER_ROLE,
+    LIBRARIAN;
 }
