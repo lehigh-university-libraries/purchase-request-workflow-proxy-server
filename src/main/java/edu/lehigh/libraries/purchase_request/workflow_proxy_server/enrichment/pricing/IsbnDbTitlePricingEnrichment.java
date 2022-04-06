@@ -60,13 +60,26 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
             log.debug("No pricing found for title: " + title);
         }
         else {
-            for (IsbnDbSearchResult result : results) {
-                comment += "\n- " + result.toString();
-            }
+            comment += formatAsWikiTable(results);
             log.debug("Found pricing for title: " + title);
         }
 
         workflowService.enrich(purchaseRequest, EnrichmentType.PRICING, comment);
+    }
+
+    private String formatAsWikiTable(List<IsbnDbSearchResult> results) {
+        String comment = "\n||Title||Contributors||Publication Year||ISBN||Binding||MSRP||";
+        for (IsbnDbSearchResult result : results) {
+            comment += "\n|" 
+                + result.getTitle() + "|"
+                + String.join(", ", result.getContributors()) + "|"
+                + result.getPublicationYear() + "|"
+                + result.getIsbn() + "|"
+                + result.getBinding() + "|"
+                + result.getMsrp() + "|"
+                ;
+        }
+        return comment;
     }
 
     private List<IsbnDbSearchResult> search(PurchaseRequest purchaseRequest) {
