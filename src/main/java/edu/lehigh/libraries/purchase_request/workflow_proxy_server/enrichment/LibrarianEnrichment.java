@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.LibrarianCallNumbersConnection;
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,7 +37,7 @@ public class LibrarianEnrichment implements EnrichmentService {
             log.debug("Skipping LibrarianEnrichment, no call number provided.");
         }
 
-        String url = BASE_URL + "/search?callNumber=" + callNumber;
+        String url = BASE_URL + "/search?callNumber=" + ConnectionUtil.encodeUrl(callNumber);
         JSONArray responseArray;
         try {
             responseArray = connection.executeGetForArray(url);
