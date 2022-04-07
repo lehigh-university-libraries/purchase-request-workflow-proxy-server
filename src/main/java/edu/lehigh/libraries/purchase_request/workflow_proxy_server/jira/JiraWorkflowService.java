@@ -185,6 +185,11 @@ public class JiraWorkflowService implements WorkflowService {
 
     private void setReporter(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
         String reporterName = purchaseRequest.getReporterName();
+        if (reporterName == null) {
+            log.debug("Cannot set reporter, null");
+            return;
+        }
+        
         if (HOSTING_CLOUD.equals(HOSTING)) {
             issueBuilder.setFieldValue(REPORTER_NAME_FIELD_ID, reporterName);
         }
