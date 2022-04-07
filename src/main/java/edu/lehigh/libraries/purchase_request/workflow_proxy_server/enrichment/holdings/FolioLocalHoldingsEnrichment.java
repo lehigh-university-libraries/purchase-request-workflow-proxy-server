@@ -98,11 +98,39 @@ public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
     @Override
     public void enrichPurchaseRequest(PurchaseRequest purchaseRequest) {
         String message = StringUtils.EMPTY;
-        message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getIsbn(), IdentifierType.ISBN, null);
-        message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getOclcNumber(), IdentifierType.OclcNumber, 
-            purchaseRequest.getPrefixedOclcNumber());
+        if (purchaseRequest.getTitle() != null && purchaseRequest.getContributor() != null) {
+            message += findMatchesOnTitleAndContributor(purchaseRequest);
+        }
+        else {
+            message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getIsbn(), IdentifierType.ISBN, null);
+            message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getOclcNumber(), IdentifierType.OclcNumber, 
+                purchaseRequest.getPrefixedOclcNumber());    
+        }
         workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
         log.debug("Done creating enrichment for " + purchaseRequest);
+    }
+
+    private String findMatchesOnTitleAndContributor(PurchaseRequest purchaseRequest) {
+        log.debug("Enriching local holdings by title & contributor for " + purchaseRequest);
+        String title = purchaseRequest.getTitle();
+        String contributor = purchaseRequest.getContributor();
+
+        String queryString = "("
+            + "title = '" + title + "'" 
+            + " and" 
+            + " contributors all '" + contributor + "'"
+            + ")";
+        JsonObject responseObject;
+            try {
+            responseObject = findMatches(queryString);
+        }
+        catch(Exception e) {
+            log.error("Exception enriching request: ", e);
+            return StringUtils.EMPTY;
+        }
+        long totalRecords = responseObject.get("totalRecords").getAsLong();
+
+        return buildEnrichmentMessage(totalRecords, title, contributor, IdentifierType.TitleAndContributor, null, null);
     }
 
     private String findMatchesOnIdentifier(PurchaseRequest purchaseRequest, String identifier, 
@@ -114,9 +142,22 @@ public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
         }
 
         log.debug("Enriching local holdings by " + identifierType + " request for " + purchaseRequest);
-
-        String url = config.getFolio().getOkapiBaseUrl() + INSTANCES_PATH;
         String queryString = "(identifiers =/@value '" + identifier + "')";
+        JsonObject responseObject;
+        try {
+            responseObject = findMatches(queryString);
+        }
+        catch(Exception e) {
+            log.error("Exception enriching request: ", e);
+            return StringUtils.EMPTY;
+        }
+        long totalRecords = responseObject.get("totalRecords").getAsLong();
+
+        return buildEnrichmentMessage(totalRecords, identifier, null, identifierType, identifierForWebsiteUrl, null);
+    }
+
+    private JsonObject findMatches(String queryString) throws Exception {
+        String url = config.getFolio().getOkapiBaseUrl() + INSTANCES_PATH;
         HttpUriRequest getRequest = RequestBuilder.get()
             .setUri(url)
             .setHeader(TENANT_HEADER, config.getFolio().getTenantId())
@@ -124,23 +165,13 @@ public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
             .addParameter("query", queryString)
             .build();
 
-        CloseableHttpResponse response;
-        String responseString;
-        try {
-            response = client.execute(getRequest);
-            HttpEntity entity = response.getEntity();
-            responseString = EntityUtils.toString(entity);
-            }
-        catch(Exception e) {
-            log.error("Exception enriching request: ", e);
-            return StringUtils.EMPTY;
-        }
+        CloseableHttpResponse response = client.execute(getRequest);
+        HttpEntity entity = response.getEntity();
+        String responseString = EntityUtils.toString(entity);
         log.debug("Got response with code " + response.getStatusLine() + " and entity " + response.getEntity());
 
         JsonObject responseObject = JsonParser.parseString(responseString).getAsJsonObject();
-        long totalRecords = responseObject.get("totalRecords").getAsLong();
-
-        return buildEnrichmentMessage(totalRecords, identifier, null, identifierType, identifierForWebsiteUrl, null);
+        return responseObject;
     }
 
     @Override
