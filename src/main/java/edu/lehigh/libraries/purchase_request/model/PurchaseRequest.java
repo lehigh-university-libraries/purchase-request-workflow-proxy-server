@@ -38,7 +38,7 @@ public class PurchaseRequest {
     @NoHtml
     private String contributor;
 
-    @Pattern(regexp = SANITIZED_STRING_PATTERN)
+    @NoHtml
     private String isbn;
 
     @Pattern(regexp = SANITIZED_OCLC_NUMBER_PATTERN)
