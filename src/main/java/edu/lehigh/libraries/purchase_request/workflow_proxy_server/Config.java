@@ -2,18 +2,27 @@ package edu.lehigh.libraries.purchase_request.workflow_proxy_server;
 
 import java.util.List;
 
+import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.validation.annotation.Validated;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Configuration
 @ConfigurationProperties(prefix="workflow")
+@Validated
 @EnableAsync
 @Getter @Setter
 public class Config {
+
+    @AssertTrue
+    @NotNull
+    private Boolean enabled;
     
     private Jira jira;
     private Database db;
