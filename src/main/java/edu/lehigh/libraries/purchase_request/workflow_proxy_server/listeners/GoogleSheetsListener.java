@@ -1,5 +1,6 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -131,9 +132,10 @@ public class GoogleSheetsListener implements WorkflowServiceListener {
         @SuppressWarnings("deprecation")
         public static Credential getCredential(final String CREDENTIALS_FILE_PATH, 
             final NetHttpTransport HTTP_TRANSPORT) throws IOException, GeneralSecurityException {
-            InputStream in = GoogleAuthorizeUtil.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+            InputStream in = new FileInputStream(CREDENTIALS_FILE_PATH);
             com.google.api.client.googleapis.auth.oauth2.GoogleCredential credential = 
                 com.google.api.client.googleapis.auth.oauth2.GoogleCredential.fromStream(in).createScoped(SCOPES);
+            in.close();
             return credential;
         }
 
