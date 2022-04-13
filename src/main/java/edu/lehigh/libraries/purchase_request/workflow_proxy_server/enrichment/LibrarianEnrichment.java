@@ -35,6 +35,7 @@ public class LibrarianEnrichment implements EnrichmentService {
         String callNumber = purchaseRequest.getCallNumber();
         if (callNumber == null) {
             log.debug("Skipping LibrarianEnrichment, no call number provided.");
+            return;
         }
 
         String url = BASE_URL + "/search?callNumber=" + ConnectionUtil.encodeUrl(callNumber);
