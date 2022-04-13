@@ -116,9 +116,9 @@ public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
         String contributor = purchaseRequest.getContributor();
 
         String queryString = "("
-            + "title = '" + title + "'" 
+            + "title = \"" + title + "\"" 
             + " and" 
-            + " contributors all '" + contributor + "'"
+            + " contributors all \"" + contributor + "\""
             + ")";
         JsonObject responseObject;
             try {
