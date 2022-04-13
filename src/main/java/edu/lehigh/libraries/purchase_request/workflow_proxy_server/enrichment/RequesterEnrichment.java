@@ -50,6 +50,11 @@ public class RequesterEnrichment implements EnrichmentService {
             (AttributesMapper<String>) attributes -> (String)attributes.get(LDAP_ROLE_RESULT_FIELD).get()
         );
 
+        if (result.size() == 0) {
+            log.error("No user found: " + username);
+            return;
+        }
+
         String role = result.get(0);
         workflowService.enrich(purchaseRequest, EnrichmentType.REQUESTER_ROLE, role);        
     }
