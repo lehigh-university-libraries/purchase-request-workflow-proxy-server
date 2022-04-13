@@ -91,13 +91,15 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
     }
 
     private List<IsbnDbSearchResult> parseResults(JSONObject jsonResult) {
-        JSONArray booksJson = jsonResult.getJSONArray("books");
         List<IsbnDbSearchResult> books = new LinkedList<IsbnDbSearchResult>();
-        for (int i=0; i < booksJson.length(); i++) {
-            JSONObject bookJson = booksJson.getJSONObject(i);
-            IsbnDbSearchResult book = parseSearchResult(bookJson);
-            if (book.getMsrp() != null) {
-                books.add(book);
+        if (jsonResult.has("books")) {
+            JSONArray booksJson = jsonResult.getJSONArray("books");
+            for (int i=0; i < booksJson.length(); i++) {
+                JSONObject bookJson = booksJson.getJSONObject(i);
+                IsbnDbSearchResult book = parseSearchResult(bookJson);
+                if (book.getMsrp() != null) {
+                    books.add(book);
+                }
             }
         }
         return books;
