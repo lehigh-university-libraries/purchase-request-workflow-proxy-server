@@ -50,10 +50,15 @@ public class EnrichmentManager {
         for (Map.Entry<Integer, List<EnrichmentService>> entry: enrichmentServices.entrySet()) {
             List<EnrichmentService> listAtPriority = entry.getValue();
             for (EnrichmentService service : listAtPriority) {
-                service.enrichPurchaseRequest(purchaseRequest);
+                try {
+                    service.enrichPurchaseRequest(purchaseRequest);
 
-                // get updated purchase request
-                purchaseRequest = workflowService.findByKey(purchaseRequest.getKey());
+                    // get updated purchase request
+                    purchaseRequest = workflowService.findByKey(purchaseRequest.getKey());
+                }
+                catch (Exception e) {
+                    log.error("Caught exception during enrichment: ", e);
+                }
             }
         }
         log.debug("Done with all enrichment.");
