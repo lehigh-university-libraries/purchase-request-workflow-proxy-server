@@ -77,10 +77,16 @@ public class OclcConnection {
         log.debug("executing URL: " + url);
         response = oclcService.execute(request);
         log.debug("got bib response from oclc:" + response);
-        responseBody = response.getBody();
+        if (response.isSuccessful()) {
+            responseBody = response.getBody();
 
-        JsonObject responseObject = JsonParser.parseString(responseBody).getAsJsonObject();
-        return responseObject;
+            JsonObject responseObject = JsonParser.parseString(responseBody).getAsJsonObject();
+            return responseObject;
+        }
+        else {
+            log.debug("Unsuccessful response.");
+            throw new Exception("Unsuccessful response");
+        }
     }
 
     private static class OclcApi extends DefaultApi20 {
