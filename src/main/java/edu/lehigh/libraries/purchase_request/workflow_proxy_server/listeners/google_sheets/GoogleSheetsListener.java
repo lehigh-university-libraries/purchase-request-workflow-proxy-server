@@ -1,9 +1,10 @@
-package edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners;
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners.google_sheets;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -17,29 +18,27 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
-import org.springframework.stereotype.Service;
-
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServiceListener;
 import lombok.extern.slf4j.Slf4j;
 
-@Service
 @Slf4j
-public class GoogleSheetsListener implements WorkflowServiceListener {
+abstract class GoogleSheetsListener implements WorkflowServiceListener {
 
     private static JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static String APPLICATION_NAME = "Purchase Request Workflow Proxy Server";
-    private static String VALUE_INPUT_OPTION_RAW = "RAW";
+    static String VALUE_INPUT_OPTION_RAW = "RAW";
 
-    private String REQUESTED_SPREADSHEET_ID;
-    private String APPROVED_SPREADSHEET_ID;
-    private List<String> ALL_SHEETS_TO_TEST;
+    String REQUESTED_SPREADSHEET_ID;
+    String APPROVED_SPREADSHEET_ID;
+    List<String> ALL_SHEETS_TO_TEST;
     private String CREDENTIALS_FILE_PATH;
     private String ISBN_COLUMN_HEADER;
 
-    private Config config;
+    Config config;
+    Sheets sheetsService;
 
     GoogleSheetsListener(WorkflowService workflowService, Config config) throws IOException, GeneralSecurityException {
         this.config = config;
@@ -47,18 +46,22 @@ public class GoogleSheetsListener implements WorkflowServiceListener {
         initConnection();
 
         workflowService.addListener(this);
-        log.debug("GoogleSheetsListener listening.");
     }
 
-    private void initMetadata() {
-        REQUESTED_SPREADSHEET_ID = config.getGoogleSheets().getRequestedSpreadsheetId();
-        APPROVED_SPREADSHEET_ID = config.getGoogleSheets().getApprovedSpreadsheetId();
-        ALL_SHEETS_TO_TEST = Arrays.asList(new String[] {REQUESTED_SPREADSHEET_ID, APPROVED_SPREADSHEET_ID});
+    void initMetadata() {
         CREDENTIALS_FILE_PATH = config.getGoogleSheets().getCredentialsFilePath();
         ISBN_COLUMN_HEADER = config.getGoogleSheets().getIsbnColumnHeader();
     }
 
-    private Sheets sheetsService;
+    List<String> sheetsToTest(String[] ids) {
+        List<String> sheets = new ArrayList<String>();
+        for (int i=0; i < ids.length; i++) {
+            if (ids[i] != null) {
+                sheets.add(ids[i]);
+            }
+        }
+        return sheets;
+    }
 
     private void initConnection() throws GeneralSecurityException, IOException {
         NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
@@ -83,37 +86,28 @@ public class GoogleSheetsListener implements WorkflowServiceListener {
 
     @Override
     public void purchaseRequested(PurchaseRequest purchaseRequest) {
-        log.debug("Writing purchase request.");
-        writePurchase(purchaseRequest, REQUESTED_SPREADSHEET_ID);
+        if (REQUESTED_SPREADSHEET_ID != null) {
+            log.debug("Writing purchase request.");
+            writePurchase(purchaseRequest, REQUESTED_SPREADSHEET_ID);
+        }
     }
 
     @Override
     public void purchaseApproved(PurchaseRequest purchaseRequest) {
-        log.debug("Writing approved purchase.");
-        writePurchase(purchaseRequest, APPROVED_SPREADSHEET_ID);
-    }
-
-    private void writePurchase(PurchaseRequest purchaseRequest, String spreadsheetId) {
-        try {
-            String isbn = purchaseRequest.getIsbn();
-            if (isbn == null) {
-                log.warn("Purchase approved with empty ISBN; cannot add to Google Sheet.");
-                return;
-            }
-            ValueRange body = singleValueRange(isbn);
-            sheetsService.spreadsheets().values()
-                .append(spreadsheetId, "A1:A1", body)
-                .setValueInputOption(VALUE_INPUT_OPTION_RAW)
-                .execute();
-            log.debug("Wrote purchase to Google Sheet: " + isbn);
-        }
-        catch (IOException ex) {
-            log.error("Caught IOException: ", ex);
-            return;
+        if (APPROVED_SPREADSHEET_ID != null) {
+            log.debug("Writing approved purchase.");
+            writePurchase(purchaseRequest, APPROVED_SPREADSHEET_ID);
         }
     }
 
-    private static ValueRange singleValueRange(String value) {
+    abstract void writePurchase(PurchaseRequest purchaseRequest, String spreadsheetId);
+
+    static ValueRange valueRange(List<Object> row) {
+        List<List<Object>> values = Arrays.asList(row);
+        return new ValueRange().setValues(values);
+    }
+
+    static ValueRange singleValueRange(String value) {
         List<List<Object>> values = Arrays.asList(
             Arrays.asList(new Object[] { value } )
         );

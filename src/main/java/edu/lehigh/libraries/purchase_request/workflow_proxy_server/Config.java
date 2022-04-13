@@ -357,15 +357,8 @@ public class Config {
     @Getter @Setter
     public static class GoogleSheets {
 
-        /**
-         * ID of the Google Sheets spreadsheet on which to write the ISBNs of requested items.
-         */
-        private String requestedSpreadsheetId;
-
-        /**
-         * ID of the Google Sheets spreadsheet on which to write the ISBNs of approved items.
-         */
-        private String approvedSpreadsheetId;
+        private OutputType matchMarc;
+        private OutputType fullRecord;
 
         /**
          * Path to the google-sheets-client-secret.json file used to connect to the API.
@@ -376,6 +369,22 @@ public class Config {
          * Header text for the column of ISBNs.
          */
         private String isbnColumnHeader;
+
+        @Getter @Setter
+        public static class OutputType {
+
+            /**
+             * ID of the Google Sheets spreadsheet on which to write the ISBNs of requested items.
+             */
+            private String requestedSpreadsheetId;
+
+            /**
+             * ID of the Google Sheets spreadsheet on which to write the ISBNs of approved items.
+             */
+            private String approvedSpreadsheetId;
+            
+        }
+
     }
 
 }
