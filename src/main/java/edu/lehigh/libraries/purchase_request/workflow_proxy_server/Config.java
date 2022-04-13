@@ -163,6 +163,11 @@ public class Config {
          */
         private String requesterRoleFieldId;
 
+        /**
+         * Maximum results to return from a call to /search
+         */
+        private Integer maxSearchResults;
+
     }
 
     @Getter @Setter

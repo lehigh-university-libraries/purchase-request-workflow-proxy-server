@@ -58,6 +58,7 @@ public class JiraWorkflowService implements WorkflowService {
     private String REQUESTER_USERNAME_FIELD_ID;
     private String REQUESTER_ROLE_FIELD_ID;
     private Long APPROVED_STATUS_ID;
+    private Integer MAX_SEARCH_RESULTS;
 
     private List<WorkflowServiceListener> listeners;
 
@@ -84,6 +85,7 @@ public class JiraWorkflowService implements WorkflowService {
         REQUESTER_USERNAME_FIELD_ID = config.getJira().getRequesterUsernameFieldId();
         REQUESTER_ROLE_FIELD_ID = config.getJira().getRequesterRoleFieldId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
+        MAX_SEARCH_RESULTS = config.getJira().getMaxSearchResults();
     }
 
     private void initConnection() {
@@ -247,7 +249,7 @@ public class JiraWorkflowService implements WorkflowService {
     }
 
     private List<PurchaseRequest> searchJql(String jql) {
-        SearchResult result = client.getSearchClient().searchJql(jql).claim();
+        SearchResult result = client.getSearchClient().searchJql(jql, MAX_SEARCH_RESULTS, null, null).claim();
         List<PurchaseRequest> list = new LinkedList<PurchaseRequest>();
         result.getIssues().forEach((issue) -> {
             PurchaseRequest purchaseRequest = toPurchaseRequest(issue);
