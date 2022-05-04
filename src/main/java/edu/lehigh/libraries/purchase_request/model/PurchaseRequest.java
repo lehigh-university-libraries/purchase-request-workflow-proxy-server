@@ -72,6 +72,9 @@ public class PurchaseRequest {
     @NoHtml
     private String requesterRole;
 
+    @NoHtml
+    private String librarianUsername;
+
     @Pattern(regexp = SANITIZED_STRING_PATTERN)
     private String creationDate;
 

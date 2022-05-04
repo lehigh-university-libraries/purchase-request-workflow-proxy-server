@@ -32,6 +32,11 @@ public class LibrarianEnrichment implements EnrichmentService {
 
     @Override
     public void enrichPurchaseRequest(PurchaseRequest purchaseRequest) {
+        if (purchaseRequest.getLibrarianUsername() != null) {
+            log.debug("Librarian already assigned: " + purchaseRequest.getLibrarianUsername());
+            return;
+        }
+
         String callNumber = purchaseRequest.getCallNumber();
         if (callNumber == null) {
             log.debug("Skipping LibrarianEnrichment, no call number provided.");

@@ -171,6 +171,11 @@ public class JiraWorkflowService implements WorkflowService {
         issueBuilder.setFieldValue(CLIENT_NAME_FIELD_ID, purchaseRequest.getClientName());
         issueBuilder.setFieldValue(REQUESTER_USERNAME_FIELD_ID, purchaseRequest.getRequesterUsername());
         issueBuilder.setFieldValue(REQUESTER_ROLE_FIELD_ID, purchaseRequest.getRequesterRole());
+
+        if (purchaseRequest.getLibrarianUsername() != null && userExists(purchaseRequest.getLibrarianUsername())) {
+            issueBuilder.setAssigneeName(purchaseRequest.getLibrarianUsername());
+        }
+
         setReporter(issueBuilder, purchaseRequest);
         if (purchaseRequest.getRequesterComments() != null) {            
             issueBuilder.setDescription("Patron Comment: " + purchaseRequest.getRequesterComments());        
@@ -355,6 +360,7 @@ public class JiraWorkflowService implements WorkflowService {
         purchaseRequest.setRequesterUsername((String)issue.getField(REQUESTER_USERNAME_FIELD_ID).getValue());
         purchaseRequest.setRequesterRole((String)issue.getField(REQUESTER_ROLE_FIELD_ID).getValue());
         purchaseRequest.setRequesterComments(issue.getDescription());
+        purchaseRequest.setLibrarianUsername(issue.getAssignee() != null ? issue.getAssignee().getName() : null);
         purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
         return purchaseRequest;
     }
