@@ -26,7 +26,7 @@ public class LibrarianEnrichment implements EnrichmentService {
 
         BASE_URL = config.getLibrarianCallNumbers().getBaseUrl();
 
-        manager.addListener(this);
+        manager.addListener(this, 500);
         log.debug("LibrarianEnrichment ready.");
     }
 

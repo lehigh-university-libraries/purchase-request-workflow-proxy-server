@@ -164,6 +164,16 @@ public class Config {
         private String requesterRoleFieldId;
 
         /**
+         * ID of the Jira custom field representing a budget fund code for this request.
+         */
+        private String fundCodeFieldId;
+
+        /**
+         * ID of the Jira custom field representing a budget object or purpose code for this request.
+         */
+        private String objectCodeFieldId;
+
+        /**
          * Maximum results to return from a call to /search
          */
         private Integer maxSearchResults;

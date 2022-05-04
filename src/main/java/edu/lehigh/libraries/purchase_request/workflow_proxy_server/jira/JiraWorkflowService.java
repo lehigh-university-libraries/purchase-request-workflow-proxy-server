@@ -57,6 +57,8 @@ public class JiraWorkflowService implements WorkflowService {
     private String REPORTER_NAME_FIELD_ID;
     private String REQUESTER_USERNAME_FIELD_ID;
     private String REQUESTER_ROLE_FIELD_ID;
+    private String FUND_CODE_FIELD_ID;
+    private String OBJECT_CODE_FIELD_ID;
     private Long APPROVED_STATUS_ID;
     private Integer MAX_SEARCH_RESULTS;
 
@@ -84,6 +86,8 @@ public class JiraWorkflowService implements WorkflowService {
         REPORTER_NAME_FIELD_ID = config.getJira().getReporterNameFieldId();
         REQUESTER_USERNAME_FIELD_ID = config.getJira().getRequesterUsernameFieldId();
         REQUESTER_ROLE_FIELD_ID = config.getJira().getRequesterRoleFieldId();
+        FUND_CODE_FIELD_ID = config.getJira().getFundCodeFieldId();
+        OBJECT_CODE_FIELD_ID = config.getJira().getObjectCodeFieldId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
         MAX_SEARCH_RESULTS = config.getJira().getMaxSearchResults();
     }
@@ -284,6 +288,12 @@ public class JiraWorkflowService implements WorkflowService {
         else if (EnrichmentType.LIBRARIAN == type) {
             enrichAssignee(purchaseRequest, (String)data);
         }
+        else if (EnrichmentType.FUND_CODE == type) {
+            enrichFundCode(purchaseRequest, (String)data);
+        }
+        else if (EnrichmentType.OBJECT_CODE == type) {
+            enrichObjectCode(purchaseRequest, (String)data);
+        }
         else {
             throw new IllegalArgumentException("Unknown enrichment type " + type);
         }
@@ -339,6 +349,20 @@ public class JiraWorkflowService implements WorkflowService {
         client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
     }
 
+    private void enrichFundCode(PurchaseRequest purchaseRequest, String fundCode) {
+        IssueInput input = new IssueInputBuilder()
+            .setFieldValue(FUND_CODE_FIELD_ID, fundCode)
+            .build();
+        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+    }
+
+    private void enrichObjectCode(PurchaseRequest purchaseRequest, String objetCode) {
+        IssueInput input = new IssueInputBuilder()
+            .setFieldValue(OBJECT_CODE_FIELD_ID, objetCode)
+            .build();
+        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+    }
+
     @Override
     public void addListener(WorkflowServiceListener listener) {
         listeners.add(listener);
@@ -361,6 +385,8 @@ public class JiraWorkflowService implements WorkflowService {
         purchaseRequest.setRequesterRole((String)issue.getField(REQUESTER_ROLE_FIELD_ID).getValue());
         purchaseRequest.setRequesterComments(issue.getDescription());
         purchaseRequest.setLibrarianUsername(issue.getAssignee() != null ? issue.getAssignee().getName() : null);
+        purchaseRequest.setFundCode((String)issue.getField(FUND_CODE_FIELD_ID).getValue());
+        purchaseRequest.setObjectCode((String)issue.getField(OBJECT_CODE_FIELD_ID).getValue());
         purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
         return purchaseRequest;
     }
