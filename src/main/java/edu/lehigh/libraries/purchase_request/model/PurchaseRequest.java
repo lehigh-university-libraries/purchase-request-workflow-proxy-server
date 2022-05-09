@@ -32,6 +32,9 @@ public class PurchaseRequest {
 
     private Long id;
 
+    @NoHtml
+    private String status;
+
     @NotNull
     @NoHtml
     private String title;
