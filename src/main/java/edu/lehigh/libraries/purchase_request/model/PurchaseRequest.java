@@ -87,6 +87,9 @@ public class PurchaseRequest {
     @Pattern(regexp = SANITIZED_STRING_PATTERN)
     private String creationDate;
 
+    @Pattern(regexp = SANITIZED_STRING_PATTERN)
+    private String updateDate;
+
     public String getPrefixedOclcNumber() {
         return OCLC_NUMBER_PREFIX + oclcNumber;
     }

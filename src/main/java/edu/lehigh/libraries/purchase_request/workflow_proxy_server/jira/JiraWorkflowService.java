@@ -389,6 +389,7 @@ public class JiraWorkflowService implements WorkflowService {
         purchaseRequest.setFundCode((String)issue.getField(FUND_CODE_FIELD_ID).getValue());
         purchaseRequest.setObjectCode((String)issue.getField(OBJECT_CODE_FIELD_ID).getValue());
         purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
+        purchaseRequest.setUpdateDate(formatDateTime(issue.getUpdateDate()));
         return purchaseRequest;
     }
 
