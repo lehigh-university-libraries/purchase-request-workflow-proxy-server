@@ -18,12 +18,12 @@ public class JiraResponseController {
     @PostMapping("/purchase-requests/status/{issueKey}")
     void statusChanged(@PathVariable String issueKey) {
         log.debug("Received message from Jira about key: " + issueKey);
-        confirmAndReportStatus(issueKey);
+        notifyPurchaseRequestUpdated(issueKey);
     }
 
     @Async
-    void confirmAndReportStatus(String issueKey) {
-        service.confirmPurchaseApproved(issueKey);
+    void notifyPurchaseRequestUpdated(String issueKey) {
+        service.purchaseRequestUpdated(issueKey);
     }
     
 }

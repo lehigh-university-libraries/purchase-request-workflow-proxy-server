@@ -27,15 +27,14 @@ import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.model.SearchQuery;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.AbstractWorkflowService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServiceListener;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class JiraWorkflowService implements WorkflowService {
+public class JiraWorkflowService extends AbstractWorkflowService {
 
     private JiraRestClient client;
     private Config config;
@@ -62,14 +61,11 @@ public class JiraWorkflowService implements WorkflowService {
     private Long APPROVED_STATUS_ID;
     private Integer MAX_SEARCH_RESULTS;
 
-    private List<WorkflowServiceListener> listeners;
-
     public JiraWorkflowService(Config config) {
+        super();
         this.config = config;
         initMetadata();
         initConnection();
-
-        listeners = new LinkedList<WorkflowServiceListener>();
     }
 
     private void initMetadata() {
@@ -185,11 +181,8 @@ public class JiraWorkflowService implements WorkflowService {
             issueBuilder.setDescription("Patron Comment: " + purchaseRequest.getRequesterComments());        
         }
         String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
-
         PurchaseRequest createdRequest = findByKey(key);
-        for (WorkflowServiceListener listener : listeners) {
-            listener.purchaseRequested(createdRequest);
-        }
+        notifyPurchaseRequestCreated(createdRequest);
 
         return createdRequest;
     }
@@ -363,11 +356,6 @@ public class JiraWorkflowService implements WorkflowService {
         client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
     }
 
-    @Override
-    public void addListener(WorkflowServiceListener listener) {
-        listeners.add(listener);
-    }
-
     private PurchaseRequest toPurchaseRequest(Issue issue) {
         PurchaseRequest purchaseRequest = new PurchaseRequest();
         purchaseRequest.setKey(issue.getKey());
@@ -398,21 +386,19 @@ public class JiraWorkflowService implements WorkflowService {
         return fmt.print(dateTime);
     }
 
-    void confirmPurchaseApproved(String key) {
+    void purchaseRequestUpdated(String key) {
         Issue issue = getByKey(key);
         if (issue == null) {
-            log.warn("Got purchase approved message for unknown key: " + key);
+            log.warn("Got purchase updated message for unknown key: " + key);
+            return;
         }
-        else if (APPROVED_STATUS_ID.equals(issue.getStatus().getId())) {
-            issue.getChangelog();
-            // TODO Confirm that the status was just set in the last minute or so, to verify.
-            PurchaseRequest purchaseRequest = toPurchaseRequest(issue);
-            for (WorkflowServiceListener listener : listeners) {
-                listener.purchaseApproved(purchaseRequest);
-            }
+        
+        PurchaseRequest purchaseRequest = toPurchaseRequest(issue);
+        if (APPROVED_STATUS_ID.equals(issue.getStatus().getId())) {
+            notifyPurchaseRequestApproved(purchaseRequest);
         }
         else {
-            log.warn("Ignoring purchase approval with wrong status: " + issue.getStatus().getId());
+            log.warn("Ignoring purchase request updated with unhandled status: " + issue.getStatus().getId());
         }
     }
     
