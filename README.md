@@ -99,9 +99,7 @@ A matching service equivalent to [Local Holdings enrichment](#enrichment) is als
 
 The Workflow Proxy Server is a Java Spring Boot application, built on Java SE 11 (LTS).
 
-The Maven configuration generates a .war file that can be run standalone (equivalent to a .jar):
-
-Or deployed to Jetty (tested) or another web application server like Tomcat.
+The Maven configuration generates a .war file that can be run standalone (equivalent to a .jar), or deployed to Jetty (tested) or another web application server like Tomcat.
 
 In either case, it requires the `application.properties` configuration file to be available [where the application can find it](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#features.external-config).
 
