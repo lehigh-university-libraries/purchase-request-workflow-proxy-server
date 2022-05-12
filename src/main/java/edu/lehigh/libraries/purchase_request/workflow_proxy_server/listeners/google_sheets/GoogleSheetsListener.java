@@ -114,6 +114,12 @@ abstract class GoogleSheetsListener implements WorkflowServiceListener {
         return new ValueRange().setValues(values);
     }
 
+
+    static String formatCell(String value) {
+        // Google skips columns for null, requires an empty string.
+        return value == null ? "" : value;
+    }
+
     protected void writeRow(List<Object> recordRow, String spreadsheetId) {
         ValueRange body = valueRange(recordRow);
         try {

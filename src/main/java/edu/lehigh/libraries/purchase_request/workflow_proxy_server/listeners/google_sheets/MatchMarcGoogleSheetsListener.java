@@ -45,11 +45,11 @@ public class MatchMarcGoogleSheetsListener extends GoogleSheetsListener {
 
     private List<Object> toRow(PurchaseRequest purchaseRequest) {
         return Arrays.asList(new Object[] {
-            purchaseRequest.getIsbn(),
-            purchaseRequest.getOclcNumber(),
-            purchaseRequest.getFundCode(),
-            purchaseRequest.getObjectCode(),
-            purchaseRequest.getDestination(),
+            formatCell(purchaseRequest.getIsbn()),
+            formatCell(purchaseRequest.getOclcNumber()),
+            formatCell(purchaseRequest.getFundCode()),
+            formatCell(purchaseRequest.getObjectCode()),
+            formatCell(purchaseRequest.getDestination()),
         });
     }
 

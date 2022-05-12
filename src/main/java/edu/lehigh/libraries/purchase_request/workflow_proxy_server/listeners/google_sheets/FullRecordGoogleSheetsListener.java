@@ -45,9 +45,9 @@ public class FullRecordGoogleSheetsListener extends GoogleSheetsListener {
 
     private List<Object> toRow(PurchaseRequest purchaseRequest) {
         return Arrays.asList(new Object[] {
-            purchaseRequest.getIsbn(),
-            purchaseRequest.getTitle(),
-            purchaseRequest.getContributor()
+            formatCell(purchaseRequest.getIsbn()),
+            formatCell(purchaseRequest.getTitle()),
+            formatCell(purchaseRequest.getContributor()),
         });
     }
 
