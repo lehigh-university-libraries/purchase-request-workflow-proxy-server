@@ -5,8 +5,6 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.api.services.sheets.v4.model.ValueRange;
-
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -33,20 +31,16 @@ public class FullRecordGoogleSheetsListener extends GoogleSheetsListener {
     }
 
     @Override
+    List<Object> getHeaders() {
+        return Arrays.asList(new Object[] {
+            "ISBN", "Title", "Contributor",
+        });
+    }
+
+    @Override
     void writePurchase(PurchaseRequest purchaseRequest, String spreadsheetId) {
         List<Object> recordRow = toRow(purchaseRequest);
-        ValueRange body = valueRange(recordRow);
-        try {
-            sheetsService.spreadsheets().values()
-                .append(spreadsheetId, "A1:A1", body)
-                .setValueInputOption(VALUE_INPUT_OPTION_RAW)
-                .execute();
-            log.debug("Wrote purchase to Google Sheet: " + purchaseRequest);
-        }
-        catch (IOException ex) {
-            log.error("Caught IOException: ", ex);
-            return;
-        }
+        writeRow(recordRow, spreadsheetId);
     }
 
     private List<Object> toRow(PurchaseRequest purchaseRequest) {

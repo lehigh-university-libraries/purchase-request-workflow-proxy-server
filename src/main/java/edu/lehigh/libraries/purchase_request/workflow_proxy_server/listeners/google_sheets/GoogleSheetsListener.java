@@ -35,7 +35,6 @@ abstract class GoogleSheetsListener implements WorkflowServiceListener {
     String APPROVED_SPREADSHEET_ID;
     List<String> ALL_SHEETS_TO_TEST;
     private String CREDENTIALS_FILE_PATH;
-    private String ISBN_COLUMN_HEADER;
 
     Config config;
     Sheets sheetsService;
@@ -50,8 +49,9 @@ abstract class GoogleSheetsListener implements WorkflowServiceListener {
 
     void initMetadata() {
         CREDENTIALS_FILE_PATH = config.getGoogleSheets().getCredentialsFilePath();
-        ISBN_COLUMN_HEADER = config.getGoogleSheets().getIsbnColumnHeader();
     }
+
+    abstract List<Object> getHeaders();
 
     List<String> sheetsToTest(String[] ids) {
         List<String> sheets = new ArrayList<String>();
@@ -75,10 +75,10 @@ abstract class GoogleSheetsListener implements WorkflowServiceListener {
 
     private void confirmWritePermission(Credential credential) throws IOException {
         // Set the column header as both a convenience and a start-time test of write permissions.
-        ValueRange body = singleValueRange(ISBN_COLUMN_HEADER);
+        ValueRange body = valueRange(getHeaders());
         for (String spreadsheetId: ALL_SHEETS_TO_TEST) {
             sheetsService.spreadsheets().values()
-                .update(spreadsheetId, "A1:A1", body)
+                .update(spreadsheetId, "A1:Z1", body)
                 .setValueInputOption(VALUE_INPUT_OPTION_RAW)
                 .execute();
         }
@@ -112,6 +112,21 @@ abstract class GoogleSheetsListener implements WorkflowServiceListener {
             Arrays.asList(new Object[] { value } )
         );
         return new ValueRange().setValues(values);
+    }
+
+    protected void writeRow(List<Object> recordRow, String spreadsheetId) {
+        ValueRange body = valueRange(recordRow);
+        try {
+            sheetsService.spreadsheets().values()
+                .append(spreadsheetId, "A1:A1", body)
+                .setValueInputOption(VALUE_INPUT_OPTION_RAW)
+                .execute();
+            log.debug("Wrote purchase to Google Sheet: " + recordRow);
+        }
+        catch (IOException ex) {
+            log.error("Caught IOException: ", ex);
+            return;
+        }
     }
 
     private static class GoogleAuthorizeUtil {

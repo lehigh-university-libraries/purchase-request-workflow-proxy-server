@@ -2,8 +2,8 @@ package edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners.go
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-
-import com.google.api.services.sheets.v4.model.ValueRange;
+import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -31,24 +31,26 @@ public class MatchMarcGoogleSheetsListener extends GoogleSheetsListener {
     }
 
     @Override
+    List<Object> getHeaders() {
+        return Arrays.asList(new Object[] {
+            "ISBN", "OCLC", "Fund", "Object", "Destination",
+        });
+    }
+
+    @Override
     void writePurchase(PurchaseRequest purchaseRequest, String spreadsheetId) {
-        try {
-            String isbn = purchaseRequest.getIsbn();
-            if (isbn == null) {
-                log.warn("Purchase approved with empty ISBN; cannot add to Google Sheet.");
-                return;
-            }
-            ValueRange body = singleValueRange(isbn);
-            sheetsService.spreadsheets().values()
-                .append(spreadsheetId, "A1:A1", body)
-                .setValueInputOption(VALUE_INPUT_OPTION_RAW)
-                .execute();
-            log.debug("Wrote purchase to Google Sheet: " + isbn);
-        }
-        catch (IOException ex) {
-            log.error("Caught IOException: ", ex);
-            return;
-        }
+        List<Object> recordRow = toRow(purchaseRequest);
+        writeRow(recordRow, spreadsheetId);
+    }
+
+    private List<Object> toRow(PurchaseRequest purchaseRequest) {
+        return Arrays.asList(new Object[] {
+            purchaseRequest.getIsbn(),
+            purchaseRequest.getOclcNumber(),
+            purchaseRequest.getFundCode(),
+            purchaseRequest.getObjectCode(),
+            purchaseRequest.getDestination(),
+        });
     }
 
 }
