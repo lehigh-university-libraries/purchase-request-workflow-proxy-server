@@ -33,7 +33,7 @@ public class MatchMarcGoogleSheetsListener extends GoogleSheetsListener {
     @Override
     List<Object> getHeaders() {
         return Arrays.asList(new Object[] {
-            "ISBN", "OCLC", "Fund", "Object", "Destination",
+            "ISBN", "OCLC", "Fund", "Object", "Destination", "Requester Comments",
         });
     }
 
@@ -50,6 +50,7 @@ public class MatchMarcGoogleSheetsListener extends GoogleSheetsListener {
             formatCell(purchaseRequest.getFundCode()),
             formatCell(purchaseRequest.getObjectCode()),
             formatCell(purchaseRequest.getDestination()),
+            formatCell(purchaseRequest.getRequesterComments()),
         });
     }
 
