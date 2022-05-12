@@ -6,7 +6,7 @@ public enum EnrichmentType {
     LOCAL_HOLDINGS,
     PRICING,
     REQUESTER_ROLE,
-    LIBRARIAN,
+    LIBRARIANS,
     FUND_CODE,
     OBJECT_CODE;
 }

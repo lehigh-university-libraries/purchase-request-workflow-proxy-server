@@ -178,6 +178,12 @@ public class Config {
          */
         private Integer maxSearchResults;
 
+        /**
+         * Username to use as Jira assignee if multiple librarians are relevant to the request.
+         * Intended to be a forwarding email address.
+         */
+        private String multipleLibrariansUsername;
+
     }
 
     @Getter @Setter

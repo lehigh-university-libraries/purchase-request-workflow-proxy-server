@@ -1,5 +1,8 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -53,12 +56,14 @@ public class LibrarianEnrichment implements EnrichmentService {
             return;
         }
 
+        List<String> usernames = new ArrayList<String>();
         for (int i=0; i < responseArray.length(); i++) {
             JSONObject librarian = responseArray.getJSONObject(i);
             String username = librarian.getString("username");
             log.debug("Found a Librarian: " + username);
-            workflowService.enrich(purchaseRequest, EnrichmentType.LIBRARIAN, username);
+            usernames.add(username);
         }
+        workflowService.enrich(purchaseRequest, EnrichmentType.LIBRARIANS, usernames);
     }
     
 }

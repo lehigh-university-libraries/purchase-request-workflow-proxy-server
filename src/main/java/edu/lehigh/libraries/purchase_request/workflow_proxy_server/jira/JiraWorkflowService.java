@@ -60,6 +60,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String OBJECT_CODE_FIELD_ID;
     private Long APPROVED_STATUS_ID;
     private Integer MAX_SEARCH_RESULTS;
+    private String MULTIPLE_LIBRARIANS_USERNAME;
 
     public JiraWorkflowService(Config config) {
         super();
@@ -86,6 +87,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         OBJECT_CODE_FIELD_ID = config.getJira().getObjectCodeFieldId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
         MAX_SEARCH_RESULTS = config.getJira().getMaxSearchResults();
+        MULTIPLE_LIBRARIANS_USERNAME = config.getJira().getMultipleLibrariansUsername();
     }
 
     private void initConnection() {
@@ -278,8 +280,8 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         else if (EnrichmentType.REQUESTER_ROLE == type) {
             enrichRequesterType(purchaseRequest, (String)data);
         }
-        else if (EnrichmentType.LIBRARIAN == type) {
-            enrichAssignee(purchaseRequest, (String)data);
+        else if (EnrichmentType.LIBRARIANS == type) {
+            enrichAssignee(purchaseRequest, data);
         }
         else if (EnrichmentType.FUND_CODE == type) {
             enrichFundCode(purchaseRequest, (String)data);
@@ -330,7 +332,21 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
     }
 
-    private void enrichAssignee(PurchaseRequest purchaseRequest, String username) {
+    @SuppressWarnings("unchecked")
+    private void enrichAssignee(PurchaseRequest purchaseRequest, Object usernames) {
+        enrichAssignee(purchaseRequest, (List<String>)usernames);
+    }
+
+    private void enrichAssignee(PurchaseRequest purchaseRequest, List<String> usernames) {
+        String username;
+        if (usernames.size() == 1) {
+            username = usernames.get(0);
+        }
+        else {
+            log.debug("Enriching with " + MULTIPLE_LIBRARIANS_USERNAME + " due to multiple librarians");
+            username = MULTIPLE_LIBRARIANS_USERNAME;
+        }
+
         if (!userExists(username)) {
             log.error("Enriching assignee fails, no user exists: " + username);
             return;
