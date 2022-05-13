@@ -387,7 +387,9 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         purchaseRequest.setDestination((String)issue.getField(DESTINATION_FIELD_ID).getValue());
         purchaseRequest.setClientName((String)issue.getField(CLIENT_NAME_FIELD_ID).getValue());
         purchaseRequest.setRequesterUsername((String)issue.getField(REQUESTER_USERNAME_FIELD_ID).getValue());
-        purchaseRequest.setRequesterRole((String)issue.getField(REQUESTER_ROLE_FIELD_ID).getValue());
+        if (issue.getField(REQUESTER_ROLE_FIELD_ID) != null) {
+            purchaseRequest.setRequesterRole((String)issue.getField(REQUESTER_ROLE_FIELD_ID).getValue());
+        }
         purchaseRequest.setRequesterComments(issue.getDescription());
         purchaseRequest.setLibrarianUsername(issue.getAssignee() != null ? issue.getAssignee().getName() : null);
         if (issue.getField(FUND_CODE_FIELD_ID) != null) {

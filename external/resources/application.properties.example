@@ -87,8 +87,9 @@ workflow.folio.websiteBaseUrl=https://subdomain.folio.indexdata.com
 workflow.vu-find.base-url=https://library.someuniversity.edu
 
 
-# LDAP
+# Requester Enrichment
 
+workflow.requester=ldap
 spring.ldap.urls=ldaps://ldap.someuniversity.edu:123
 spring.ldap.base=dc=someuniversity,dc=edu
 workflow.ldap.username-query-field=uid

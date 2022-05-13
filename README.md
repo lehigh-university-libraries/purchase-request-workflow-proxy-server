@@ -206,7 +206,7 @@ Each of the following configuration parameters defines the Jira ID of a custom f
 | workflow.jira.destinationFieldId | Stores the requested destination of the item after purchase. | Y | 
 | workflow.jira.clientNameFieldId | Stores the name of the client application that submitted a purchase request. | Y | 
 | workflow.jira.requesterUsernameFieldId | Stores the email / LDAP username of the patron or staff member who requested an item. | Y | 
-| workflow.jira.requesterRoleFieldId | Stores the role, department and/or other description of the requester, as provided by LDAP. | Y | 
+| workflow.jira.requesterRoleFieldId | Stores the role, department and/or other description of the requester, as provided by LDAP. | If `workflow.requester` is set | 
 | workflow.jira.fundCodeFieldId | Stores the requested budget fund code to assign to an item purchase. | If `workflow.enrichment.budget-code` is set | 
 | workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | If `workflow.enrichment.budget-code` is set | 
 
@@ -261,16 +261,17 @@ For connecting to the FOLIO API.
 | -- | -- | -- |
 | workflow.vu-find.base-url | Base URL for the VuFind catalog UI.  Used to format links to VuFind local holdings. | Y |
 
-### LDAP Section
+### Requester Enrichment Section
 
-Used by Requester Enrichment for information about the patron requesting a purchase.
+Used for information about the patron requesting a purchase.
 
 | Property | Description | Required |
 | -- | -- | -- |
-| spring.ldap.urls | URL for LDAP queries. | Y |
-| spring.ldap.base | Base string for LDAP queries. | Y |
-| workflow.ldap.username-query-field | Parameter representing the username in the LDAP query.  Generally `uid`.  | Y | 
-| workflow.ldap.role-result-field | LDAP search result field containing the role string reported by Requester Enrichment.  Generally `description`. | Y | 
+| workflow.requester | `ldap` to enable requester enrichment | N |
+| spring.ldap.urls | URL for LDAP queries. | If `workflow.requester` is set |
+| spring.ldap.base | Base string for LDAP queries. | If `workflow.requester` is set |
+| workflow.ldap.username-query-field | Parameter representing the username in the LDAP query.  Generally `uid`.  | If `workflow.requester` is set | 
+| workflow.ldap.role-result-field | LDAP search result field containing the role string reported by Requester Enrichment.  Generally `description`. | If `workflow.requester` is set | 
 
 ### Pricing Enrichment Section
 
