@@ -283,13 +283,14 @@ Used by Pricing Enrichment to retrieve the list price(s) of a requested purchase
 | workflow.isbn-db.api-key | API key provided by IsbnDB. | If `workflow.pricing` is set |
 | workflow.isbn-db.title-search.filter-on-contributor | `true` or `false`.  If `true`, title search results are filtered by the requested contributor name. | If `workflow.isbn-db.method` is title | 
 
-### Librarian Call Numbers Section
+### Librarian Enrichment Section
 
 Librarian Enrichment makes use of a separate [Librarian Call Numbers](https://github.com/lehigh-university-libraries/librarian-call-numbers) web service which maps a call number to a list of librarians who are involved in selection for that range.
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.librarian-call-numbers.base-url | Base URL of the Librarian Call Numbers service. | Y |
+| workflow.librarian-call-numbers | `service` to enable librarian enrichment. | N |
+| workflow.librarian-call-numbers.base-url | Base URL of the Librarian Call Numbers service. | If `workflow.librarian-call-numbers` is set |
 
 ### Email Section
 

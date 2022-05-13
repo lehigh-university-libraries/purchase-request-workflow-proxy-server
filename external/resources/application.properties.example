@@ -103,8 +103,9 @@ workflow.isbn-db.api-key=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 workflow.isbn-db.title-search.filter-on-contributor=true
 
 
-# Librarian Call Numbers
+# Librarian Enrichment
 
+workflow.librarian-call-numbers=service
 workflow.librarian-call-numbers.base-url=http://hostname.someuniversity.edu:8080
 
 
