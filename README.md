@@ -272,14 +272,16 @@ Used by Requester Enrichment for information about the patron requesting a purch
 | workflow.ldap.username-query-field | Parameter representing the username in the LDAP query.  Generally `uid`.  | Y | 
 | workflow.ldap.role-result-field | LDAP search result field containing the role string reported by Requester Enrichment.  Generally `description`. | Y | 
 
-### IsbnDB Section
+### Pricing Enrichment Section
 
 Used by Pricing Enrichment to retrieve the list price(s) of a requested purchase.  The [IsbnDB API](https://isbndb.com/isbn-database) is is a commercial service, but relatively affordable (~ $10/m).
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.isbn-db.api-key | API key provided by IsbnDB. | Y |
-| workflow.isbn-db.title-search.filter-on-contributor | `true` or `false`.  The IsbnDB search uses the title of the requested item.  If `true`, title search results are filtered by the requested contributor name. | Y | 
+| workflow.pricing | `IsbnDB` to enable pricing enrichment | N |
+| workflow.isbn-db.method | `title` or `isbn`.  Two methods are available to search IsbnDB.  Title search is recommended, as the odds of a given ISBN being present in the database are lower. | If `workflow.pricing` is set |
+| workflow.isbn-db.api-key | API key provided by IsbnDB. | If `workflow.pricing` is set |
+| workflow.isbn-db.title-search.filter-on-contributor | `true` or `false`.  If `true`, title search results are filtered by the requested contributor name. | If `workflow.isbn-db.method` is title | 
 
 ### Librarian Call Numbers Section
 

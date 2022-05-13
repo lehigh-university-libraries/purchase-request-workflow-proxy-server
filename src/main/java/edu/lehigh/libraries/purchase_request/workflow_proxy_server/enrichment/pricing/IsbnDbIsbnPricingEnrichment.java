@@ -1,6 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.pricing;
 
 import org.json.JSONObject;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@ConditionalOnExpression("'${workflow.pricing}'.equals('IsbnDb') and '${workflow.isbn-db.method}'.equals('isbn')")
 public class IsbnDbIsbnPricingEnrichment extends IsbnDbPricingEnrichment {
 
     IsbnDbIsbnPricingEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) {

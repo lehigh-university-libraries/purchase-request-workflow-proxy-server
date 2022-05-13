@@ -95,8 +95,10 @@ workflow.ldap.username-query-field=uid
 workflow.ldap.role-result-field=description
 
 
-# IsbnDB
+# Pricing Enrichment
 
+workflow.pricing=IsbnDB
+workflow.isbn-db.method=title
 workflow.isbn-db.api-key=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 workflow.isbn-db.title-search.filter-on-contributor=true
 
