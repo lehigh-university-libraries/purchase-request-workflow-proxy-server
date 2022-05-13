@@ -26,6 +26,8 @@ public class EmailListener implements WorkflowServiceListener {
 
         FROM_ADDRESS = config.getEmail().getFromAddress();
         PURCHASE_REQUESTED_ADDRESSES = config.getEmail().getPurchaseRequestedAddresses();
+
+        log.debug("EmailListener listening.");
     }
 
     @Override
