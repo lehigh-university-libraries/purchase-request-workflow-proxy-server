@@ -61,9 +61,9 @@ workflow.oclc.localInstitutionSymbol=ABC
 workflow.oclc.classification-type=dewey
 
 
-# Local Holdings
+# Local Holdings Enrichment
 
-workflow.localHoldings.dataSource=FOLIO
+workflow.localHoldings=FOLIO
 workflow.localHoldings.linkTo=VuFind
 
 

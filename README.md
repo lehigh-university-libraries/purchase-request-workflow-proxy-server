@@ -229,12 +229,12 @@ OCLC APIs are used by various [holdings enrichment steps](#enrichment) and the [
 | workflow.oclc.localInstitutionSymbol | Three-letter OCLC institutional symbol | Y | 
 | workflow.oclc.classification-type | `dewey` or other key available in the `classification` result from an OCLC search, present in records cataloged by the Library of Congress (DLC).  Used by the Librarian Service. | Y | 
 
-### Local Holdings Section
+### Local Holdings Enrichment Section
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.localHoldings.dataSource | `FOLIO` or `OCLC`.  Determines which source and algorithm is used to identify any local holdings. | Y | 
-| workflow.localHoldings.linkTo | `VuFind` or `FOLIO`.  Determines which destination the local holdings search results should link to. | Y | 
+| workflow.localHoldings | `FOLIO` or `OCLC` to enable Local Holdings Enrichment.  Determines which source and algorithm is used to identify any local holdings. | N | 
+| workflow.localHoldings.linkTo | `VuFind` or `FOLIO`.  Determines which destination the local holdings search results should link to. | If `workflow.localHoldings` is set | 
 
 ### Group Holdings Section
 

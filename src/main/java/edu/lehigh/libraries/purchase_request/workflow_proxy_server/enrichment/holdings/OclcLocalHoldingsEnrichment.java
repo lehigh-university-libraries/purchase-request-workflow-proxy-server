@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@ConditionalOnProperty(name="workflow.localHoldings.dataSource", havingValue="OCLC")
+@ConditionalOnProperty(name="workflow.localHoldings", havingValue="OCLC")
 public class OclcLocalHoldingsEnrichment extends OclcHoldingsEnrichment {
 
     private final String LOCAL_OCLC_SYMBOL;

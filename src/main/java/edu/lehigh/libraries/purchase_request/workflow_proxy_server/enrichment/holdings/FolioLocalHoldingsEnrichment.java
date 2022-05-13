@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@ConditionalOnProperty(name="workflow.localHoldings.dataSource", havingValue="FOLIO")
+@ConditionalOnProperty(name="workflow.localHoldings", havingValue="FOLIO")
 public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
 
     private static final String INSTANCES_PATH = "/inventory/instances";
