@@ -240,7 +240,8 @@ OCLC APIs are used by various [holdings enrichment steps](#enrichment) and the [
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.groupHoldings.oclcSymbols | Comma-separated list of OCLC group symbols representing consortia that the institution belongs to.  The application will check and report separately on holdings for each group. | Y |
+| workflow.gropuHoldings | `OCLC` to enable Group Holdings Enrichment. | N |
+| workflow.groupHoldings.oclcSymbols | Comma-separated list of OCLC group symbols representing consortia that the institution belongs to.  The application will check and report separately on holdings for each group. | If `workflow.groupHoldings` is set |
 
 ### FOLIO Section
 

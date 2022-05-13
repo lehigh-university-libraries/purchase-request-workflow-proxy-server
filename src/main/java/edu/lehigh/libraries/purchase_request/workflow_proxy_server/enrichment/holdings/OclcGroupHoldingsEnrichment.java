@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@ConditionalOnProperty(name="workflow.groupHoldings.oclcSymbols")
+@ConditionalOnProperty(name="workflow.groupHoldings", havingValue="OCLC")
 public class OclcGroupHoldingsEnrichment extends OclcHoldingsEnrichment {
     
     private final List<String> GROUP_OCLC_SYMBOLS;

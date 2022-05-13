@@ -67,8 +67,9 @@ workflow.localHoldings=FOLIO
 workflow.localHoldings.linkTo=VuFind
 
 
-# Group Holdings
+# Group Holdings Enrichment
 
+workflow.groupHoldings=OCLC
 workflow.groupHoldings.oclcSymbols=EAST
 
 
