@@ -5,6 +5,9 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -14,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@Conditional(FullRecordGoogleSheetsListener.AnyStatus.class)
 public class FullRecordGoogleSheetsListener extends GoogleSheetsListener {
     
     FullRecordGoogleSheetsListener(WorkflowService workflowService, Config config) throws IOException, GeneralSecurityException {
@@ -49,6 +53,20 @@ public class FullRecordGoogleSheetsListener extends GoogleSheetsListener {
             formatCell(purchaseRequest.getTitle()),
             formatCell(purchaseRequest.getContributor()),
         });
+    }
+
+    static class AnyStatus extends AnyNestedCondition {
+        
+        AnyStatus() {
+            super(ConfigurationPhase.REGISTER_BEAN);
+        }
+    
+        @ConditionalOnProperty("workflow.google-sheets.full-record.requested-spreadsheet-id")
+        static class Requested {}
+    
+        @ConditionalOnProperty("workflow.google-sheets.full-record.accepted-spreadsheet-id")
+        static class Accepted {}
+    
     }
 
 }

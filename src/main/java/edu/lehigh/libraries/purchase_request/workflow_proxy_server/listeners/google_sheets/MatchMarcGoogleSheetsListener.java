@@ -5,6 +5,9 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -14,12 +17,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@Conditional(MatchMarcGoogleSheetsListener.AnyStatus.class)
 public class MatchMarcGoogleSheetsListener extends GoogleSheetsListener {
     
     MatchMarcGoogleSheetsListener(WorkflowService workflowService, Config config) throws IOException, GeneralSecurityException {
         super(workflowService, config);
 
-        log.debug("MatchMarcListener listening.");
+        log.debug("MatchMarcGoogleSheetsListener listening.");
     }
 
     @Override
@@ -52,6 +56,20 @@ public class MatchMarcGoogleSheetsListener extends GoogleSheetsListener {
             formatCell(purchaseRequest.getDestination()),
             formatCell(purchaseRequest.getRequesterComments()),
         });
+    }
+
+    static class AnyStatus extends AnyNestedCondition {
+        
+        AnyStatus() {
+            super(ConfigurationPhase.REGISTER_BEAN);
+        }
+    
+        @ConditionalOnProperty("workflow.google-sheets.match-marc.requested-spreadsheet-id")
+        static class Requested {}
+    
+        @ConditionalOnProperty("workflow.google-sheets.match-marc.accepted-spreadsheet-id")
+        static class Accepted {}
+    
     }
 
 }

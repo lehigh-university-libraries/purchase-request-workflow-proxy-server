@@ -123,12 +123,12 @@ workflow.email.from-address=libraryorders@someuniversity.edu
 workflow.email.purchase-requested-addresses=libraryorders@someuniversity.edu
 
 
-# Google Sheets
+# Google Sheets Listener
 
+workflow.google-sheets.credentials-file-path=./google-sheets-client-secret.json
 workflow.google-sheets.match-marc.approved-spreadsheet-id=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 workflow.google-sheets.full-record.requested-spreadsheet-id=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 workflow.google-sheets.full-record.approved-spreadsheet-id=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
-workflow.google-sheets.credentials-file-path=./google-sheets-client-secret.json
 
 
 # Debugging

@@ -308,13 +308,13 @@ For reporting via the Email Listener.
 | workflow.email.from-address | From address to use in reporting emails | Y | 
 | workflow.email.purchase-requested-addresses | Email address to send notification when a new purchase is requested, *in addition* to the emails of any associated librarians from Librarian Enrichment. | Y |
 
-### Google Sheets Section
+### Google Sheets Listener Section
 
 For reporting to Google Sheets spreadsheets.  See [reporting and post-approval processing](#routing--reporting) for additional details.
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.google-sheets.credentials-file-path | Path to the file containing the `google-sheets-client-secret.json` file provided by [Google Cloud](https://developers.google.com/workspace/guides/get-started) to the Google Workspace APIs. | Y |
+| workflow.google-sheets.credentials-file-path | Path to the file containing the `google-sheets-client-secret.json` file provided by [Google Cloud](https://developers.google.com/workspace/guides/get-started) to the Google Workspace APIs. | If any of the other `workflow.google-sheets.*` properties are set |
 | workflow.google-sheets.match-marc.approved-spreadsheet-id | ID of a spreadsheet to use for reporting approved items in MatchMARC format. | N |
 | workflow.google-sheets.full-record.requested-spreadsheet-id | ID of a spreadsheet to use for reporting newly requested items in full record format. | N |
 | workflow.google-sheets.full-record.approved-spreadsheet-id | ID of a spreadsheet to use for reporting approved items in full record format. | N |
