@@ -199,8 +199,8 @@ Each of the following configuration parameters defines the Jira ID of a custom f
 | -- | -- | -- |
 | workflow.jira.contributorFieldId | Stores the contributor (author) name. | Y | 
 | workflow.jira.isbnFieldId | Stores the ISBN. | Y | 
-| workflow.jira.oclcNumberFieldId | Stores the OCLC number. | Y | 
-| workflow.jira.callNumberFieldId | Stores the Dewey call number. | Y | 
+| workflow.jira.oclcNumberFieldId | Stores the OCLC number. | If `workflow.identifiers` is set | 
+| workflow.jira.callNumberFieldId | Stores the Dewey call number. | If `workflow.identifiers` is set | 
 | workflow.jira.formatFieldId | Stores the requested book format (i.e. print, electronic). | Y | 
 | workflow.jira.speedFieldId | Stores the requested delivery speed. | Y | 
 | workflow.jira.destinationFieldId | Stores the requested destination of the item after purchase. | Y | 
@@ -210,13 +210,17 @@ Each of the following configuration parameters defines the Jira ID of a custom f
 | workflow.jira.fundCodeFieldId | Stores the requested budget fund code to assign to an item purchase. | If `workflow.enrichment.budget-code` is set | 
 | workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | If `workflow.enrichment.budget-code` is set | 
 
+# Identifiers Enrichment Section
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.identifiers | `OCLC` to enable Identifiers Enrichment | N |
 
 # Budget Code Enrichment Section
 
 | Property | Description | Required |
 | -- | -- | -- |
 | workflow.budget-code | `FOLIO` to enable Budget Code Enrichment | N |
-
 
 ### OCLC Section
 

@@ -1,8 +1,9 @@
-package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment;
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.identifiers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -10,11 +11,15 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.OclcConnection;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentService;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class WorldCatEnrichment implements EnrichmentService {
+@ConditionalOnProperty(name="workflow.identifiers", havingValue="OCLC")
+public class OclcIdentifiersEnrichment implements EnrichmentService {
 
     private static final String SCOPE = "wcapi";
 
@@ -23,14 +28,14 @@ public class WorldCatEnrichment implements EnrichmentService {
     private final WorkflowService workflowService;
     private final OclcConnection oclcConnection;
 
-    WorldCatEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) throws Exception {
+    OclcIdentifiersEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) throws Exception {
         this.oclcConnection = new OclcConnection(config, SCOPE);
         this.workflowService = workflowService;
 
         CLASSIFICATION_TYPE = config.getOclc().getClassificationType();
 
         manager.addListener(this, 1);
-        log.debug("WorldCatEnrichment ready");
+        log.debug("OclcIdentifiersEnrichment ready");
     }
 
     @Override

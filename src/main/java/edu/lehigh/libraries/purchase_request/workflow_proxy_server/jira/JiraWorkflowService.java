@@ -380,8 +380,10 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         purchaseRequest.setTitle(issue.getSummary());
         purchaseRequest.setContributor((String)issue.getField(CONTRIBUTOR_FIELD_ID).getValue());
         purchaseRequest.setIsbn((String)issue.getField(ISBN_FIELD_ID).getValue());
-        purchaseRequest.setOclcNumber((String)issue.getField(OCLC_NUMBER_FIELD_ID).getValue());
-        purchaseRequest.setCallNumber((String)issue.getField(CALL_NUMBER_FIELD_ID).getValue());
+        if (issue.getField(OCLC_NUMBER_FIELD_ID) != null) {
+            purchaseRequest.setOclcNumber((String)issue.getField(OCLC_NUMBER_FIELD_ID).getValue());
+            purchaseRequest.setCallNumber((String)issue.getField(CALL_NUMBER_FIELD_ID).getValue());
+        }
         purchaseRequest.setFormat((String)issue.getField(FORMAT_FIELD_ID).getValue());
         purchaseRequest.setSpeed((String)issue.getField(SPEED_FIELD_ID).getValue());
         purchaseRequest.setDestination((String)issue.getField(DESTINATION_FIELD_ID).getValue());
