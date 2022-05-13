@@ -3,6 +3,7 @@ package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.b
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@ConditionalOnProperty(name="workflow.enrichment.budget-code", havingValue="FOLIO")
 public class FolioBudgetEnrichment implements EnrichmentService {
 
     private final WorkflowService workflowService;

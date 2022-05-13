@@ -54,7 +54,7 @@ Supplied implementations:
 | Pricing | Gather list price information. | IsbnDB |
 | Requester | Identify the patron's university role (i.e. faculty, undergraduate) and department as provided by the university's directory information. | LDAP | 
 | Librarian Selector | Identify the librarian(s) who should decide the purchase request, based on the item's call number. | [Librarian Call Numbers](https://github.com/lehigh-university-libraries/librarian-call-numbers) |
-| Budget Codes | Set budget codes to use if the purchase is approved, based on the librarian enrichment. | n/a, depends on Librarian enrichment |
+| Budget Codes | Set budget codes to use if the purchase is approved, based on the librarian enrichment. | FOLIO |
 | Identifiers | For use by the other enrichments, use supplied title & contributor to suggest (if not already supplied) an OCLC number and Dewey call number from Library of Congress holdings. | OCLC WorldCat 
 
 ## Clients
@@ -207,8 +207,15 @@ Each of the following configuration parameters defines the Jira ID of a custom f
 | workflow.jira.clientNameFieldId | Stores the name of the client application that submitted a purchase request. | Y | 
 | workflow.jira.requesterUsernameFieldId | Stores the email / LDAP username of the patron or staff member who requested an item. | Y | 
 | workflow.jira.requesterRoleFieldId | Stores the role, department and/or other description of the requester, as provided by LDAP. | Y | 
-| workflow.jira.fundCodeFieldId | Stores the requested budget fund code to assign to an item purchase. | Y | 
-| workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | Y | 
+| workflow.jira.fundCodeFieldId | Stores the requested budget fund code to assign to an item purchase. | If `workflow.enrichment.budget-code` is set | 
+| workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | If `workflow.enrichment.budget-code` is set | 
+
+# Enrichment Section
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.enrichment.budget-code | `FOLIO` to enable Budget Code Enrichment | N |
+
 
 ### OCLC Section
 

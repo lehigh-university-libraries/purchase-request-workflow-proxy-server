@@ -390,8 +390,10 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         purchaseRequest.setRequesterRole((String)issue.getField(REQUESTER_ROLE_FIELD_ID).getValue());
         purchaseRequest.setRequesterComments(issue.getDescription());
         purchaseRequest.setLibrarianUsername(issue.getAssignee() != null ? issue.getAssignee().getName() : null);
-        purchaseRequest.setFundCode((String)issue.getField(FUND_CODE_FIELD_ID).getValue());
-        purchaseRequest.setObjectCode((String)issue.getField(OBJECT_CODE_FIELD_ID).getValue());
+        if (issue.getField(FUND_CODE_FIELD_ID) != null) {
+            purchaseRequest.setFundCode((String)issue.getField(FUND_CODE_FIELD_ID).getValue());
+            purchaseRequest.setObjectCode((String)issue.getField(OBJECT_CODE_FIELD_ID).getValue());
+        }
         purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
         purchaseRequest.setUpdateDate(formatDateTime(issue.getUpdateDate()));
         return purchaseRequest;
