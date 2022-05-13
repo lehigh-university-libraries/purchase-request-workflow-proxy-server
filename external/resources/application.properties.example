@@ -48,9 +48,9 @@ workflow.jira.fundCodeFieldId=customfield_12345
 workflow.jira.objectCodeFieldId=customfield_12345
 
 
-# Enrichment
+# Budget Code Enrichment
 
-workflow.enrichment.budget-code=FOLIO
+workflow.budget-code=FOLIO
 
 
 # OCLC

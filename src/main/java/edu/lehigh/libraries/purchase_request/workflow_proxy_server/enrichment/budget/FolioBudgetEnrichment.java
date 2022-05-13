@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@ConditionalOnProperty(name="workflow.enrichment.budget-code", havingValue="FOLIO")
+@ConditionalOnProperty(name="workflow.budget-code", havingValue="FOLIO")
 public class FolioBudgetEnrichment implements EnrichmentService {
 
     private final WorkflowService workflowService;

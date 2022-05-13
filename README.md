@@ -210,11 +210,12 @@ Each of the following configuration parameters defines the Jira ID of a custom f
 | workflow.jira.fundCodeFieldId | Stores the requested budget fund code to assign to an item purchase. | If `workflow.enrichment.budget-code` is set | 
 | workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | If `workflow.enrichment.budget-code` is set | 
 
-# Enrichment Section
+
+# Budget Code Enrichment Section
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.enrichment.budget-code | `FOLIO` to enable Budget Code Enrichment | N |
+| workflow.budget-code | `FOLIO` to enable Budget Code Enrichment | N |
 
 
 ### OCLC Section
