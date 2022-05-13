@@ -1,0 +1,121 @@
+# *** This file contains example configuration properties for application.properties.  See README.md. *** 
+
+
+# General
+
+workflow.enabled=true
+
+
+# Database
+
+workflow.db.host=some_database_host
+workflow.db.name=some_database_name
+workflow.db.username=some_admin_username
+workflow.db.password=abc123
+
+spring.datasource.url=jdbc:mysql://${workflow.db.host:localhost}:3306/${workflow.db.name}
+spring.datasource.username=${workflow.db.username}
+spring.datasource.password=${workflow.db.password}
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+
+# First-time use only
+# spring.jpa.hibernate.ddl-auto=create-drop
+
+
+# Jira
+
+workflow.jira.hosting=cloud
+workflow.jira.url=https://yourusername.atlassian.net/
+workflow.jira.username=your_email
+workflow.jira.token=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+workflow.jira.project=PR
+workflow.jira.issueTypeId=12345
+workflow.jira.approvedStatusId=12345
+workflow.jira.maxSearchResults=5
+workflow.jira.multipleLibrariansUsername=librarians
+workflow.jira.contributorFieldId=customfield_12345
+workflow.jira.isbnFieldId=customfield_12345
+workflow.jira.oclcNumberFieldId=customfield_12345
+workflow.jira.callNumberFieldId=customfield_12345
+workflow.jira.formatFieldId=customfield_12345
+workflow.jira.speedFieldId=customfield_12345
+workflow.jira.destinationFieldId=customfield_12345
+workflow.jira.clientNameFieldId=customfield_12345
+workflow.jira.requesterUsernameFieldId=customfield_12345
+workflow.jira.requesterRoleFieldId=customfield_12345
+workflow.jira.fundCodeFieldId=customfield_12345
+workflow.jira.objectCodeFieldId=customfield_12345
+
+
+# OCLC
+
+workflow.oclc.wsKey=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+workflow.oclc.secret=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+workflow.oclc.localInstitutionSymbol=ABC
+workflow.oclc.classification-type=dewey
+
+
+# Local Holdings
+
+workflow.localHoldings.dataSource=FOLIO
+workflow.localHoldings.linkTo=VuFind
+
+
+# Group Holdings
+
+workflow.groupHoldings.oclcSymbols=EAST
+
+
+# FOLIO
+
+workflow.folio.username=folio_username
+workflow.folio.password=abc123
+workflow.folio.tenantId=SOMEID
+workflow.folio.okapiBaseUrl=https://subdomain-okapi.folio.indexdata.com
+workflow.folio.websiteBaseUrl=https://subdomain.folio.indexdata.com
+
+
+# VuFind
+
+workflow.vu-find.base-url=https://library.someuniversity.edu
+
+
+# LDAP
+
+spring.ldap.urls=ldaps://ldap.someuniversity.edu:123
+spring.ldap.base=dc=someuniversity,dc=edu
+workflow.ldap.username-query-field=uid
+workflow.ldap.role-result-field=description
+
+
+# IsbnDB
+
+workflow.isbn-db.api-key=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+workflow.isbn-db.title-search.filter-on-contributor=true
+
+
+# Librarian Call Numbers
+
+workflow.librarian-call-numbers.base-url=http://hostname.someuniversity.edu:8080
+
+
+# Email
+
+spring.mail.host=localhost
+spring.mail.port=25
+workflow.email.from-address=libraryorders@someuniversity.edu
+workflow.email.purchase-requested-addresses=libraryorders@someuniversity.edu
+
+
+# Google Sheets
+
+workflow.google-sheets.match-marc.approved-spreadsheet-id=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+workflow.google-sheets.full-record.requested-spreadsheet-id=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+workflow.google-sheets.full-record.approved-spreadsheet-id=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+workflow.google-sheets.credentials-file-path=./google-sheets-client-secret.json
+
+
+# Debugging
+
+logging.level.edu.lehigh.libraries.purchase_request=DEBUG

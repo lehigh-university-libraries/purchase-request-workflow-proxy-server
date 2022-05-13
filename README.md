@@ -97,7 +97,7 @@ A matching service equivalent to [Local Holdings enrichment](#enrichment) is als
 
 ## Deployment
 
-The Workflow Proxy Server is a Java Spring Boot application, built on Java SE 11 (LTS).
+The Workflow Proxy Server is a Java Spring Boot application.  [See Dependencies.](#dependencies)
 
 The Maven configuration generates a .war file that can be run standalone (equivalent to a .jar), or deployed to Jetty (tested) or another web application server like Tomcat.
 
@@ -131,3 +131,181 @@ Deploy the .war file in Jetty's `webapps` folder (or as otherwise configured).  
         <Set name="war">/path/to/jetty9/webapps/purchase-request-workflow-proxy-server.war.war</Set>
         <Set name="extraClasspath">/path/to/config/stuff/pr-server-conf</Set>
     </Configure>
+
+### Dependencies
+
+- Java SE.  Tested on Java SE 11 (LTE).
+- MySQL or equivalent.  Tested with MariaDB.  Uses Spring Data so a different DB driver could presumably be included with appropriate Maven configuration.
+- Additional dependencies needed for a workflow service and individual enrichments.  [See configuration.](#configuration)
+
+### Initial Setup
+
+Set up the [configuration file](#configuration).
+
+Uncomment this property to the configuration file before starting the application is run for the first time, to create the database schema.  *Then re-comment or remove it*:
+
+    # spring.jpa.hibernate.ddl-auto=create-drop
+
+## Configuration
+
+Copy/rename `application.properties.example` to `application.properties` and configure its parameters.  See example values in that file.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.enabled | Enable the application. Must be 'true'.  | Y |
+
+### Database Section
+
+A linked MySQL database.  The database is used only for local authentication credential storage.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.db.host | Database hostname | Y |
+| workflow.db.name | Database schema name | Y |
+| workflow.db.username | Database username | Y |
+| workflow.db.password | Database password | Y |
+
+#### Spring Data
+
+Keep these properties as-is in your `application.config`:
+
+    spring.datasource.url=jdbc:mysql://${workflow.db.host:localhost}:3306/${workflow.db.name}
+    spring.datasource.username=${workflow.db.username}
+    spring.datasource.password=${workflow.db.password}
+    spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+    spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+
+### Jira Section
+
+For use with `JiraWorkflowService` implementation, connecting via Jira's API as the purchase requests storage and workflow engine.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.jira.hosting | `cloud` or `server`, depending on the [Jira software deployment](https://www.atlassian.com/blog/platform/cloud-vs-server).  The [free cloud plan](https://www.atlassian.com/software/jira/free) should be sufficient for this app. | Y |
+| workflow.jira.url | URL for the Jira API | Y |
+| workflow.jira.username | Username for the Jira API | Y |
+| workflow.jira.token | [API token](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/) for the Jira account | Y |
+| workflow.jira.project | Jira [project key](https://support.atlassian.com/jira-software-cloud/docs/what-is-an-issue/#Workingwithissues-Projectkeys) | Y |
+| workflow.jira.issueTypeId | ID of the Jira [issue type](https://support.atlassian.com/jira-cloud-administration/docs/what-are-issue-types/) to use for purchase requests.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-types/#api-group-issue-types) or [via the Jira UI](https://confluence.atlassian.com/jirakb/finding-the-id-for-issue-types-646186508.html) | Y |
+| workflow.jira.approvedStatusId | ID of the Jira status to use identify approved purchases.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-status/#api-group-status) or [via the Jira UI](https://community.atlassian.com/t5/Jira-Service-Management/How-do-I-get-a-list-of-statuses-that-show-the-associated-status/qaq-p/1803682). | Y | 
+| workflow.jira.maxSearchResults | Maximum results to return when retrieving issues in bulk. | Y |
+| workflow.jira.multipleLibrariansUsername | Username of a Jira user / librarian to assign a purchase request to via Librarian Enrichment, if the enrichment determines that more than one librarian is interested in the item's call number.  Intended to be a username that forwards email to all librarian selectors. | Y |
+
+#### Jira Field IDs
+
+Each of the following configuration parameters defines the Jira ID of a custom field used to store purchase request data.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-fields/#api-group-issue-fields) or [via the Jira UI](https://ja.confluence.atlassian.com/jirakb/how-to-find-id-for-custom-field-s-744522503.html).
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.jira.contributorFieldId | Stores the contributor (author) name. | Y | 
+| workflow.jira.isbnFieldId | Stores the ISBN. | Y | 
+| workflow.jira.oclcNumberFieldId | Stores the OCLC number. | Y | 
+| workflow.jira.callNumberFieldId | Stores the Dewey call number. | Y | 
+| workflow.jira.formatFieldId | Stores the requested book format (i.e. print, electronic). | Y | 
+| workflow.jira.speedFieldId | Stores the requested delivery speed. | Y | 
+| workflow.jira.destinationFieldId | Stores the requested destination of the item after purchase. | Y | 
+| workflow.jira.clientNameFieldId | Stores the name of the client application that submitted a purchase request. | Y | 
+| workflow.jira.requesterUsernameFieldId | Stores the email / LDAP username of the patron or staff member who requested an item. | Y | 
+| workflow.jira.requesterRoleFieldId | Stores the role, department and/or other description of the requester, as provided by LDAP. | Y | 
+| workflow.jira.fundCodeFieldId | Stores the requested budget fund code to assign to an item purchase. | Y | 
+| workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | Y | 
+
+### OCLC Section
+
+OCLC APIs are used by various [holdings enrichment steps](#enrichment) and the [match service](#matching-pre-submission).
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.oclc.wsKey | [API wsKey from OCLC](https://www.oclc.org/developer/develop/authentication/what-is-a-wskey.en.html) with access to the WorldCat API. | Y | 
+| workflow.oclc.secret | API secret from OCLC to use with the wsKey | Y |
+| workflow.oclc.localInstitutionSymbol | Three-letter OCLC institutional symbol | Y | 
+| workflow.oclc.classification-type | `dewey` or other key available in the `classification` result from an OCLC search, present in records cataloged by the Library of Congress (DLC).  Used by the Librarian Service. | Y | 
+
+### Local Holdings Section
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.localHoldings.dataSource | `FOLIO` or `OCLC`.  Determines which source and algorithm is used to identify any local holdings. | Y | 
+| workflow.localHoldings.linkTo | `VuFind` or `FOLIO`.  Determines which destination the local holdings search results should link to. | Y | 
+
+### Group Holdings Section
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.groupHoldings.oclcSymbols | Comma-separated list of OCLC group symbols representing consortia that the institution belongs to.  The application will check and report separately on holdings for each group. | Y |
+
+### FOLIO Section
+
+For connecting to the FOLIO API.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.folio.username | Username for the FOLIO API. | Y |
+| workflow.folio.password | Password for the FOLIO API. | Y |
+| workflow.folio.tenantId | Tenant ID for the FOLIO server environment. | Y |
+| workflow.folio.okapiBaseUrl | Base URL for FOLIO OKAPI API calls. | Y |
+| workflow.folio.websiteBaseUrl | Base URL for the FOLIO UI.  Used to format links to FOLIO local holdings. | Y | 
+
+### VuFind Section
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.vu-find.base-url | Base URL for the VuFind catalog UI.  Used to format links to VuFind local holdings. | Y |
+
+### LDAP Section
+
+Used by Requester Enrichment for information about the patron requesting a purchase.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| spring.ldap.urls | URL for LDAP queries. | Y |
+| spring.ldap.base | Base string for LDAP queries. | Y |
+| workflow.ldap.username-query-field | Parameter representing the username in the LDAP query.  Generally `uid`.  | Y | 
+| workflow.ldap.role-result-field | LDAP search result field containing the role string reported by Requester Enrichment.  Generally `description`. | Y | 
+
+### IsbnDB Section
+
+Used by Pricing Enrichment to retrieve the list price(s) of a requested purchase.  The [IsbnDB API](https://isbndb.com/isbn-database) is is a commercial service, but relatively affordable (~ $10/m).
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.isbn-db.api-key | API key provided by IsbnDB. | Y |
+| workflow.isbn-db.title-search.filter-on-contributor | `true` or `false`.  The IsbnDB search uses the title of the requested item.  If `true`, title search results are filtered by the requested contributor name. | Y | 
+
+### Librarian Call Numbers Section
+
+Librarian Enrichment makes use of a separate [Librarian Call Numbers](https://github.com/lehigh-university-libraries/librarian-call-numbers) web service which maps a call number to a list of librarians who are involved in selection for that range.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.librarian-call-numbers.base-url | Base URL of the Librarian Call Numbers service. | Y |
+
+### Email Section
+
+For reporting via the Email Listener.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| spring.mail.host | Hostname of an SMTP server | Y |
+| spring.mail.port | Port of the SMTP server | Y |
+| workflow.email.from-address | From address to use in reporting emails | Y | 
+| workflow.email.purchase-requested-addresses | Email address to send notification when a new purchase is requested, *in addition* to the emails of any associated librarians from Librarian Enrichment. | Y |
+
+### Google Sheets Section
+
+For reporting to Google Sheets spreadsheets.  See [reporting and post-approval processing](#routing--reporting) for additional details.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.google-sheets.credentials-file-path | Path to the file containing the `google-sheets-client-secret.json` file provided by [Google Cloud](https://developers.google.com/workspace/guides/get-started) to the Google Workspace APIs. | Y |
+| workflow.google-sheets.match-marc.approved-spreadsheet-id | ID of a spreadsheet to use for reporting approved items in MatchMARC format. | N |
+| workflow.google-sheets.full-record.requested-spreadsheet-id | ID of a spreadsheet to use for reporting newly requested items in full record format. | N |
+| workflow.google-sheets.full-record.approved-spreadsheet-id | ID of a spreadsheet to use for reporting approved items in full record format. | N |
+
+### Debugging
+
+To optionally change the default [SLF4J](https://www.slf4j.org/index.html) logging [level](https://www.slf4j.org/api/org/slf4j/event/Level.html#enum.constant.summary) from INFO.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| logging.level.edu.lehigh.libraries.purchase_request | `DEBUG`, `ERROR`, etc. | N |
