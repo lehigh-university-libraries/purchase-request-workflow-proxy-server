@@ -94,9 +94,14 @@ public class OclcLocalMatchService implements MatchService {
 
     private void addContributor(JsonObject bibRecord, Match match) {
         JsonObject contributor = bibRecord.getAsJsonObject("contributor");
-        JsonObject statementOfResponsibility = contributor.getAsJsonObject("statementOfResponsibility");
-        String contributorText = statementOfResponsibility.get("text").getAsString();
-        match.setContributor(contributorText);
+        try {
+            JsonObject statementOfResponsibility = contributor.getAsJsonObject("statementOfResponsibility");
+            String contributorText = statementOfResponsibility.get("text").getAsString();
+            match.setContributor(contributorText);
+        }
+        catch (Exception e) {
+            log.warn("Could not access statement of responsibility, leaving null contributor.");
+        }
     }
 
 }
