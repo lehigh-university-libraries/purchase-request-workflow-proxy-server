@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@ConditionalOnExpression("'${workflow.pricing}'.equals('IsbnDb') and '${workflow.isbn-db.method}'.equals('title')")
+@ConditionalOnExpression("'${workflow.pricing}'.equals('IsbnDB') and '${workflow.isbn-db.method}'.equals('title')")
 public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
 
     private static final Comparator<IsbnDbSearchResult> RESULTS_ORDER = new ResultsOrder();
