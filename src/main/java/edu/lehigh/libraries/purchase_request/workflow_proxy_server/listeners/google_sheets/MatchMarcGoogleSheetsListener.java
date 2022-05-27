@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @Conditional(MatchMarcGoogleSheetsListener.AnyStatus.class)
+@ConditionalOnWebApplication
 public class MatchMarcGoogleSheetsListener extends GoogleSheetsListener {
     
     MatchMarcGoogleSheetsListener(WorkflowService workflowService, Config config) throws IOException, GeneralSecurityException {

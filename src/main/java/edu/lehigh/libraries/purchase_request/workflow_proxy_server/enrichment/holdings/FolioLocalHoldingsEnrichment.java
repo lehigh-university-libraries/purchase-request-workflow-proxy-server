@@ -3,6 +3,7 @@ package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.h
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @ConditionalOnProperty(name="workflow.localHoldings", havingValue="FOLIO")
+@ConditionalOnWebApplication
 public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
 
     private static final String INSTANCES_PATH = "/inventory/instances";

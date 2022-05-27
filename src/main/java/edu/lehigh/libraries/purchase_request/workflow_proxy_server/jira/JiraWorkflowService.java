@@ -23,6 +23,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -33,6 +34,7 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.En
 import lombok.extern.slf4j.Slf4j;
 
 @Service
+@ConditionalOnWebApplication
 @Slf4j
 public class JiraWorkflowService extends AbstractWorkflowService {
 

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServi
 import lombok.extern.slf4j.Slf4j;
 
 @Service
+@ConditionalOnWebApplication
 @Slf4j
 public class EnrichmentManager {
     

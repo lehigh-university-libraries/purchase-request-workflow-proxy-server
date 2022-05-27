@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
@@ -15,6 +16,7 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.Oc
 import lombok.extern.slf4j.Slf4j;
 
 @Service
+@ConditionalOnWebApplication
 @Slf4j
 public class OclcLocalMatchService implements MatchService {
 

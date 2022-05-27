@@ -1,6 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServi
 import lombok.extern.slf4j.Slf4j;
 
 @Service
+@ConditionalOnWebApplication
 @Slf4j
 public class EmailListener implements WorkflowServiceListener {
 

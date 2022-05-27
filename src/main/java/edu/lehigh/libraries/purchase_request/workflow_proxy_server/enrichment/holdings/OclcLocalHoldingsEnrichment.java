@@ -1,6 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.holdings;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @ConditionalOnProperty(name="workflow.localHoldings", havingValue="OCLC")
+@ConditionalOnWebApplication
 public class OclcLocalHoldingsEnrichment extends OclcHoldingsEnrichment {
 
     private final String LOCAL_OCLC_SYMBOL;
