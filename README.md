@@ -59,7 +59,7 @@ Supplied implementations:
 
 ## Clients
 
-Client modules are available from separate repositories, as linked below.  
+Client modules are available from separate repositories, as linked below.  See also [Client User Management](#client-user-management).
 
 ### Explicit Demand-Driven Acquisition
 
@@ -132,19 +132,37 @@ Deploy the .war file in Jetty's `webapps` folder (or as otherwise configured).  
         <Set name="extraClasspath">/path/to/config/stuff/pr-server-conf</Set>
     </Configure>
 
-### Dependencies
+## Dependencies
 
 - Java SE.  Tested on Java SE 11 (LTE).
 - MySQL or equivalent.  Tested with MariaDB.  Uses Spring Data so a different DB driver could presumably be included with appropriate Maven configuration.
 - Additional dependencies needed for a workflow service and individual enrichments.  [See configuration.](#configuration)
 
-### Initial Setup
+## Initial Setup
 
 Set up the [configuration file](#configuration).
 
 Uncomment this property to the configuration file before starting the application is run for the first time, to create the database schema.  *Then re-comment or remove it*:
 
     # spring.jpa.hibernate.ddl-auto=create-drop
+
+## Client User Management
+
+Client applications access the Workflow Proxy Server via an API, using [Basic Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) over HTTPS.  These are stored (encrypted) in the [database](#database-section).
+
+Scripts are available to add and remove client credentials.  They utilize the same `purchase-request-workflow-proxy-server.war` built via Maven, and the same [configuration file](#configuration).
+
+### Add Client Credentials
+
+In the project home directory, run:
+
+`scripts/add_client.sh username password`
+
+### Delete Client Credentials
+
+In the project home directory, run:
+
+`scripts/delete_client.sh username`
 
 ## Configuration
 
@@ -210,13 +228,13 @@ Each of the following configuration parameters defines the Jira ID of a custom f
 | workflow.jira.fundCodeFieldId | Stores the requested budget fund code to assign to an item purchase. | If `workflow.enrichment.budget-code` is set | 
 | workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | If `workflow.enrichment.budget-code` is set | 
 
-# Identifiers Enrichment Section
+### Identifiers Enrichment Section
 
 | Property | Description | Required |
 | -- | -- | -- |
 | workflow.identifiers | `OCLC` to enable Identifiers Enrichment | N |
 
-# Budget Code Enrichment Section
+### Budget Code Enrichment Section
 
 | Property | Description | Required |
 | -- | -- | -- |
