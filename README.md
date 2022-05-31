@@ -171,6 +171,7 @@ Copy/rename `application.properties.example` to `application.properties` and con
 | Property | Description | Required |
 | -- | -- | -- |
 | workflow.enabled | Enable the application. Must be 'true'.  | Y |
+| workflow.storage | Storage & workflow engine.  Must be 'jira'.  | Y |
 
 ### Database Section
 

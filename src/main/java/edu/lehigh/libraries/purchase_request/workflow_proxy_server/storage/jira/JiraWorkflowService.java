@@ -1,4 +1,4 @@
-package edu.lehigh.libraries.purchase_request.workflow_proxy_server.jira;
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.jira;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,6 +23,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,7 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.En
 import lombok.extern.slf4j.Slf4j;
 
 @Service
+@ConditionalOnProperty(name="workflow.storage", havingValue="jira")
 @ConditionalOnWebApplication
 @Slf4j
 public class JiraWorkflowService extends AbstractWorkflowService {

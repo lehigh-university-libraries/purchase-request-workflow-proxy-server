@@ -3,6 +3,7 @@ package edu.lehigh.libraries.purchase_request.workflow_proxy_server;
 import java.util.List;
 
 import javax.validation.constraints.AssertTrue;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -24,6 +25,12 @@ public class Config {
     @NotNull
     private Boolean enabled;
     
+    /**
+     * Storage and workflow engine.  "jira"
+     */
+    @NotBlank
+    private String storage;
+
     private Jira jira;
     private Database db;
     private Oclc oclc;
