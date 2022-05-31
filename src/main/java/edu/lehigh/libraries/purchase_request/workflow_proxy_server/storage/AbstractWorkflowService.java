@@ -1,9 +1,10 @@
-package edu.lehigh.libraries.purchase_request.workflow_proxy_server;
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServiceListener;
 
 abstract public class AbstractWorkflowService implements WorkflowService {
 

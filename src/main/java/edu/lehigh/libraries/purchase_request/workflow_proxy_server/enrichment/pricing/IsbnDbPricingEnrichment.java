@@ -1,10 +1,10 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.pricing;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.IsbnDbConnection;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentService;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.WorkflowService;
 
 abstract class IsbnDbPricingEnrichment implements EnrichmentService {
     

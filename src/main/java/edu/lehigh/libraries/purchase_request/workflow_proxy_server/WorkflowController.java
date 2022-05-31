@@ -26,6 +26,7 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.En
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.Match;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.MatchQuery;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.MatchService;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.WorkflowService;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController

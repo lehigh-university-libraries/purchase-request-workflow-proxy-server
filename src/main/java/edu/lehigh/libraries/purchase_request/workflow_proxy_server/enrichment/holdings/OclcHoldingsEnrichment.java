@@ -5,10 +5,10 @@ import com.google.gson.JsonObject;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.OclcConnection;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.WorkflowService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

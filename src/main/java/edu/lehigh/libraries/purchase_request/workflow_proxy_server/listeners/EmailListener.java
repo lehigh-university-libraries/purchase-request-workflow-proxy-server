@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServiceListener;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.WorkflowService;
 import lombok.extern.slf4j.Slf4j;
 
 @Service

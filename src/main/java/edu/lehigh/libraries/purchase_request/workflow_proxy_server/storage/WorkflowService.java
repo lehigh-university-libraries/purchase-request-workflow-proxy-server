@@ -1,9 +1,10 @@
-package edu.lehigh.libraries.purchase_request.workflow_proxy_server;
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage;
 
 import java.util.List;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.model.SearchQuery;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServiceListener;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
 
 public interface WorkflowService {
