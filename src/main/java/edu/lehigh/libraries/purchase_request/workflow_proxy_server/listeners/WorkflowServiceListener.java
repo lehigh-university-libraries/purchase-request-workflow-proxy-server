@@ -1,4 +1,4 @@
-package edu.lehigh.libraries.purchase_request.workflow_proxy_server;
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 

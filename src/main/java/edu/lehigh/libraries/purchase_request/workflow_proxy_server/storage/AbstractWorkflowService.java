@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowServiceListener;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners.WorkflowServiceListener;
 
 abstract public class AbstractWorkflowService implements WorkflowService {
 
