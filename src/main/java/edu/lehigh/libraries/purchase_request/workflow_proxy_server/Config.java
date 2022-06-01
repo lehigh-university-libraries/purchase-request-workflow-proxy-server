@@ -32,6 +32,7 @@ public class Config {
     private String storage;
 
     private Jira jira;
+    private Restyaboard restyaboard;
     private Database db;
     private Oclc oclc;
     private LocalHoldings localHoldings;
@@ -192,6 +193,41 @@ public class Config {
         private String multipleLibrariansUsername;
 
     }
+
+    @Getter @Setter
+    public static class Restyaboard {
+
+        /**
+         * Base URL for Restyaboard API queries.
+         */
+        private String baseUrl;
+
+        /**
+         * Username for the Restyaboard API.
+         */
+        private String username;
+
+        /**
+         * Password for the Restyaboard API.
+         */
+        private String password;
+
+        /**
+         * ID of the Restyaboard board to use for purchase requests.
+         * 
+         * A list of boards with IDs can be retrieved with {{baseUrl}}/boards/list.json?token={{token}}
+         */
+        private Long boardId;
+
+        /**
+         * ID of the Restyaboard list to save new purchase requests.
+         * 
+         * A board's lists can be retrieved with {{baseUrl}}/boards/{{boardId}}.json?token={{token}}
+         */
+        private Long newRequestListId;
+
+    }
+
 
     @Getter @Setter
     /**

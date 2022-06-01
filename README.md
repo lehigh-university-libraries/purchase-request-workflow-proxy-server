@@ -37,7 +37,7 @@ Supplied implementations:
 
 - `JiraWorkflowService` supports both Jira Cloud (which offers a free tier that should suit this use case) and locally-hosted Jira Server.  Out-of-the-box, this supports simple manual decision making, such as using a Kanban board to drag a request from a New column to one representing Approved requests.  Jira workflows can also support automatic decision-making based on the metadata of the request.
 
-- An additional packaged implementation is planned against an open source Kanban tool.  Suggestions welcome.
+- `RestyaboardWorkflowService` supports the Restyaboard Kanban board software.  This is provided as an open source alternative to Jira for a simple, manual workflow.
 
 ## Enrichment
 
@@ -171,7 +171,7 @@ Copy/rename `application.properties.example` to `application.properties` and con
 | Property | Description | Required |
 | -- | -- | -- |
 | workflow.enabled | Enable the application. Must be 'true'.  | Y |
-| workflow.storage | Storage & workflow engine.  Must be 'jira'.  | Y |
+| workflow.storage | Storage & workflow engine used.  Must be 'jira' or 'restyaboard'.  | Y |
 
 ### Database Section
 
@@ -200,15 +200,15 @@ For use with `JiraWorkflowService` implementation, connecting via Jira's API as 
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.jira.hosting | `cloud` or `server`, depending on the [Jira software deployment](https://www.atlassian.com/blog/platform/cloud-vs-server).  The [free cloud plan](https://www.atlassian.com/software/jira/free) should be sufficient for this app. | Y |
-| workflow.jira.url | URL for the Jira API | Y |
-| workflow.jira.username | Username for the Jira API | Y |
-| workflow.jira.token | [API token](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/) for the Jira account | Y |
-| workflow.jira.project | Jira [project key](https://support.atlassian.com/jira-software-cloud/docs/what-is-an-issue/#Workingwithissues-Projectkeys) | Y |
-| workflow.jira.issueTypeId | ID of the Jira [issue type](https://support.atlassian.com/jira-cloud-administration/docs/what-are-issue-types/) to use for purchase requests.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-types/#api-group-issue-types) or [via the Jira UI](https://confluence.atlassian.com/jirakb/finding-the-id-for-issue-types-646186508.html) | Y |
-| workflow.jira.approvedStatusId | ID of the Jira status to use identify approved purchases.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-status/#api-group-status) or [via the Jira UI](https://community.atlassian.com/t5/Jira-Service-Management/How-do-I-get-a-list-of-statuses-that-show-the-associated-status/qaq-p/1803682). | Y | 
-| workflow.jira.maxSearchResults | Maximum results to return when retrieving issues in bulk. | Y |
-| workflow.jira.multipleLibrariansUsername | Username of a Jira user / librarian to assign a purchase request to via Librarian Enrichment, if the enrichment determines that more than one librarian is interested in the item's call number.  Intended to be a username that forwards email to all librarian selectors. | Y |
+| workflow.jira.hosting | `cloud` or `server`, depending on the [Jira software deployment](https://www.atlassian.com/blog/platform/cloud-vs-server).  The [free cloud plan](https://www.atlassian.com/software/jira/free) should be sufficient for this app. | If `workflow.storage` is `jira` |
+| workflow.jira.url | URL for the Jira API | If `workflow.storage` is `jira` |
+| workflow.jira.username | Username for the Jira API | If `workflow.storage` is `jira` |
+| workflow.jira.token | [API token](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/) for the Jira account | If `workflow.storage` is `jira` |
+| workflow.jira.project | Jira [project key](https://support.atlassian.com/jira-software-cloud/docs/what-is-an-issue/#Workingwithissues-Projectkeys) | If `workflow.storage` is `jira` |
+| workflow.jira.issueTypeId | ID of the Jira [issue type](https://support.atlassian.com/jira-cloud-administration/docs/what-are-issue-types/) to use for purchase requests.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-types/#api-group-issue-types) or [via the Jira UI](https://confluence.atlassian.com/jirakb/finding-the-id-for-issue-types-646186508.html) | If `workflow.storage` is `jira` |
+| workflow.jira.approvedStatusId | ID of the Jira status to use identify approved purchases.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-status/#api-group-status) or [via the Jira UI](https://community.atlassian.com/t5/Jira-Service-Management/How-do-I-get-a-list-of-statuses-that-show-the-associated-status/qaq-p/1803682). | If `workflow.storage` is `jira` | 
+| workflow.jira.maxSearchResults | Maximum results to return when retrieving issues in bulk. | If `workflow.storage` is `jira` |
+| workflow.jira.multipleLibrariansUsername | Username of a Jira user / librarian to assign a purchase request to via Librarian Enrichment, if the enrichment determines that more than one librarian is interested in the item's call number.  Intended to be a username that forwards email to all librarian selectors. | If `workflow.storage` is `jira` |
 
 #### Jira Field IDs
 
@@ -216,18 +216,30 @@ Each of the following configuration parameters defines the Jira ID of a custom f
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.jira.contributorFieldId | Stores the contributor (author) name. | Y | 
-| workflow.jira.isbnFieldId | Stores the ISBN. | Y | 
-| workflow.jira.oclcNumberFieldId | Stores the OCLC number. | If `workflow.identifiers` is set | 
-| workflow.jira.callNumberFieldId | Stores the Dewey call number. | If `workflow.identifiers` is set | 
-| workflow.jira.formatFieldId | Stores the requested book format (i.e. print, electronic). | Y | 
-| workflow.jira.speedFieldId | Stores the requested delivery speed. | Y | 
-| workflow.jira.destinationFieldId | Stores the requested destination of the item after purchase. | Y | 
-| workflow.jira.clientNameFieldId | Stores the name of the client application that submitted a purchase request. | Y | 
-| workflow.jira.requesterUsernameFieldId | Stores the email / LDAP username of the patron or staff member who requested an item. | Y | 
-| workflow.jira.requesterRoleFieldId | Stores the role, department and/or other description of the requester, as provided by LDAP. | If `workflow.requester` is set | 
-| workflow.jira.fundCodeFieldId | Stores the requested budget fund code to assign to an item purchase. | If `workflow.enrichment.budget-code` is set | 
-| workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | If `workflow.enrichment.budget-code` is set | 
+| workflow.jira.contributorFieldId | Stores the contributor (author) name. | If `workflow.storage` is `jira` | 
+| workflow.jira.isbnFieldId | Stores the ISBN. | If `workflow.storage` is `jira` | 
+| workflow.jira.oclcNumberFieldId | Stores the OCLC number. | If `workflow.storage` is `jira` and `workflow.identifiers` is set | 
+| workflow.jira.callNumberFieldId | Stores the Dewey call number. | If `workflow.storage` is `jira` and `workflow.identifiers` is set | 
+| workflow.jira.formatFieldId | Stores the requested book format (i.e. print, electronic). | If `workflow.storage` is `jira` | 
+| workflow.jira.speedFieldId | Stores the requested delivery speed. | If `workflow.storage` is `jira` | 
+| workflow.jira.destinationFieldId | Stores the requested destination of the item after purchase. | If `workflow.storage` is `jira` | 
+| workflow.jira.clientNameFieldId | Stores the name of the client application that submitted a purchase request. | If `workflow.storage` is `jira` | 
+| workflow.jira.requesterUsernameFieldId | Stores the email / LDAP username of the patron or staff member who requested an item. | If `workflow.storage` is `jira` | 
+| workflow.jira.requesterRoleFieldId | Stores the role, department and/or other description of the requester, as provided by LDAP. | If `workflow.storage` is `jira` and `workflow.requester` is set | 
+| workflow.jira.fundCodeFieldId | Stores the requested budget fund code to assign to an item purchase. | If `workflow.storage` is `jira` and `workflow.enrichment.budget-code` is set | 
+| workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | If `workflow.storage` is `jira` and `workflow.enrichment.budget-code` is set | 
+
+### Restyaboard Section
+
+For use with `RestyaboardWorkflowService` implementation, connecting via Restyaboard's API as the purchase requests storage and workflow engine.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.restyaboard.base-url | URL for the Restyaboard API | If `workflow.storage` is `restyaboard` |
+| workflow.restyaboard.username | Username for the Restyaboard API | If `workflow.storage` is `restyaboard` |
+| workflow.restyaboard.password | Password for the Restyaboard API | If `workflow.storage` is `restyaboard` |
+| workflow.restyaboard.board-id | ID of the Restyaboard board to use for purchase requests.  The ID is in the URL when viewing the board. | If `workflow.storage` is `restyaboard` |
+| workflow.restyaboard.new-request-list-id | ID of the list to which new purchase requests should be added. Find the ID [via an API call](https://board.demo.restya.com/api_explorer/#!/lists/get_v1_boards_boardId_lists_json). | If `workflow.storage` is `restyaboard` | 
 
 ### Identifiers Enrichment Section
 
@@ -263,7 +275,7 @@ OCLC APIs are used by various [holdings enrichment steps](#enrichment) and the [
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.gropuHoldings | `OCLC` to enable Group Holdings Enrichment. | N |
+| workflow.groupHoldings | `OCLC` to enable Group Holdings Enrichment. | N |
 | workflow.groupHoldings.oclcSymbols | Comma-separated list of OCLC group symbols representing consortia that the institution belongs to.  The application will check and report separately on holdings for each group. | If `workflow.groupHoldings` is set |
 
 ### FOLIO Section

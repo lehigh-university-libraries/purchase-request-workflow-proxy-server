@@ -49,6 +49,15 @@ workflow.jira.fundCodeFieldId=customfield_12345
 workflow.jira.objectCodeFieldId=customfield_12345
 
 
+# Restyaboard
+
+workflow.restyaboard.base-url=http://server:1234/api/v1
+workflow.restyaboard.username=username
+workflow.restyaboard.password=password
+workflow.restyaboard.board-id=1
+workflow.restyaboard.new-request-list-id=1
+
+
 # Identifiers Enrichment
 
 workflow.identifiers=OCLC
