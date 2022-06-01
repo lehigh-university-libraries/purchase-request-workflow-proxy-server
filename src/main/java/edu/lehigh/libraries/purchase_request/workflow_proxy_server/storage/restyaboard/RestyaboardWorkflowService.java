@@ -1,6 +1,8 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.restyaboard;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.json.JSONArray;
@@ -100,20 +102,7 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
             return null;
         }
         PurchaseRequest purchaseRequest = toStubPurchaseRequest(result);
-
-        url = "/boards/" + BOARD_ID 
-            + "/lists/" + statusToListId(purchaseRequest.getStatus()) 
-            + "/cards/" + key 
-            + "/activities.json";
-        try {
-            result = connection.executeGet(url);
-        }
-        catch (Exception e) {
-            log.error("Could not find activities for PR: ", e);
-            return null;
-        }
-        addActivitiesData(purchaseRequest, result);
-
+        loadActivitiesData(purchaseRequest);
         return purchaseRequest;
     }
 
@@ -157,7 +146,52 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
     @Override
     public List<PurchaseRequest> search(SearchQuery query) {
         log.debug("search()");
-        throw new NotImplementedException();
+        Long userId = getUserId(query.getReporterName());
+        if (userId == null) {
+            log.warn("No user found: " + query.getReporterName());
+            return null;
+        }
+
+        String url = "/boards/" + BOARD_ID + ".json";
+        JSONObject result;
+        try {
+            result = connection.executeGet(url);
+        }
+        catch (Exception e) {
+            log.error("Could not find board: ", e);
+            return null;
+        }
+        JSONArray lists = result.getJSONArray("lists");
+        List<PurchaseRequest> purchaseRequests = new ArrayList<PurchaseRequest>();
+        lists.forEach(listObject -> {
+            JSONObject list = (JSONObject)listObject;
+            JSONArray cards = list.optJSONArray("cards");
+            if (cards != null) {
+                cards.forEach(cardObject -> {
+                    JSONObject card = (JSONObject)cardObject;
+                    if (card.getLong("user_id") == userId) {
+                        PurchaseRequest purchaseRequest = toStubPurchaseRequest(card);
+                        loadActivitiesData(purchaseRequest);
+                        purchaseRequests.add(purchaseRequest);
+                    }
+                });
+            }
+        });
+        return purchaseRequests;
+    }
+
+    private Long getUserId(String username) {
+        String url = "/users/search.json";
+        JSONArray result;
+        try {
+            result = connection.executeGetForArray(url, Map.of("q", username));
+        }
+        catch (Exception e) {
+            log.error("Could not find user: ", e);
+            return null;
+        }
+        JSONObject user = result.getJSONObject(0);
+        return user.getLong("id");
     }
 
     @Override
@@ -235,6 +269,22 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
         purchaseRequest.setCreationDate(card.getString("created"));
         purchaseRequest.setStatus(listIdToStatus(card.getLong("list_id")));
         return purchaseRequest;
+    }
+
+    private void loadActivitiesData(PurchaseRequest purchaseRequest) {
+        String url = "/boards/" + BOARD_ID 
+            + "/lists/" + statusToListId(purchaseRequest.getStatus()) 
+            + "/cards/" + purchaseRequest.getKey() 
+            + "/activities.json";
+        JSONObject result;
+        try {
+            result = connection.executeGet(url);
+        }
+        catch (Exception e) {
+            log.error("Could not find activities for PR: ", e);
+            return;
+        }
+        addActivitiesData(purchaseRequest, result);
     }
 
     private void addActivitiesData(PurchaseRequest purchaseRequest, JSONObject activitiesResult) {

@@ -1,6 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.restyaboard;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -13,6 +14,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
@@ -86,19 +88,36 @@ public class RestyaboardConnection {
     }
 
     public JSONObject executeGet(String url) throws Exception {
-        HttpUriRequest getRequest = RequestBuilder.get()
+        return executeGet(url, null);
+    }
+
+    public JSONObject executeGet(String url, Map<String, String> requestParams) throws Exception {
+        String responseString = executeGetRawResponse(url, requestParams);
+        JSONObject jsonObject = new JSONObject(responseString);
+        return jsonObject;
+    }
+
+    public JSONArray executeGetForArray(String url, Map<String, String> requestParams) throws Exception {
+        String responseString = executeGetRawResponse(url, requestParams);
+        JSONArray jsonArray = new JSONArray(responseString);
+        return jsonArray;
+    }
+
+    private String executeGetRawResponse(String url, Map<String, String> requestParams) throws Exception {
+        RequestBuilder builder = RequestBuilder.get()
             .setUri(config.getRestyaboard().getBaseUrl() + url)
-            .addParameter("token", token)
-            .build();
+            .addParameter("token", token);
+        if (requestParams != null) {
+            requestParams.forEach((key, value) -> builder.addParameter(key, value));
+        }
+        HttpUriRequest getRequest = builder.build();
 
         CloseableHttpResponse response;
         response = client.execute(getRequest);
         HttpEntity entity = response.getEntity();
         String responseString = EntityUtils.toString(entity);
         log.debug("Got response with code " + response.getStatusLine() + " and entity " + response.getEntity());
-
-        JSONObject jsonObject = new JSONObject(responseString);
-        return jsonObject;
+        return responseString;
     }
 
 }
