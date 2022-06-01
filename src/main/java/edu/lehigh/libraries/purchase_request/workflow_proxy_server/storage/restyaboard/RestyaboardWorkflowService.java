@@ -30,6 +30,7 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
     private static final String SPEED_KEY = "Speed";
     private static final String DESTINATION_KEY = "Destination";
     private static final String CLIENT_NAME_KEY = "Client";
+    private static final String REPORTER_NAME_KEY = "Reporter";
     private static final String REQUESTER_USERNAME_KEY = "Requester";
     private static final String REQUESTER_ROLE_KEY = "Requester Role";
     private static final String FUND_CODE_KEY = "Fund Code";
@@ -145,8 +146,9 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
         enrichMapCommentIfPresent(savedRequest, CLIENT_NAME_KEY, purchaseRequest.getClientName());
         enrichMapCommentIfPresent(savedRequest, REQUESTER_USERNAME_KEY, purchaseRequest.getRequesterUsername());
         enrichMapCommentIfPresent(savedRequest, REQUESTER_ROLE_KEY, purchaseRequest.getRequesterRole());
+        enrichMapCommentIfPresent(savedRequest, REPORTER_NAME_KEY, purchaseRequest.getReporterName());
 
-        // TODO set assignee name, reporter, requester comments
+        // TODO set assignee name
 
         savedRequest = findByKey(id);
         return savedRequest;
@@ -220,6 +222,9 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
             card.put("list_id", config.getRestyaboard().getNewRequestListId());
         }
         card.put("name", purchaseRequest.getTitle());
+        if (purchaseRequest.getRequesterComments() != null) {
+            card.put("description", "Patron Comment: " + purchaseRequest.getRequesterComments());
+        }
         return card;
     }
 
