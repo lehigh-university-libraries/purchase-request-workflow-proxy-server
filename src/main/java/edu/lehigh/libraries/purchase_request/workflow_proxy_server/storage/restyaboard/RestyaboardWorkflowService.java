@@ -84,8 +84,26 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
     @Override
     public List<PurchaseRequest> findAll() {
         log.debug("findAll()");
-        throw new NotImplementedException();
-        // TODO Auto-generated method stub
+
+        JSONObject board = loadBoard();
+        if (board == null) {
+            return null;
+        }
+        JSONArray lists = board.getJSONArray("lists");
+        List<PurchaseRequest> purchaseRequests = new ArrayList<PurchaseRequest>();
+        lists.forEach(listObject -> {
+            JSONObject list = (JSONObject)listObject;
+            JSONArray cards = list.optJSONArray("cards");
+            if (cards != null) {
+                cards.forEach(cardObject -> {
+                    JSONObject card = (JSONObject)cardObject;
+                    PurchaseRequest purchaseRequest = toStubPurchaseRequest(card);
+                    loadActivitiesData(purchaseRequest);
+                    purchaseRequests.add(purchaseRequest);
+                });
+            }
+        });
+        return purchaseRequests;
     }
 
     @Override
@@ -152,16 +170,11 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
             return null;
         }
 
-        String url = "/boards/" + BOARD_ID + ".json";
-        JSONObject result;
-        try {
-            result = connection.executeGet(url);
-        }
-        catch (Exception e) {
-            log.error("Could not find board: ", e);
+        JSONObject board = loadBoard();
+        if (board == null) {
             return null;
         }
-        JSONArray lists = result.getJSONArray("lists");
+        JSONArray lists = board.getJSONArray("lists");
         List<PurchaseRequest> purchaseRequests = new ArrayList<PurchaseRequest>();
         lists.forEach(listObject -> {
             JSONObject list = (JSONObject)listObject;
@@ -178,6 +191,19 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
             }
         });
         return purchaseRequests;
+    }
+
+    private JSONObject loadBoard() {
+        String url = "/boards/" + BOARD_ID + ".json";
+        JSONObject result;
+        try {
+            result = connection.executeGet(url);
+        }
+        catch (Exception e) {
+            log.error("Could not find board: ", e);
+            return null;
+        }
+        return result;
     }
 
     private Long getUserId(String username) {
