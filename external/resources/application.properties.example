@@ -78,13 +78,13 @@ workflow.oclc.classification-type=dewey
 
 # Local Holdings Enrichment
 
-workflow.localHoldings=FOLIO
+workflow.localHoldings.dataSource=FOLIO
 workflow.localHoldings.linkTo=VuFind
 
 
 # Group Holdings Enrichment
 
-workflow.groupHoldings=OCLC
+workflow.groupHoldings.dataSource=OCLC
 workflow.groupHoldings.oclcSymbols=EAST
 
 

@@ -268,15 +268,15 @@ OCLC APIs are used by various [holdings enrichment steps](#enrichment) and the [
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.localHoldings | `FOLIO` or `OCLC` to enable Local Holdings Enrichment.  Determines which source and algorithm is used to identify any local holdings. | N | 
-| workflow.localHoldings.linkTo | `VuFind` or `FOLIO`.  Determines which destination the local holdings search results should link to. | If `workflow.localHoldings` is set | 
+| workflow.localHoldings.dataSource | `FOLIO` or `OCLC` to enable Local Holdings Enrichment.  Determines which source and algorithm is used to identify any local holdings. | N | 
+| workflow.localHoldings.linkTo | `VuFind` or `FOLIO`.  Determines which destination the local holdings search results should link to. | If `workflow.localHoldings.dataSource` is set | 
 
 ### Group Holdings Section
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.groupHoldings | `OCLC` to enable Group Holdings Enrichment. | N |
-| workflow.groupHoldings.oclcSymbols | Comma-separated list of OCLC group symbols representing consortia that the institution belongs to.  The application will check and report separately on holdings for each group. | If `workflow.groupHoldings` is set |
+| workflow.groupHoldings.dataSource | `OCLC` to enable Group Holdings Enrichment. | N |
+| workflow.groupHoldings.oclcSymbols | Comma-separated list of OCLC group symbols representing consortia that the institution belongs to.  The application will check and report separately on holdings for each group. | If `workflow.groupHoldings.dataSource` is set |
 
 ### FOLIO Section
 
