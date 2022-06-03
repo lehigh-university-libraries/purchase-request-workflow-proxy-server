@@ -129,8 +129,10 @@ workflow.librarian-call-numbers.base-url=http://hostname.someuniversity.edu:8080
 
 spring.mail.host=localhost
 spring.mail.port=25
+workflow.email.subject-prefix=TEST SERVER (PLEASE IGNORE): 
 workflow.email.from-address=libraryorders@someuniversity.edu
 workflow.email.purchase-requested-addresses=libraryorders@someuniversity.edu
+workflow.email.address-domain=someuniversity.edu
 
 
 # Google Sheets Listener

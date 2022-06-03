@@ -407,6 +407,11 @@ public class Config {
     public static class Email {
 
         /**
+         * Prefix to the subject line for all emails.
+         */
+        private String subjectPrefix = "";
+
+        /**
          * From address to use in email notifications.
          */
         private String fromAddress;
@@ -414,7 +419,12 @@ public class Config {
         /**
          * List of comma-separated emailed addresses to notify when a new purchase request is submitted.
          */
-        private String purchaseRequestedAddresses;
+        private String purchaseRequestedAddresses = null;
+
+        /**
+         * Suffix after 'username@' that creates an email address.
+         */
+        private String addressDomain;
 
     }
 

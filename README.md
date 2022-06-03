@@ -336,8 +336,10 @@ For reporting via the Email Listener.
 | -- | -- | -- |
 | spring.mail.host | Hostname of an SMTP server | Y |
 | spring.mail.port | Port of the SMTP server | Y |
+| workflow.email.subject-prefix | Prefix the subject line for all emails, such as to identify a test environment. | N |
 | workflow.email.from-address | From address to use in reporting emails | Y | 
-| workflow.email.purchase-requested-addresses | Email address to send notification when a new purchase is requested, *in addition* to the emails of any associated librarians from Librarian Enrichment. | Y |
+| workflow.email.purchase-requested-addresses | Email address to send notification when a new purchase is requested, *in addition* to the emails of any associated librarians from Librarian Enrichment. | N |
+| workflow.email.address-domain | Suffix after 'username@' that creates an email address. | Y |
 
 ### Google Sheets Listener Section
 
