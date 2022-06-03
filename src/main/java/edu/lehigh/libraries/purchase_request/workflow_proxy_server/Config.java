@@ -26,10 +26,30 @@ public class Config {
     private Boolean enabled;
     
     /**
-     * Storage and workflow engine.  "jira"
+     * Storage and workflow engine.
      */
     @NotBlank
     private String storage;
+
+    /**
+     * Source of Identifiers Enrichment.
+     */
+    private String identifiers = null;
+
+    /**
+     * Source of Budget Code enrichment.
+     */
+    private String budgetCode = null;
+
+    /**
+     * Source of Requester Enrichment.
+     */
+    private String requester = null;
+
+    /**
+     * Source of Pricing Enrichment.
+     */
+    private String pricing = null;
 
     private Jira jira;
     private Restyaboard restyaboard;
@@ -297,7 +317,7 @@ public class Config {
         /**
          * DataSource to use for Local Holdings enrichment.  Exclude property to disabled this enrichment.
          */
-        private DataSource dataSource;
+        private DataSource dataSource = null;
 
         /**
          * System to link to in the LocalHoldingsEnrichment text: "VuFind" or "FOLIO"
@@ -308,6 +328,11 @@ public class Config {
 
     @Getter @Setter
     public static class GroupHoldings {
+
+        /**
+         * Data source to use for Group Holdings enrichment.
+         */
+        private String dataSource = null;
 
         /**
          * List of OCLC symbols for affiliated groups to check for holdings, comma-separated.
@@ -380,6 +405,11 @@ public class Config {
          * IsbnDb.com API key for pricing information
          */
         private String apiKey;
+
+        /**
+         * Method of IsbnDb enrichment;
+         */
+        private String method;
         
         @Getter @Setter
         public static class TitleSearch {
