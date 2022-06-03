@@ -207,6 +207,7 @@ For use with `JiraWorkflowService` implementation, connecting via Jira's API as 
 | workflow.jira.project | Jira [project key](https://support.atlassian.com/jira-software-cloud/docs/what-is-an-issue/#Workingwithissues-Projectkeys) | If `workflow.storage` is `jira` |
 | workflow.jira.issueTypeId | ID of the Jira [issue type](https://support.atlassian.com/jira-cloud-administration/docs/what-are-issue-types/) to use for purchase requests.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-types/#api-group-issue-types) or [via the Jira UI](https://confluence.atlassian.com/jirakb/finding-the-id-for-issue-types-646186508.html) | If `workflow.storage` is `jira` |
 | workflow.jira.approvedStatusId | ID of the Jira status to use identify approved purchases.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-status/#api-group-status) or [via the Jira UI](https://community.atlassian.com/t5/Jira-Service-Management/How-do-I-get-a-list-of-statuses-that-show-the-associated-status/qaq-p/1803682). | If `workflow.storage` is `jira` | 
+| workflow.jira.arrivedStatusId | ID of the Jira status to use identify purchases that have arrived at their destination.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` | 
 | workflow.jira.maxSearchResults | Maximum results to return when retrieving issues in bulk. | If `workflow.storage` is `jira` |
 | workflow.jira.multipleLibrariansUsername | Username of a Jira user / librarian to assign a purchase request to via Librarian Enrichment, if the enrichment determines that more than one librarian is interested in the item's call number.  Intended to be a username that forwards email to all librarian selectors. | If `workflow.storage` is `jira` |
 
@@ -339,6 +340,8 @@ For reporting via the Email Listener.
 | workflow.email.subject-prefix | Prefix the subject line for all emails, such as to identify a test environment. | N |
 | workflow.email.from-address | From address to use in reporting emails | Y | 
 | workflow.email.purchase-requested-addresses | Email address to send notification when a new purchase is requested, *in addition* to the emails of any associated librarians from Librarian Enrichment. | N |
+| workflow.email.purchase-approved-addresses | Email address to send notification when a purchase is approved. | N |
+| workflow.email.purchase-arrived-addresses | Email address to send notification when a purchase arrives at its destination, *in addition* to the requester's email. | N |
 | workflow.email.address-domain | Suffix after 'username@' that creates an email address. | Y |
 
 ### Google Sheets Listener Section

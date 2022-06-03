@@ -22,7 +22,9 @@ public class EmailListener implements WorkflowServiceListener {
 
     private final String SUBJECT_PREFIX;
     private final String FROM_ADDRESS;
-    private final String PURCHASE_REQUESTED_ADDRESSES;
+    private final String PURCHASE_REQUESTED_ADDRESS;
+    private final String PURCHASE_APPROVED_ADDRESS;
+    private final String PURCHASE_ARRIVED_ADDRESS;
     private final String ADDRESS_DOMAIN;
 
     @Autowired
@@ -33,7 +35,9 @@ public class EmailListener implements WorkflowServiceListener {
 
         SUBJECT_PREFIX = config.getEmail().getSubjectPrefix();
         FROM_ADDRESS = config.getEmail().getFromAddress();
-        PURCHASE_REQUESTED_ADDRESSES = config.getEmail().getPurchaseRequestedAddresses();
+        PURCHASE_REQUESTED_ADDRESS = config.getEmail().getPurchaseRequestedAddress();
+        PURCHASE_APPROVED_ADDRESS = config.getEmail().getPurchaseApprovedAddress();
+        PURCHASE_ARRIVED_ADDRESS = config.getEmail().getPurchaseArrivedAddress();
         ADDRESS_DOMAIN = config.getEmail().getAddressDomain();
 
         log.debug("EmailListener listening.");
@@ -44,17 +48,13 @@ public class EmailListener implements WorkflowServiceListener {
         SimpleMailMessage message = buildStubMessage();
 
         // Subject
-        String subject = "New Purchase Requested at " + purchaseRequest.getCreationDate();
-        if (SUBJECT_PREFIX != null) {
-            subject = SUBJECT_PREFIX + subject;
-        }
-        message.setSubject(subject);
+        message.setSubject(buildSubject("New Purchase Requested at " + purchaseRequest.getCreationDate()));
 
         // Recipients
         List<String> recipients = new ArrayList<String>();
-        addLibrarianRecipients(recipients, purchaseRequest);
-        if (PURCHASE_REQUESTED_ADDRESSES != null) {
-            recipients.add(PURCHASE_REQUESTED_ADDRESSES);
+        addLibrarianRecipient(recipients, purchaseRequest);
+        if (PURCHASE_REQUESTED_ADDRESS != null) {
+            recipients.add(PURCHASE_REQUESTED_ADDRESS);
         }
         message.setTo(recipients.toArray(new String[0]));
 
@@ -72,7 +72,59 @@ public class EmailListener implements WorkflowServiceListener {
 
     @Override
     public void purchaseApproved(PurchaseRequest purchaseRequest) {
-        // TODO Actually send email
+        SimpleMailMessage message = buildStubMessage();
+
+        // Subject
+        message.setSubject(buildSubject("Purchase Approved at " + purchaseRequest.getCreationDate()));
+
+        // Recipients
+        List<String> recipients = new ArrayList<String>();
+        if (PURCHASE_APPROVED_ADDRESS != null) {
+            recipients.add(PURCHASE_APPROVED_ADDRESS);
+        }
+        else {
+            log.debug("No one to email for approved purchase.");
+            return;
+        }
+        message.setTo(recipients.toArray(new String[0]));
+
+        // Body
+        String text = "Purchase Request approved"
+            + "\n\n"
+            + "Title: " + purchaseRequest.getTitle() + "\n"
+            + "Contributor: " + purchaseRequest.getContributor() + "\n"
+            + "";
+        message.setText(text);
+
+        emailSender.send(message);
+        log.debug("Emailed approved purchase request.");
+    }
+
+    @Override
+    public void purchaseArrived(PurchaseRequest purchaseRequest) {
+        SimpleMailMessage message = buildStubMessage();
+
+        // Subject
+        message.setSubject(buildSubject("Purchase Arrived"));
+
+        // Recipients
+        List<String> recipients = new ArrayList<String>();
+        addRequesterRecipient(recipients, purchaseRequest);
+        if (PURCHASE_ARRIVED_ADDRESS != null) {
+            recipients.add(PURCHASE_ARRIVED_ADDRESS);
+        }
+        message.setTo(recipients.toArray(new String[0]));
+
+        // Body
+        String text = "Purchase Request arrived"
+            + "\n\n"
+            + "Title: " + purchaseRequest.getTitle() + "\n"
+            + "Contributor: " + purchaseRequest.getContributor() + "\n"
+            + "";
+        message.setText(text);
+
+        emailSender.send(message);
+        log.debug("Emailed arrived purchase request.");
     }
 
     private SimpleMailMessage buildStubMessage() {
@@ -81,9 +133,22 @@ public class EmailListener implements WorkflowServiceListener {
         return message;
     }
 
-    private void addLibrarianRecipients(List<String> recipients, PurchaseRequest purchaseRequest) {
+    private String buildSubject(String subject) {
+        if (SUBJECT_PREFIX != null) {
+            subject = SUBJECT_PREFIX + subject;
+        }
+        return subject;
+    }
+
+    private void addLibrarianRecipient(List<String> recipients, PurchaseRequest purchaseRequest) {
         if (purchaseRequest.getLibrarianUsername() != null) {
             recipients.add(purchaseRequest.getLibrarianUsername() + '@' + ADDRESS_DOMAIN);
+        }
+    }
+
+    private void addRequesterRecipient(List<String> recipients, PurchaseRequest purchaseRequest) {
+        if (purchaseRequest.getRequesterUsername() != null) {
+            recipients.add(purchaseRequest.getRequesterUsername() + '@' + ADDRESS_DOMAIN);
         }
     }
 

@@ -110,6 +110,13 @@ public class Config {
         private Long approvedStatusId;
 
         /**
+         * ID of the Jira status that indicates a purchase request has arrived at its destination.
+         * 
+         * A list of statuses with IDs can be retrieved with {{jira.url}}/status
+         */
+        private Long arrivedStatusId;
+
+        /**
          * ID of the Jira custom field representing the item's contributor (author etc.).
          * 
          * A list of fields with IDs can be retrieved with {{jira.url}}/field
@@ -447,9 +454,19 @@ public class Config {
         private String fromAddress;
 
         /**
-         * List of comma-separated emailed addresses to notify when a new purchase request is submitted.
+         * Email addresses to notify when a new purchase request is submitted.
          */
-        private String purchaseRequestedAddresses = null;
+        private String purchaseRequestedAddress = null;
+
+        /**
+         * Emailed address to notify when a new purchase request is approved.
+         */
+        private String purchaseApprovedAddress = null;
+
+        /**
+         * Emailed address to notify when a new purchase request is at its destination.
+         */
+        private String purchaseArrivedAddress = null;
 
         /**
          * Suffix after 'username@' that creates an email address.

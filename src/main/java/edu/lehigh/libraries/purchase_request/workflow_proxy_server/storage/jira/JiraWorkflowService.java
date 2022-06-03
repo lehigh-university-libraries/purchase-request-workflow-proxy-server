@@ -63,6 +63,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String FUND_CODE_FIELD_ID;
     private String OBJECT_CODE_FIELD_ID;
     private Long APPROVED_STATUS_ID;
+    private Long ARRIVED_STATUS_ID;
     private Integer MAX_SEARCH_RESULTS;
     private String MULTIPLE_LIBRARIANS_USERNAME;
 
@@ -91,6 +92,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         FUND_CODE_FIELD_ID = config.getJira().getFundCodeFieldId();
         OBJECT_CODE_FIELD_ID = config.getJira().getObjectCodeFieldId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
+        ARRIVED_STATUS_ID = config.getJira().getArrivedStatusId();
         MAX_SEARCH_RESULTS = config.getJira().getMaxSearchResults();
         MULTIPLE_LIBRARIANS_USERNAME = config.getJira().getMultipleLibrariansUsername();
     }
@@ -423,6 +425,9 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         PurchaseRequest purchaseRequest = toPurchaseRequest(issue);
         if (APPROVED_STATUS_ID.equals(issue.getStatus().getId())) {
             notifyPurchaseRequestApproved(purchaseRequest);
+        }
+        else if (ARRIVED_STATUS_ID.equals(issue.getStatus().getId())) {
+            notifyPurchaseRequestArrived(purchaseRequest);
         }
         else {
             log.warn("Ignoring purchase request updated with unhandled status: " + issue.getStatus().getId());

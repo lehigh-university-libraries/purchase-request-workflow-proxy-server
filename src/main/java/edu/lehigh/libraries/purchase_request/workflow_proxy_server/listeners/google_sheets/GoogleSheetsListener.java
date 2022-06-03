@@ -100,6 +100,11 @@ abstract class GoogleSheetsListener implements WorkflowServiceListener {
         }
     }
 
+    @Override
+    public void purchaseArrived(PurchaseRequest purchaseRequest) {
+        // nothing to do for arrived purchases        
+    }
+
     abstract void writePurchase(PurchaseRequest purchaseRequest, String spreadsheetId);
 
     static ValueRange valueRange(List<Object> row) {
@@ -154,6 +159,6 @@ abstract class GoogleSheetsListener implements WorkflowServiceListener {
             return credential;
         }
 
-    } 
+    }
 
 }
