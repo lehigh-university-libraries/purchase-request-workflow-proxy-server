@@ -16,6 +16,7 @@ import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
+import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
 import org.apache.http.HttpHeaders;
@@ -63,6 +64,8 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String FUND_CODE_FIELD_ID;
     private String OBJECT_CODE_FIELD_ID;
     private Long APPROVED_STATUS_ID;
+    private String APPROVED_STATUS_NAME;
+    private Integer APPROVED_STATUS_TRANSITION_ID;
     private Long ARRIVED_STATUS_ID;
     private Integer MAX_SEARCH_RESULTS;
     private String MULTIPLE_LIBRARIANS_USERNAME;
@@ -92,6 +95,8 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         FUND_CODE_FIELD_ID = config.getJira().getFundCodeFieldId();
         OBJECT_CODE_FIELD_ID = config.getJira().getObjectCodeFieldId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
+        APPROVED_STATUS_NAME = config.getJira().getApprovedStatusName();
+        APPROVED_STATUS_TRANSITION_ID = config.getJira().getApprovedStatusTransitionId();
         ARRIVED_STATUS_ID = config.getJira().getArrivedStatusId();
         MAX_SEARCH_RESULTS = config.getJira().getMaxSearchResults();
         MULTIPLE_LIBRARIANS_USERNAME = config.getJira().getMultipleLibrariansUsername();
@@ -170,6 +175,8 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     public PurchaseRequest save(PurchaseRequest purchaseRequest) {
         IssueInputBuilder issueBuilder = new IssueInputBuilder(PROJECT_CODE, config.getJira().getIssueTypeId());        
         issueBuilder.setSummary(purchaseRequest.getTitle());
+   
+        // Set basic fields
         issueBuilder.setFieldValue(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
         issueBuilder.setFieldValue(ISBN_FIELD_ID, purchaseRequest.getIsbn());
         issueBuilder.setFieldValue(OCLC_NUMBER_FIELD_ID, purchaseRequest.getOclcNumber());
@@ -181,16 +188,26 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         issueBuilder.setFieldValue(REQUESTER_USERNAME_FIELD_ID, purchaseRequest.getRequesterUsername());
         issueBuilder.setFieldValue(REQUESTER_ROLE_FIELD_ID, purchaseRequest.getRequesterRole());
 
+        // Set conditional fields
         if (purchaseRequest.getLibrarianUsername() != null && userExists(purchaseRequest.getLibrarianUsername())) {
             issueBuilder.setAssigneeName(purchaseRequest.getLibrarianUsername());
         }
-
         setReporter(issueBuilder, purchaseRequest);
         if (purchaseRequest.getRequesterComments() != null) {            
             issueBuilder.setDescription("Patron Comment: " + purchaseRequest.getRequesterComments());        
         }
+
+        // Save stub issue
         String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
-        PurchaseRequest createdRequest = findByKey(key);
+        Issue issue = getByKey(key);
+        PurchaseRequest createdRequest = toPurchaseRequest(issue);
+
+        // Set status if appropriate
+        if (purchaseRequest.getStatus() != null) {
+            setInitialStatus(purchaseRequest, issue.getTransitionsUri());
+            createdRequest = findByKey(key);
+        }
+
         notifyPurchaseRequestCreated(createdRequest);
 
         return createdRequest;
@@ -216,6 +233,14 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         }
         else {
             throw new IllegalArgumentException("Unknown hosting environment: " + HOSTING);
+        }
+    }
+
+    private void setInitialStatus(PurchaseRequest purchaseRequest, URI transitionsUri) {
+        if (APPROVED_STATUS_NAME.equals(purchaseRequest.getStatus())) {
+            log.info("Setting initial status to Approved.");
+            TransitionInput transitionInput = new TransitionInput(APPROVED_STATUS_TRANSITION_ID);
+            client.getIssueClient().transition(transitionsUri, transitionInput).claim(); 
         }
     }
 

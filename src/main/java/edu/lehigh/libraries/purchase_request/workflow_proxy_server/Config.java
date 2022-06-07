@@ -110,6 +110,20 @@ public class Config {
         private Long approvedStatusId;
 
         /**
+         * Name of the Jira status used to identify approved purchases.
+         * 
+         * See `approvedStatusId` for finding value.
+         */
+        private String approvedStatusName;
+
+        /**
+         * ID of the Jira transition that takes an issue from New to Approved. 
+         * 
+         * A list of transition IDs can be retrieved with {{jira.url}}/{{issue-id}}/transitions
+         */
+        private Integer approvedStatusTransitionId;
+
+        /**
          * ID of the Jira status that indicates a purchase request has arrived at its destination.
          * 
          * A list of statuses with IDs can be retrieved with {{jira.url}}/status

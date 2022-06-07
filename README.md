@@ -206,10 +206,19 @@ For use with `JiraWorkflowService` implementation, connecting via Jira's API as 
 | workflow.jira.token | [API token](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/) for the Jira account | If `workflow.storage` is `jira` |
 | workflow.jira.project | Jira [project key](https://support.atlassian.com/jira-software-cloud/docs/what-is-an-issue/#Workingwithissues-Projectkeys) | If `workflow.storage` is `jira` |
 | workflow.jira.issueTypeId | ID of the Jira [issue type](https://support.atlassian.com/jira-cloud-administration/docs/what-are-issue-types/) to use for purchase requests.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-types/#api-group-issue-types) or [via the Jira UI](https://confluence.atlassian.com/jirakb/finding-the-id-for-issue-types-646186508.html) | If `workflow.storage` is `jira` |
-| workflow.jira.approvedStatusId | ID of the Jira status to use identify approved purchases.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-status/#api-group-status) or [via the Jira UI](https://community.atlassian.com/t5/Jira-Service-Management/How-do-I-get-a-list-of-statuses-that-show-the-associated-status/qaq-p/1803682). | If `workflow.storage` is `jira` | 
-| workflow.jira.arrivedStatusId | ID of the Jira status to use identify purchases that have arrived at their destination.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` | 
 | workflow.jira.maxSearchResults | Maximum results to return when retrieving issues in bulk. | If `workflow.storage` is `jira` |
 | workflow.jira.multipleLibrariansUsername | Username of a Jira user / librarian to assign a purchase request to via Librarian Enrichment, if the enrichment determines that more than one librarian is interested in the item's call number.  Intended to be a username that forwards email to all librarian selectors. | If `workflow.storage` is `jira` |
+
+#### Jira Statuses
+
+These parameters define the IDs and names of Jira statuses and the transitions between them.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.jira.approvedStatusId | ID of the Jira status to use identify approved purchases.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-status/#api-group-status) or [via the Jira UI](https://community.atlassian.com/t5/Jira-Service-Management/How-do-I-get-a-list-of-statuses-that-show-the-associated-status/qaq-p/1803682). | If `workflow.storage` is `jira` | 
+| workflow.jira.approvedStatusName | Name of the Jira status used to identify approved purchases.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` |
+| workflow.jira.approvedStatusTransitionId | ID of the Jira transition that takes an issue from New to Approved. Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-transitions-get) |  If `workflow.storage` is `jira` |
+| workflow.jira.arrivedStatusId | ID of the Jira status to use identify purchases that have arrived at their destination.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` | 
 
 #### Jira Field IDs
 

@@ -32,10 +32,14 @@ workflow.jira.username=your_email
 workflow.jira.token=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 workflow.jira.project=PR
 workflow.jira.issueTypeId=12345
-workflow.jira.approvedStatusId=12345
-workflow.jira.arrivedStatusId=12345
 workflow.jira.maxSearchResults=5
 workflow.jira.multipleLibrariansUsername=librarians
+
+workflow.jira.approvedStatusId=12345
+workflow.jira.approvedStatusName=Approved
+workflow.jira.approvedStatusTransitionId=1
+workflow.jira.arrivedStatusId=12345
+
 workflow.jira.contributorFieldId=customfield_12345
 workflow.jira.isbnFieldId=customfield_12345
 workflow.jira.oclcNumberFieldId=customfield_12345
