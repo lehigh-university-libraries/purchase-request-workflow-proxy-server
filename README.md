@@ -215,6 +215,8 @@ These parameters define the IDs and names of Jira statuses and the transitions b
 
 | Property | Description | Required |
 | -- | -- | -- |
+| workflow.jira.deferredStatusName | Name of the Jira status used to identify purchases that the librarian selectors want to review at a later date.   If omitted, the server cannot transition requests to that status when set on newly submitted requests.  See `approvedStatusId` for finding value. | N |
+| workflow.jira.deferredStatusTransitionId | ID of the Jira transition that takes an issue from New to the Deferred status.  See `approvedStatusTransitionId` for finding value. | If `workflow.jira.deferredStatusName` is set
 | workflow.jira.approvedStatusId | ID of the Jira status to use identify approved purchases.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-status/#api-group-status) or [via the Jira UI](https://community.atlassian.com/t5/Jira-Service-Management/How-do-I-get-a-list-of-statuses-that-show-the-associated-status/qaq-p/1803682). | If `workflow.storage` is `jira` | 
 | workflow.jira.approvedStatusName | Name of the Jira status used to identify approved purchases.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` |
 | workflow.jira.approvedStatusTransitionId | ID of the Jira transition that takes an issue from New to Approved. Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-transitions-get) |  If `workflow.storage` is `jira` |

@@ -103,6 +103,20 @@ public class Config {
         private Long issueTypeId;
 
         /**
+         * Name of the Jira status used to identify purchase requests deferred for a later decision.
+         * 
+         * See `approvedStatusId` for finding value.
+         */
+        private String deferredStatusName;
+
+        /**
+         * ID of the Jira transition that takes an issue from New to Deferred. 
+         * 
+         * A list of transition IDs can be retrieved with {{jira.url}}/{{issue-id}}/transitions
+         */
+        private Integer deferredStatusTransitionId;
+
+        /**
          * ID of the Jira status that indicates a purchase request has been approved.
          * 
          * A list of statuses with IDs can be retrieved with {{jira.url}}/status

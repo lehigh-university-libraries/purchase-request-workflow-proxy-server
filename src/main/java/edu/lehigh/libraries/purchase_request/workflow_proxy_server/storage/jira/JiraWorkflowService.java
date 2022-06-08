@@ -63,6 +63,8 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String REQUESTER_ROLE_FIELD_ID;
     private String FUND_CODE_FIELD_ID;
     private String OBJECT_CODE_FIELD_ID;
+    private String DEFERRED_STATUS_NAME;
+    private Integer DEFERRED_STATUS_TRANSITION_ID;
     private Long APPROVED_STATUS_ID;
     private String APPROVED_STATUS_NAME;
     private Integer APPROVED_STATUS_TRANSITION_ID;
@@ -94,6 +96,8 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         REQUESTER_ROLE_FIELD_ID = config.getJira().getRequesterRoleFieldId();
         FUND_CODE_FIELD_ID = config.getJira().getFundCodeFieldId();
         OBJECT_CODE_FIELD_ID = config.getJira().getObjectCodeFieldId();
+        DEFERRED_STATUS_NAME = config.getJira().getDeferredStatusName();
+        DEFERRED_STATUS_TRANSITION_ID = config.getJira().getDeferredStatusTransitionId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
         APPROVED_STATUS_NAME = config.getJira().getApprovedStatusName();
         APPROVED_STATUS_TRANSITION_ID = config.getJira().getApprovedStatusTransitionId();
@@ -237,11 +241,19 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     private void setInitialStatus(PurchaseRequest purchaseRequest, URI transitionsUri) {
-        if (APPROVED_STATUS_NAME.equals(purchaseRequest.getStatus())) {
-            log.info("Setting initial status to Approved.");
-            TransitionInput transitionInput = new TransitionInput(APPROVED_STATUS_TRANSITION_ID);
-            client.getIssueClient().transition(transitionsUri, transitionInput).claim(); 
+        TransitionInput transitionInput = null;
+        if (DEFERRED_STATUS_NAME != null && DEFERRED_STATUS_NAME.equals(purchaseRequest.getStatus())) {
+            transitionInput = new TransitionInput(DEFERRED_STATUS_TRANSITION_ID);
         }
+        else if (APPROVED_STATUS_NAME.equals(purchaseRequest.getStatus())) {
+            transitionInput = new TransitionInput(APPROVED_STATUS_TRANSITION_ID);
+        }
+        else {
+            return;
+        }
+
+        log.info("Setting initial status to " + purchaseRequest.getStatus());
+        client.getIssueClient().transition(transitionsUri, transitionInput).claim(); 
     }
 
     private boolean userExists(String username) {

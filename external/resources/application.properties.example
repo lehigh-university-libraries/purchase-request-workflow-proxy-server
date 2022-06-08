@@ -35,6 +35,8 @@ workflow.jira.issueTypeId=12345
 workflow.jira.maxSearchResults=5
 workflow.jira.multipleLibrariansUsername=librarians
 
+workflow.jira.deferredStatusName=Deferred
+workflow.jira.deferredStatusTransitionId=1
 workflow.jira.approvedStatusId=12345
 workflow.jira.approvedStatusName=Approved
 workflow.jira.approvedStatusTransitionId=1
