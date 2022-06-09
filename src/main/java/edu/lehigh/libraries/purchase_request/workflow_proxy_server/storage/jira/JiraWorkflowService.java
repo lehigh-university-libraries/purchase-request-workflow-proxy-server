@@ -47,6 +47,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private static final String 
         HOSTING_CLOUD = "cloud",
         HOSTING_SERVER = "server";
+    private static final int SUMMARY_MAX_LENGTH = 254;
 
     private String HOSTING;
     private String PROJECT_CODE;
@@ -180,7 +181,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     @Override
     public PurchaseRequest save(PurchaseRequest purchaseRequest) {
         IssueInputBuilder issueBuilder = new IssueInputBuilder(PROJECT_CODE, config.getJira().getIssueTypeId());        
-        issueBuilder.setSummary(purchaseRequest.getTitle());
+        setSummary(issueBuilder, purchaseRequest);
    
         // Set basic fields
         issueBuilder.setFieldValue(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
@@ -217,6 +218,15 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         notifyPurchaseRequestCreated(createdRequest);
 
         return createdRequest;
+    }
+
+    private void setSummary(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
+        String title = purchaseRequest.getTitle();
+        if (title.length() > SUMMARY_MAX_LENGTH) {
+            log.info("Truncating title to " + SUMMARY_MAX_LENGTH + " characters: " + title);
+            title = title.substring(0, SUMMARY_MAX_LENGTH);
+        }
+        issueBuilder.setSummary(title);
     }
 
     private void setReporter(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
