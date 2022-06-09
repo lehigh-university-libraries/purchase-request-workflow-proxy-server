@@ -58,6 +58,9 @@ public class EmailListener implements WorkflowServiceListener {
         if (PURCHASE_REQUESTED_ADDRESS != null) {
             recipients.add(PURCHASE_REQUESTED_ADDRESS);
         }
+        if (recipients.size() == 0) {
+            return;
+        }
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
@@ -84,8 +87,7 @@ public class EmailListener implements WorkflowServiceListener {
         if (PURCHASE_APPROVED_ADDRESS != null) {
             recipients.add(PURCHASE_APPROVED_ADDRESS);
         }
-        else {
-            log.debug("No one to email for approved purchase.");
+        if (recipients.size() == 0) {
             return;
         }
         message.setTo(recipients.toArray(new String[0]));
@@ -114,8 +116,7 @@ public class EmailListener implements WorkflowServiceListener {
         if (PURCHASE_DENIED_ADDRESS != null) {
             recipients.add(PURCHASE_DENIED_ADDRESS);
         }
-        else {
-            log.debug("No one to email for denied purchase.");
+        if (recipients.size() == 0) {
             return;
         }
         message.setTo(recipients.toArray(new String[0]));
@@ -145,6 +146,9 @@ public class EmailListener implements WorkflowServiceListener {
         addRequesterRecipient(recipients, purchaseRequest);
         if (PURCHASE_ARRIVED_ADDRESS != null) {
             recipients.add(PURCHASE_ARRIVED_ADDRESS);
+        }
+        if (recipients.size() == 0) {
+            return;
         }
         message.setTo(recipients.toArray(new String[0]));
 
