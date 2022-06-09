@@ -49,13 +49,13 @@ public class WorkflowController {
 
     @GetMapping("/purchase-requests")
     List<PurchaseRequest> all() {
-        log.info("Request: GET /purchase-requests");
+        log.debug("Request: GET /purchase-requests");
         return service.findAll();
     }
 
     @GetMapping("/purchase-requests/{key}")
     ResponseEntity<PurchaseRequest> getByKey(@PathVariable @Pattern(regexp = PurchaseRequest.KEY_PATTERN) String key) {
-            log.info("Request: GET /purchase-requests/" + key);
+        log.debug("Request: GET /purchase-requests/" + key);
         PurchaseRequest purchaseRequest = service.findByKey(key);
         if (purchaseRequest == null) {
             return ResponseEntity.notFound().build();
@@ -68,7 +68,7 @@ public class WorkflowController {
         @Valid @RequestBody PurchaseRequest purchaseRequest,
         Authentication authentication) {
             
-        log.info("Request: POST /purchase-requests " + purchaseRequest);
+        log.debug("Request: POST /purchase-requests " + purchaseRequest);
         purchaseRequest.setClientName(authentication.getName());
         PurchaseRequest savedRequest = service.save(purchaseRequest); 
         enrichmentManager.notifyNewPurchaseRequest(savedRequest);
@@ -78,7 +78,7 @@ public class WorkflowController {
 
     @GetMapping("/search")
     List<PurchaseRequest> search(@RequestParam @Pattern(regexp = PurchaseRequest.SANITIZED_STRING_PATTERN) String reporterName) {
-        log.info("Request: GET /search/ " + reporterName);
+        log.debug("Request: GET /search/ " + reporterName);
         SearchQuery query = new SearchQuery();
         if (reporterName != null) {
             query.setReporterName(reporterName);
@@ -88,7 +88,7 @@ public class WorkflowController {
 
     @GetMapping("/search-matches")
     List<Match> searchMatches(MatchQuery query) {
-        log.info("Request: GET /search-matches? " + query);
+        log.debug("Request: GET /search-matches? " + query);
         return matchService.search(query);
     }
 
