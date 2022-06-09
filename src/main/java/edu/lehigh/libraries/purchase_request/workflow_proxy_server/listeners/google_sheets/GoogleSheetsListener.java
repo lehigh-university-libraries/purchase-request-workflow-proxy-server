@@ -101,6 +101,11 @@ abstract class GoogleSheetsListener implements WorkflowServiceListener {
     }
 
     @Override
+    public void purchaseDenied(PurchaseRequest purchaseRequest) {
+        // nothing to do for denied purchases        
+    }
+
+    @Override
     public void purchaseArrived(PurchaseRequest purchaseRequest) {
         // nothing to do for arrived purchases        
     }

@@ -220,6 +220,7 @@ These parameters define the IDs and names of Jira statuses and the transitions b
 | workflow.jira.approvedStatusId | ID of the Jira status to use identify approved purchases.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-status/#api-group-status) or [via the Jira UI](https://community.atlassian.com/t5/Jira-Service-Management/How-do-I-get-a-list-of-statuses-that-show-the-associated-status/qaq-p/1803682). | If `workflow.storage` is `jira` | 
 | workflow.jira.approvedStatusName | Name of the Jira status used to identify approved purchases.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` |
 | workflow.jira.approvedStatusTransitionId | ID of the Jira transition that takes an issue from New to Approved. Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-transitions-get) |  If `workflow.storage` is `jira` |
+| workflow.jira.deniedStatusId | ID of the Jira status to use identify denied purchase requests.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` | 
 | workflow.jira.arrivedStatusId | ID of the Jira status to use identify purchases that have arrived at their destination.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` | 
 
 #### Jira Field IDs
@@ -350,9 +351,10 @@ For reporting via the Email Listener.
 | spring.mail.port | Port of the SMTP server | Y |
 | workflow.email.subject-prefix | Prefix the subject line for all emails, such as to identify a test environment. | N |
 | workflow.email.from-address | From address to use in reporting emails | Y | 
-| workflow.email.purchase-requested-addresses | Email address to send notification when a new purchase is requested, *in addition* to the emails of any associated librarians from Librarian Enrichment. | N |
-| workflow.email.purchase-approved-addresses | Email address to send notification when a purchase is approved. | N |
-| workflow.email.purchase-arrived-addresses | Email address to send notification when a purchase arrives at its destination, *in addition* to the requester's email. | N |
+| workflow.email.purchase-requested-address | Email address to send notification when a new purchase is requested, *in addition* to the emails of any associated librarians from Librarian Enrichment. | N |
+| workflow.email.purchase-approved-address | Email address to send notification when a purchase is approved. | N |
+| workflow.email.purchase-denied-address | Email address to send notification when a purchase is denied. | N |
+| workflow.email.purchase-arrived-address | Email address to send notification when a purchase arrives at its destination, *in addition* to the requester's email. | N |
 | workflow.email.address-domain | Suffix after 'username@' that creates an email address. | Y |
 
 ### Google Sheets Listener Section

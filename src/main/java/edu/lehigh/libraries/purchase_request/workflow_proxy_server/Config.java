@@ -138,6 +138,13 @@ public class Config {
         private Integer approvedStatusTransitionId;
 
         /**
+         * ID of the Jira status that indicates a purchase request has been denied.
+         * 
+         * A list of statuses with IDs can be retrieved with {{jira.url}}/status
+         */
+        private Long deniedStatusId;
+
+        /**
          * ID of the Jira status that indicates a purchase request has arrived at its destination.
          * 
          * A list of statuses with IDs can be retrieved with {{jira.url}}/status
@@ -490,6 +497,11 @@ public class Config {
          * Emailed address to notify when a new purchase request is approved.
          */
         private String purchaseApprovedAddress = null;
+
+        /**
+         * Emailed address to notify when a new purchase request is denied.
+         */
+        private String purchaseDeniedAddress = null;
 
         /**
          * Emailed address to notify when a new purchase request is at its destination.

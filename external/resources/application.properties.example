@@ -40,6 +40,7 @@ workflow.jira.deferredStatusTransitionId=1
 workflow.jira.approvedStatusId=12345
 workflow.jira.approvedStatusName=Approved
 workflow.jira.approvedStatusTransitionId=1
+workflow.jira.deniedStatusId=12345
 workflow.jira.arrivedStatusId=12345
 
 workflow.jira.contributorFieldId=customfield_12345
@@ -140,6 +141,7 @@ workflow.email.subject-prefix=TEST SERVER (PLEASE IGNORE):
 workflow.email.from-address=libraryorders@someuniversity.edu
 workflow.email.purchase-requested-address=libraryorders@someuniversity.edu
 workflow.email.purchase-approved-address=libraryorders@someuniversity.edu
+workflow.email.purchase-denied-address=libraryorders@someuniversity.edu
 workflow.email.purchase-arrived-address=libraryorders@someuniversity.edu
 workflow.email.address-domain=someuniversity.edu
 

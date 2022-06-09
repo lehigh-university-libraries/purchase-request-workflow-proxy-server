@@ -24,6 +24,7 @@ public class EmailListener implements WorkflowServiceListener {
     private final String FROM_ADDRESS;
     private final String PURCHASE_REQUESTED_ADDRESS;
     private final String PURCHASE_APPROVED_ADDRESS;
+    private final String PURCHASE_DENIED_ADDRESS;
     private final String PURCHASE_ARRIVED_ADDRESS;
     private final String ADDRESS_DOMAIN;
 
@@ -37,6 +38,7 @@ public class EmailListener implements WorkflowServiceListener {
         FROM_ADDRESS = config.getEmail().getFromAddress();
         PURCHASE_REQUESTED_ADDRESS = config.getEmail().getPurchaseRequestedAddress();
         PURCHASE_APPROVED_ADDRESS = config.getEmail().getPurchaseApprovedAddress();
+        PURCHASE_DENIED_ADDRESS = config.getEmail().getPurchaseDeniedAddress();
         PURCHASE_ARRIVED_ADDRESS = config.getEmail().getPurchaseArrivedAddress();
         ADDRESS_DOMAIN = config.getEmail().getAddressDomain();
 
@@ -98,6 +100,37 @@ public class EmailListener implements WorkflowServiceListener {
 
         emailSender.send(message);
         log.debug("Emailed approved purchase request.");
+    }
+
+    @Override
+    public void purchaseDenied(PurchaseRequest purchaseRequest) {
+        SimpleMailMessage message = buildStubMessage();
+
+        // Subject
+        message.setSubject(buildSubject("Purchase Denied at " + purchaseRequest.getCreationDate()));
+
+        // Recipients
+        List<String> recipients = new ArrayList<String>();
+        if (PURCHASE_DENIED_ADDRESS != null) {
+            recipients.add(PURCHASE_DENIED_ADDRESS);
+        }
+        else {
+            log.debug("No one to email for denied purchase.");
+            return;
+        }
+        message.setTo(recipients.toArray(new String[0]));
+
+        // Body
+        String text = "Purchase Request denied"
+            + "\n\n"
+            + "Title: " + purchaseRequest.getTitle() + "\n"
+            + "Contributor: " + purchaseRequest.getContributor() + "\n"
+            + "Requester comments: " + purchaseRequest.getRequesterComments() + "\n"
+            + "";
+        message.setText(text);
+
+        emailSender.send(message);
+        log.debug("Emailed denied purchase request.");
     }
 
     @Override

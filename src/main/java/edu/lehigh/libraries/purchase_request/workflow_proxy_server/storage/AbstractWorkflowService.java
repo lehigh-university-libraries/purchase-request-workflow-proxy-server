@@ -31,6 +31,12 @@ abstract public class AbstractWorkflowService implements WorkflowService {
         }
     }
 
+    protected void notifyPurchaseRequestDenied(PurchaseRequest purchaseRequest) {
+        for (WorkflowServiceListener listener : listeners) {
+            listener.purchaseDenied(purchaseRequest);
+        }
+    }
+
     protected void notifyPurchaseRequestArrived(PurchaseRequest purchaseRequest) {
         for (WorkflowServiceListener listener : listeners) {
             listener.purchaseArrived(purchaseRequest);

@@ -8,6 +8,8 @@ public interface WorkflowServiceListener {
 
     void purchaseApproved(PurchaseRequest purchaseRequest);
     
+    void purchaseDenied(PurchaseRequest purchaseRequest);
+
     void purchaseArrived(PurchaseRequest purchaseRequest);
     
 }
