@@ -475,7 +475,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         if (APPROVED_STATUS_ID.equals(issue.getStatus().getId())) {
             notifyPurchaseRequestApproved(purchaseRequest);
         }
-        if (DENIED_STATUS_ID.equals(issue.getStatus().getId())) {
+        else if (DENIED_STATUS_ID.equals(issue.getStatus().getId())) {
             notifyPurchaseRequestDenied(purchaseRequest);
         }
         else if (ARRIVED_STATUS_ID.equals(issue.getStatus().getId())) {
