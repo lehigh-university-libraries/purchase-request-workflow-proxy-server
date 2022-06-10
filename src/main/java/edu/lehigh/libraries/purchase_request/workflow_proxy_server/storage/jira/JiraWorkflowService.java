@@ -215,8 +215,6 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             createdRequest = findByKey(key);
         }
 
-        notifyPurchaseRequestCreated(createdRequest);
-
         return createdRequest;
     }
 

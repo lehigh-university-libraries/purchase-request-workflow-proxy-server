@@ -19,6 +19,11 @@ abstract public class AbstractWorkflowService implements WorkflowService {
         listeners.add(listener);
     }
 
+    @Override
+    public void enrichmentComplete(PurchaseRequest createdRequest) {
+        notifyPurchaseRequestCreated(createdRequest);
+    }
+
     protected void notifyPurchaseRequestCreated(PurchaseRequest createdRequest) {
         for (WorkflowServiceListener listener : listeners) {
             listener.purchaseRequested(createdRequest);

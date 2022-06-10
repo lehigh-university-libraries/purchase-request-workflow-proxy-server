@@ -64,6 +64,7 @@ public class EnrichmentManager {
             }
         }
         log.debug("Done with all enrichment.");
+        workflowService.enrichmentComplete(purchaseRequest);
     }
 
 }

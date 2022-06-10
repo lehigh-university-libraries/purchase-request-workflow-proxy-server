@@ -19,6 +19,8 @@ public interface WorkflowService {
 
     void enrich(PurchaseRequest purchaseRequest, EnrichmentType enrichmentType, Object data);
 
+    void enrichmentComplete(PurchaseRequest purchaseRequest);
+
     void addListener(WorkflowServiceListener listener);
 
 }
