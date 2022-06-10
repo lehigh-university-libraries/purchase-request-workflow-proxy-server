@@ -47,6 +47,7 @@ public class EmailListener implements WorkflowServiceListener {
 
     @Override
     public void purchaseRequested(PurchaseRequest purchaseRequest) {
+        log.debug("Email about purchase requested.");
         SimpleMailMessage message = buildStubMessage();
 
         // Subject
@@ -77,6 +78,7 @@ public class EmailListener implements WorkflowServiceListener {
 
     @Override
     public void purchaseApproved(PurchaseRequest purchaseRequest) {
+        log.debug("Email about purchase approved.");
         SimpleMailMessage message = buildStubMessage();
 
         // Subject
@@ -106,6 +108,7 @@ public class EmailListener implements WorkflowServiceListener {
 
     @Override
     public void purchaseDenied(PurchaseRequest purchaseRequest) {
+        log.debug("Email about purchase denied.");
         SimpleMailMessage message = buildStubMessage();
 
         // Subject
@@ -136,6 +139,7 @@ public class EmailListener implements WorkflowServiceListener {
 
     @Override
     public void purchaseArrived(PurchaseRequest purchaseRequest) {
+        log.debug("Email about purchase arrived.");
         SimpleMailMessage message = buildStubMessage();
 
         // Subject
