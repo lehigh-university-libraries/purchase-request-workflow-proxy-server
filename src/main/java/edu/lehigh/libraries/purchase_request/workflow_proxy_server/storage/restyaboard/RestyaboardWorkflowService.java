@@ -124,6 +124,11 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
     }
 
     @Override
+    public String getWebUrl(PurchaseRequest purchaseRequest) {
+        return config.getRestyaboard().getBaseUrl() + "/#/board/" + BOARD_ID + "/card/" + purchaseRequest.getId();
+    }
+
+    @Override
     public PurchaseRequest save(PurchaseRequest purchaseRequest) {
         log.debug("save()");
 

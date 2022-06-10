@@ -179,6 +179,11 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     @Override
+    public String getWebUrl(PurchaseRequest purchaseRequest) {
+        return config.getJira().getUrl() + "browse/" + purchaseRequest.getKey();
+    }
+
+    @Override
     public PurchaseRequest save(PurchaseRequest purchaseRequest) {
         IssueInputBuilder issueBuilder = new IssueInputBuilder(PROJECT_CODE, config.getJira().getIssueTypeId());        
         setSummary(issueBuilder, purchaseRequest);

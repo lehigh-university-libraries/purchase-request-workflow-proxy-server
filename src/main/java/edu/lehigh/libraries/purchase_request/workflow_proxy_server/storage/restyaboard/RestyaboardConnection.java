@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RestyaboardConnection {
     
+    private static final String API_PATH = "/api/v1";
     private static final String LOGIN_PATH = "/users/login.json";
 
     private final Config config;
@@ -45,7 +46,7 @@ public class RestyaboardConnection {
     }
 
     private void initToken() throws Exception {
-        String url = config.getRestyaboard().getBaseUrl() + LOGIN_PATH;
+        String url = config.getRestyaboard().getBaseUrl() + API_PATH + LOGIN_PATH;
         URI uri = new URIBuilder(url).build();
 
         JSONObject postData = new JSONObject();
@@ -73,7 +74,7 @@ public class RestyaboardConnection {
 
     public JSONObject executePost(String url, JSONObject body) throws Exception {
         HttpUriRequest postRequest = RequestBuilder.post()
-            .setUri(config.getRestyaboard().getBaseUrl() + url)
+            .setUri(config.getRestyaboard().getBaseUrl() + API_PATH + url)
             .addParameter("token", token)
             .setEntity(new StringEntity(body.toString()))
             .build();
@@ -105,7 +106,7 @@ public class RestyaboardConnection {
 
     private String executeGetRawResponse(String url, Map<String, String> requestParams) throws Exception {
         RequestBuilder builder = RequestBuilder.get()
-            .setUri(config.getRestyaboard().getBaseUrl() + url)
+            .setUri(config.getRestyaboard().getBaseUrl() + API_PATH + url)
             .addParameter("token", token);
         if (requestParams != null) {
             requestParams.forEach((key, value) -> builder.addParameter(key, value));

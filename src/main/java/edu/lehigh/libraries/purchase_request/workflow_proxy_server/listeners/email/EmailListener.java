@@ -31,8 +31,11 @@ public class EmailListener implements WorkflowServiceListener {
     @Autowired
     private JavaMailSender emailSender;
 
+    private WorkflowService workflowService;
+
     EmailListener(WorkflowService service, Config config) {
         service.addListener(this);
+        this.workflowService = service;
 
         SUBJECT_PREFIX = config.getEmail().getSubjectPrefix();
         FROM_ADDRESS = config.getEmail().getFromAddress();
@@ -69,6 +72,7 @@ public class EmailListener implements WorkflowServiceListener {
             + "\n\n"
             + "Title: " + purchaseRequest.getTitle() + "\n"
             + "Contributor: " + purchaseRequest.getContributor() + "\n"
+            + "Workflow URL: " + workflowService.getWebUrl(purchaseRequest) + "\n"
             + "";
         message.setText(text);
 
@@ -99,6 +103,7 @@ public class EmailListener implements WorkflowServiceListener {
             + "\n\n"
             + "Title: " + purchaseRequest.getTitle() + "\n"
             + "Contributor: " + purchaseRequest.getContributor() + "\n"
+            + "Workflow URL: " + workflowService.getWebUrl(purchaseRequest) + "\n"
             + "";
         message.setText(text);
 
@@ -130,6 +135,7 @@ public class EmailListener implements WorkflowServiceListener {
             + "Title: " + purchaseRequest.getTitle() + "\n"
             + "Contributor: " + purchaseRequest.getContributor() + "\n"
             + "Requester comments: " + purchaseRequest.getRequesterComments() + "\n"
+            + "Workflow URL: " + workflowService.getWebUrl(purchaseRequest) + "\n"
             + "";
         message.setText(text);
 

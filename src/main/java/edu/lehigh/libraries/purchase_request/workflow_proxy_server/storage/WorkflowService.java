@@ -13,6 +13,8 @@ public interface WorkflowService {
 
     PurchaseRequest findByKey(String key);
 
+    String getWebUrl(PurchaseRequest purchaseRequest);
+
     PurchaseRequest save(PurchaseRequest purchaseRequest);
 
     List<PurchaseRequest> search(SearchQuery query);
