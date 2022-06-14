@@ -1,5 +1,6 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server;
 
+import java.time.Duration;
 import java.util.List;
 
 import javax.validation.constraints.AssertTrue;
@@ -513,6 +514,25 @@ public class Config {
          */
         private String addressDomain;
 
+        /**
+         * Duration of delay before emails are sent about new purchases.
+         */
+        private Duration purchaseRequestedDelay = null;
+
+        /**
+         * Duration of delay before emails are sent about approved purchases.
+         */
+        private Duration purchaseApprovedDelay = null;
+
+        /**
+         * Duration of delay before emails are sent about denied purchases.
+         */
+        private Duration purchaseDeniedDelay = null;
+
+        /**
+         * Duration of delay before emails are sent about arrived purchases.
+         */
+        private Duration purchaseArrivedDelay = null;
     }
 
     @Getter @Setter

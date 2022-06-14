@@ -1,5 +1,8 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners.email;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
@@ -27,9 +31,16 @@ public class EmailListener implements WorkflowServiceListener {
     private final String PURCHASE_DENIED_ADDRESS;
     private final String PURCHASE_ARRIVED_ADDRESS;
     private final String ADDRESS_DOMAIN;
+    private final Duration PURCHASE_REQUESTED_DELAY;
+    private final Duration PURCHASE_APPROVED_DELAY;
+    private final Duration PURCHASE_DENIED_DELAY;
+    private final Duration PURCHASE_ARRIVED_DELAY;
 
     @Autowired
     private JavaMailSender emailSender;
+
+    @Autowired
+    private TaskScheduler taskScheduler;
 
     private WorkflowService workflowService;
 
@@ -44,6 +55,10 @@ public class EmailListener implements WorkflowServiceListener {
         PURCHASE_DENIED_ADDRESS = config.getEmail().getPurchaseDeniedAddress();
         PURCHASE_ARRIVED_ADDRESS = config.getEmail().getPurchaseArrivedAddress();
         ADDRESS_DOMAIN = config.getEmail().getAddressDomain();
+        PURCHASE_REQUESTED_DELAY = config.getEmail().getPurchaseRequestedDelay();
+        PURCHASE_APPROVED_DELAY = config.getEmail().getPurchaseApprovedDelay();
+        PURCHASE_DENIED_DELAY = config.getEmail().getPurchaseDeniedDelay();
+        PURCHASE_ARRIVED_DELAY = config.getEmail().getPurchaseArrivedDelay();
 
         log.debug("EmailListener listening.");
     }
@@ -51,6 +66,10 @@ public class EmailListener implements WorkflowServiceListener {
     @Override
     public void purchaseRequested(PurchaseRequest purchaseRequest) {
         log.debug("Email about purchase requested.");
+        email(new PurchaseRequestedEmailer(purchaseRequest.getKey()), PURCHASE_REQUESTED_DELAY);
+    }
+
+    private void emailPurchaseRequested(PurchaseRequest purchaseRequest) {
         SimpleMailMessage message = buildStubMessage();
 
         // Subject
@@ -77,12 +96,16 @@ public class EmailListener implements WorkflowServiceListener {
         message.setText(text);
 
         emailSender.send(message);
-        log.debug("Emailed new purchase request.");
-    }
+        log.info("Emailed new purchase request: " + message.getText());
+}
 
     @Override
     public void purchaseApproved(PurchaseRequest purchaseRequest) {
         log.debug("Email about purchase approved.");
+        email(new PurchaseApprovedEmailer(purchaseRequest.getKey()), PURCHASE_APPROVED_DELAY);
+    }
+
+    private void emailPurchaseApproved(PurchaseRequest purchaseRequest) {
         SimpleMailMessage message = buildStubMessage();
 
         // Subject
@@ -108,12 +131,16 @@ public class EmailListener implements WorkflowServiceListener {
         message.setText(text);
 
         emailSender.send(message);
-        log.debug("Emailed approved purchase request.");
+        log.info("Emailed approved purchase request: " + message.getText());
     }
 
     @Override
     public void purchaseDenied(PurchaseRequest purchaseRequest) {
         log.debug("Email about purchase denied.");
+        email(new PurchaseDeniedEmailer(purchaseRequest.getKey()), PURCHASE_DENIED_DELAY);
+    }
+
+    private void emailPurchaseDenied(PurchaseRequest purchaseRequest) {
         SimpleMailMessage message = buildStubMessage();
 
         // Subject
@@ -140,12 +167,16 @@ public class EmailListener implements WorkflowServiceListener {
         message.setText(text);
 
         emailSender.send(message);
-        log.debug("Emailed denied purchase request.");
+        log.info("Emailed denied purchase request: " + message.getText());
     }
 
     @Override
     public void purchaseArrived(PurchaseRequest purchaseRequest) {
         log.debug("Email about purchase arrived.");
+        email(new PurchaseArrivedEmailer(purchaseRequest.getKey()), PURCHASE_ARRIVED_DELAY);
+    }
+
+    private void emailPurchaseArrived(PurchaseRequest purchaseRequest) {
         SimpleMailMessage message = buildStubMessage();
 
         // Subject
@@ -171,7 +202,17 @@ public class EmailListener implements WorkflowServiceListener {
         message.setText(text);
 
         emailSender.send(message);
-        log.debug("Emailed arrived purchase request.");
+        log.info("Emailed arrived purchase reequest: " + message.getText());
+    }
+
+    private void email(Emailer emailer, Duration delay) {
+        if (delay == null) {
+            emailer.run();
+        }
+        else {
+            LocalDateTime sendTime = LocalDateTime.now().plus(delay);
+            taskScheduler.schedule(emailer, sendTime.atZone(ZoneId.systemDefault()).toInstant());
+        }
     }
 
     private SimpleMailMessage buildStubMessage() {
@@ -196,6 +237,51 @@ public class EmailListener implements WorkflowServiceListener {
     private void addRequesterRecipient(List<String> recipients, PurchaseRequest purchaseRequest) {
         if (purchaseRequest.getRequesterUsername() != null) {
             recipients.add(purchaseRequest.getRequesterUsername() + '@' + ADDRESS_DOMAIN);
+        }
+    }
+
+    private abstract class Emailer implements Runnable{
+        String key;
+        Emailer(String key) { this.key = key;}
+    }
+    
+    private class PurchaseRequestedEmailer extends Emailer {
+        PurchaseRequestedEmailer(String key) { super(key); }
+
+        @Override
+        public void run() {
+            PurchaseRequest purchaseRequest = workflowService.findByKey(key);
+            emailPurchaseRequested(purchaseRequest);            
+        }
+    }
+
+    private class PurchaseApprovedEmailer extends Emailer {
+        PurchaseApprovedEmailer(String key) { super(key); }
+
+        @Override
+        public void run() {
+            PurchaseRequest purchaseRequest = workflowService.findByKey(key);
+            emailPurchaseApproved(purchaseRequest);            
+        }
+    }
+
+    private class PurchaseDeniedEmailer extends Emailer {
+        PurchaseDeniedEmailer(String key) { super(key); }
+
+        @Override
+        public void run() {
+            PurchaseRequest purchaseRequest = workflowService.findByKey(key);
+            emailPurchaseDenied(purchaseRequest);            
+        }
+    }
+
+    private class PurchaseArrivedEmailer extends Emailer {
+        PurchaseArrivedEmailer(String key) { super(key); }
+
+        @Override
+        public void run() {
+            PurchaseRequest purchaseRequest = workflowService.findByKey(key);
+            emailPurchaseArrived(purchaseRequest);            
         }
     }
 

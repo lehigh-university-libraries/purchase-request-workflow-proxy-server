@@ -356,6 +356,10 @@ For reporting via the Email Listener.
 | workflow.email.purchase-denied-address | Email address to send notification when a purchase is denied. | N |
 | workflow.email.purchase-arrived-address | Email address to send notification when a purchase arrives at its destination, *in addition* to the requester's email. | N |
 | workflow.email.address-domain | Suffix after 'username@' that creates an email address. | Y |
+| workflow.email.purchase-requested-delay | Delay after a new purchase before any email is sent, if specified.  Format as a [Java 8 Duration](https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html#parse-java.lang.CharSequence-). | N |
+| workflow.email.purchase-approved-delay | Delay after a purchase request is approved before any email is sent, if specified.  See `purchase-requested-delay` for format. | N |
+| workflow.email.purchase-denied-delay | Delay after a purchase request is denied before any email is sent, if specified.  See `purchase-requested-delay` for format. | N |
+| workflow.email.purchase-arrived-delay | Delay after a purchase request is arrived before any email is sent, if specified.  See `purchase-requested-delay` for format. | N |
 
 ### Google Sheets Listener Section
 
