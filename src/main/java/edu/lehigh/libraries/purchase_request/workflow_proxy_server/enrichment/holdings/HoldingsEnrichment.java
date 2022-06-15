@@ -1,6 +1,6 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.holdings;
 
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentService;
 

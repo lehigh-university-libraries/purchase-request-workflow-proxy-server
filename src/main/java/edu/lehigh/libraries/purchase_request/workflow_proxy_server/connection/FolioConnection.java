@@ -20,7 +20,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

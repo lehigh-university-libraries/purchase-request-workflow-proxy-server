@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.model.SearchQuery;
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.AbstractWorkflowService;
 import lombok.extern.slf4j.Slf4j;

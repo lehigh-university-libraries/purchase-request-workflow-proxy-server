@@ -1,4 +1,4 @@
-package edu.lehigh.libraries.purchase_request.workflow_proxy_server;
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.config;
 
 import java.time.Duration;
 import java.util.List;

@@ -19,7 +19,7 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners.WorkflowServiceListener;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.WorkflowService;
 import lombok.extern.slf4j.Slf4j;

@@ -12,7 +12,7 @@ import com.github.scribejava.core.oauth.OAuth20Service;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
