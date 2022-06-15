@@ -122,9 +122,17 @@ To run in the foreground:
 
 `java -jar purchase-request-workflow-proxy-server.war`
 
-Or for background execution on Linux, logging to nohup.out:
+... or for background execution on Linux, logging to nohup.out:
 
 `nohup java -jar purchase-request-workflow-proxy-server.war &`
+
+When using the Email Listener, add to the classpath the extra folder containing the `templates` folder:
+
+`java -cp ./extra_classpath:./purchase-request-workflow-proxy-server.war org.springframework.boot.loader.WarLauncher`
+
+... or for background execution:
+
+`nohup java -cp ./extra_classpath:./purchase-request-workflow-proxy-server.war org.springframework.boot.loader.WarLauncher &`
 
 ### Deployed to Jetty
 
