@@ -12,6 +12,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
@@ -41,6 +43,9 @@ public class EmailListener implements WorkflowServiceListener {
 
     @Autowired
     private TaskScheduler taskScheduler;
+
+    @Autowired
+    private TemplateEngine emailTemplateEngine;
 
     private WorkflowService workflowService;
 
@@ -87,13 +92,7 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        String text = "Purchase Request received via " + purchaseRequest.getClientName()
-            + "\n\n"
-            + "Title: " + purchaseRequest.getTitle() + "\n"
-            + "Contributor: " + purchaseRequest.getContributor() + "\n"
-            + "Workflow URL: " + workflowService.getWebUrl(purchaseRequest) + "\n"
-            + "";
-        message.setText(text);
+        message.setText(buildText("requested", purchaseRequest));
 
         emailSender.send(message);
         log.info("Emailed new purchase request: " + message.getText());
@@ -122,13 +121,7 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        String text = "Purchase Request approved"
-            + "\n\n"
-            + "Title: " + purchaseRequest.getTitle() + "\n"
-            + "Contributor: " + purchaseRequest.getContributor() + "\n"
-            + "Workflow URL: " + workflowService.getWebUrl(purchaseRequest) + "\n"
-            + "";
-        message.setText(text);
+        message.setText(buildText("approved", purchaseRequest));
 
         emailSender.send(message);
         log.info("Emailed approved purchase request: " + message.getText());
@@ -157,14 +150,7 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        String text = "Purchase Request denied"
-            + "\n\n"
-            + "Title: " + purchaseRequest.getTitle() + "\n"
-            + "Contributor: " + purchaseRequest.getContributor() + "\n"
-            + "Requester comments: " + purchaseRequest.getRequesterComments() + "\n"
-            + "Workflow URL: " + workflowService.getWebUrl(purchaseRequest) + "\n"
-            + "";
-        message.setText(text);
+        message.setText(buildText("denied", purchaseRequest));
 
         emailSender.send(message);
         log.info("Emailed denied purchase request: " + message.getText());
@@ -194,15 +180,10 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        String text = "Purchase Request arrived"
-            + "\n\n"
-            + "Title: " + purchaseRequest.getTitle() + "\n"
-            + "Contributor: " + purchaseRequest.getContributor() + "\n"
-            + "";
-        message.setText(text);
+        message.setText(buildText("arrived", purchaseRequest));
 
         emailSender.send(message);
-        log.info("Emailed arrived purchase reequest: " + message.getText());
+        log.info("Emailed arrived purchase request: " + message.getText());
     }
 
     private void email(Emailer emailer, Duration delay) {
@@ -238,6 +219,13 @@ public class EmailListener implements WorkflowServiceListener {
         if (purchaseRequest.getRequesterUsername() != null) {
             recipients.add(purchaseRequest.getRequesterUsername() + '@' + ADDRESS_DOMAIN);
         }
+    }
+
+    private String buildText(String templateName, PurchaseRequest purchaseRequest) {
+        Context context = new Context();
+        context.setVariable("purchaseRequest", purchaseRequest);
+        context.setVariable("workflowUrl", workflowService.getWebUrl(purchaseRequest));
+        return emailTemplateEngine.process(templateName, context);
     }
 
     private abstract class Emailer implements Runnable{

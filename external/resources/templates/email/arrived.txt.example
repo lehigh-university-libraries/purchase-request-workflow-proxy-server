@@ -1,0 +1,5 @@
+Purchase Request Arrived
+
+Title: [( ${purchaseRequest.title} )]
+Contributor: [( ${purchaseRequest.contributor} )]
+Workflow URL: [( ${workflowUrl} )]

@@ -87,9 +87,20 @@ Supplied implementations:
 
 | Listener | Description | Dependencies |
 | -------- | ----------- | ------------------------------ |
-| Email | Emails a specified address, and (TBD) the assigned librarian selectors, about new purchase requests. |  [Librarian enrichment](#enrichment) |
+| Email | Emails configurable recipients about a purchase request when its status changes.  [See Email Listener.](#email-listener) |  [Librarian enrichment](#enrichment) |
 | Full Record Spreadsheet | Exports full details of a new or approved request to a spreadsheet, adding a row. | Google Sheets |
 | MatchMARC Spreadsheet| Exports identifier and budget code metadata to a spreadsheet, adding a row, that is intended to be used with MatchMARC to create a FOLIO Purchase Order. | Google Sheets, [MatchMARC](https://github.com/suranofsky/tech-services-g-sheets-addon)
+
+### Email Listener
+
+The `EmailListener` sends an email based on the new status of a purchase request:
+
+- Requested: To the librarian identified by [Librarian Enrichment](#enrichment) and to `workflow.email.purchase-requested-address`.
+- Approved: To `workflow.email.purchase-approved-address`.
+- Denied: To `workflow.email.purchase-denied-address`.
+- Arrived: To the requester and to `workflow.email.purchase-arrived-address`.
+
+The body text of the email is defined by a file `{statusName}.txt` within a `mail` subfolder of [the configuration folder where `application.properties` is located](#deployment).  The template uses [Thymeleaf's TEXT mode](https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#textual-template-modes) and supports interpolation of any `PurchaseRequest` object properties as seen in the example files.
 
 ## Matching Pre-Submission
 
@@ -140,11 +151,13 @@ Deploy the .war file in Jetty's `webapps` folder (or as otherwise configured).  
 
 ## Initial Setup
 
-Set up the [configuration file](#configuration).
+1. Set up the [configuration file](#configuration).
 
-Uncomment this property to the configuration file before starting the application is run for the first time, to create the database schema.  *Then re-comment or remove it*:
+1. If using the Email Listener, copy or rename each email template file (removing ".example") and [edit as needed](#email-listener).
 
-    # spring.jpa.hibernate.ddl-auto=create-drop
+1. Uncomment this property to the configuration file before starting the application is run for the first time, to create the database schema.  *Then re-comment or remove it*:
+
+    `# spring.jpa.hibernate.ddl-auto=create-drop`
 
 ## Client User Management
 

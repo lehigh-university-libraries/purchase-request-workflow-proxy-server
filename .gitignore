@@ -37,3 +37,6 @@ build/
 
 ### Google ###
 google-sheets-client-secret.json
+
+### Email Templates ###
+**/email/*.txt
