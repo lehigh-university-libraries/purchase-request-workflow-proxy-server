@@ -254,6 +254,7 @@ Each of the following configuration parameters defines the Jira ID of a custom f
 | workflow.jira.requesterRoleFieldId | Stores the role, department and/or other description of the requester, as provided by LDAP. | If `workflow.storage` is `jira` and `workflow.requester` is set | 
 | workflow.jira.fundCodeFieldId | Stores the requested budget fund code to assign to an item purchase. | If `workflow.storage` is `jira` and `workflow.enrichment.budget-code` is set | 
 | workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | If `workflow.storage` is `jira` and `workflow.enrichment.budget-code` is set | 
+| workflow.jira.postPurchaseIdFieldId | Stores the unique ID of a purchased item, for use in emails about Arrived purchase requests. | If `workflow.storage` is `jira` | 
 
 ### Restyaboard Section
 

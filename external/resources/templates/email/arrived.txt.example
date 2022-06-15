@@ -3,3 +3,4 @@ Purchase Request Arrived
 Title: [( ${purchaseRequest.title} )]
 Contributor: [( ${purchaseRequest.contributor} )]
 Workflow URL: [( ${workflowUrl} )]
+Catalog link: https://catalog.library.someuniversity.edu/Record/[( ${purchaseRequest.postPurchaseId} )]

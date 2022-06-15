@@ -64,6 +64,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String REQUESTER_ROLE_FIELD_ID;
     private String FUND_CODE_FIELD_ID;
     private String OBJECT_CODE_FIELD_ID;
+    private String POST_PURCHASE_ID_FIELD_ID;
     private String DEFERRED_STATUS_NAME;
     private Integer DEFERRED_STATUS_TRANSITION_ID;
     private Long APPROVED_STATUS_ID;
@@ -98,6 +99,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         REQUESTER_ROLE_FIELD_ID = config.getJira().getRequesterRoleFieldId();
         FUND_CODE_FIELD_ID = config.getJira().getFundCodeFieldId();
         OBJECT_CODE_FIELD_ID = config.getJira().getObjectCodeFieldId();
+        POST_PURCHASE_ID_FIELD_ID = config.getJira().getPostPurchaseIdFieldId();
         DEFERRED_STATUS_NAME = config.getJira().getDeferredStatusName();
         DEFERRED_STATUS_TRANSITION_ID = config.getJira().getDeferredStatusTransitionId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
@@ -457,6 +459,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             purchaseRequest.setFundCode((String)issue.getField(FUND_CODE_FIELD_ID).getValue());
             purchaseRequest.setObjectCode((String)issue.getField(OBJECT_CODE_FIELD_ID).getValue());
         }
+        purchaseRequest.setPostPurchaseId((String)issue.getField(POST_PURCHASE_ID_FIELD_ID).getValue());
         purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
         purchaseRequest.setUpdateDate(formatDateTime(issue.getUpdateDate()));
         return purchaseRequest;

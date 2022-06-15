@@ -84,6 +84,9 @@ public class PurchaseRequest {
     @NoHtml
     private String objectCode;
 
+    @NoHtml
+    private String postPurchaseId;
+
     @Pattern(regexp = SANITIZED_STRING_PATTERN)
     private String creationDate;
 

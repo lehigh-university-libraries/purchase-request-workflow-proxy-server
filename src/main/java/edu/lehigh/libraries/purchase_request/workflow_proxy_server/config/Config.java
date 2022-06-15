@@ -245,6 +245,11 @@ public class Config {
         private String objectCodeFieldId;
 
         /**
+         * ID of the Jira custom field representing the unique ID of the purchased item within the LMS.
+         */
+        private String postPurchaseIdFieldId;
+
+        /**
          * Maximum results to return from a call to /search
          */
         private Integer maxSearchResults;

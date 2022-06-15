@@ -55,6 +55,7 @@ workflow.jira.requesterUsernameFieldId=customfield_12345
 workflow.jira.requesterRoleFieldId=customfield_12345
 workflow.jira.fundCodeFieldId=customfield_12345
 workflow.jira.objectCodeFieldId=customfield_12345
+workflow.jira.postPurchaseIdFieldId=customfield_12345
 
 
 # Restyaboard
