@@ -551,11 +551,6 @@ public class Config {
          */
         private String credentialsFilePath;
         
-        /**
-         * Header text for the column of ISBNs.
-         */
-        private String isbnColumnHeader;
-
         @Getter @Setter
         public static class OutputType {
 
