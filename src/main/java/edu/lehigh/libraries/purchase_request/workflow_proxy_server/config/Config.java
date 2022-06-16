@@ -65,6 +65,7 @@ public class Config {
     private LibrarianCallNumbers librarianCallNumbers;
     private Email email;
     private GoogleSheets googleSheets;
+    private PostPurchase postPurchase;
 
     @Getter @Setter
     public static class Jira {
@@ -565,6 +566,25 @@ public class Config {
             private String approvedSpreadsheetId;
             
         }
+
+    }
+
+    @Getter @Setter
+    public static class PostPurchase {
+
+        public enum DataSource {
+            FOLIO;
+        }
+
+        /**
+         * DataSource to use for PostPurchase data.
+         */
+        private DataSource dataSource = null;
+
+        /** 
+         * Proxy server prefix for electronic access URLs. 
+         */
+        private String proxyPrefix = "";
 
     }
 

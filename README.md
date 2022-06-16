@@ -394,6 +394,15 @@ For reporting to Google Sheets spreadsheets.  See [reporting and post-approval p
 | workflow.google-sheets.full-record.requested-spreadsheet-id | ID of a spreadsheet to use for reporting newly requested items in full record format. | N |
 | workflow.google-sheets.full-record.approved-spreadsheet-id | ID of a spreadsheet to use for reporting approved items in full record format. | N |
 
+### Post Purchase Section
+
+Load data from the LSP after a purchase is complete.  Used by `EmailListener`.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.post-purchase.data-source | `FOLIO` | Y |
+| workflow.post-purchase.proxy-prefix | Proxy server prefix for electronic access URLs. | N | 
+
 ### Debugging
 
 To optionally change the default [SLF4J](https://www.slf4j.org/index.html) logging [level](https://www.slf4j.org/api/org/slf4j/event/Level.html#enum.constant.summary) from INFO.

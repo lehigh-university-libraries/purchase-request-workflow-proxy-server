@@ -18,6 +18,7 @@ import org.thymeleaf.context.Context;
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners.WorkflowServiceListener;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.post_purchase.PostPurchaseService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.WorkflowService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,6 +47,9 @@ public class EmailListener implements WorkflowServiceListener {
 
     @Autowired
     private TemplateEngine emailTemplateEngine;
+
+    @Autowired
+    private PostPurchaseService postPurchaseService;
 
     private WorkflowService workflowService;
 
@@ -92,7 +96,7 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        message.setText(buildText("requested", purchaseRequest));
+        message.setText(buildText("requested", purchaseRequest, false));
 
         emailSender.send(message);
         log.info("Emailed new purchase request: " + message.getText());
@@ -121,7 +125,7 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        message.setText(buildText("approved", purchaseRequest));
+        message.setText(buildText("approved", purchaseRequest, false));
 
         emailSender.send(message);
         log.info("Emailed approved purchase request: " + message.getText());
@@ -150,7 +154,7 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        message.setText(buildText("denied", purchaseRequest));
+        message.setText(buildText("denied", purchaseRequest, false));
 
         emailSender.send(message);
         log.info("Emailed denied purchase request: " + message.getText());
@@ -180,7 +184,7 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        message.setText(buildText("arrived", purchaseRequest));
+        message.setText(buildText("arrived", purchaseRequest, true));
 
         emailSender.send(message);
         log.info("Emailed arrived purchase request: " + message.getText());
@@ -221,10 +225,13 @@ public class EmailListener implements WorkflowServiceListener {
         }
     }
 
-    private String buildText(String templateName, PurchaseRequest purchaseRequest) {
+    private String buildText(String templateName, PurchaseRequest purchaseRequest, boolean isArrived) {
         Context context = new Context();
         context.setVariable("purchaseRequest", purchaseRequest);
         context.setVariable("workflowUrl", workflowService.getWebUrl(purchaseRequest));
+        if (isArrived) {
+            context.setVariable("purchasedItem", postPurchaseService.getFromRequest(purchaseRequest));
+        }
         return emailTemplateEngine.process(templateName, context);
     }
 

@@ -159,6 +159,12 @@ workflow.google-sheets.full-record.requested-spreadsheet-id=ABCDEFGHIJKLMNOPQRST
 workflow.google-sheets.full-record.approved-spreadsheet-id=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 
 
+# Post Purchase
+
+workflow.post-purchase.data-source=FOLIO
+workflow.post-purchase.proxy-prefix=https://proxy.someuniversity.edu?url=
+
+
 # Debugging
 
 logging.level.edu.lehigh.libraries.purchase_request=DEBUG
