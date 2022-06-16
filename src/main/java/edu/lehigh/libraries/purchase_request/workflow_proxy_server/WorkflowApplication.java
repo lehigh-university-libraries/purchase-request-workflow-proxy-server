@@ -12,6 +12,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FullyQualifiedAnnotationBeanNameGenerator;
+import org.springframework.web.context.WebApplicationContext;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners.WorkflowServiceListener;
@@ -26,6 +27,13 @@ public class WorkflowApplication extends SpringBootServletInitializer {
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 		return application.sources(WorkflowApplication.class);
+	}
+
+	@Override
+	protected WebApplicationContext run(SpringApplication application) {
+		WebApplicationContext context = super.run(application);
+		reportServices(context);
+		return context;
 	}
 
 	private static void reportServices(ApplicationContext context) {
