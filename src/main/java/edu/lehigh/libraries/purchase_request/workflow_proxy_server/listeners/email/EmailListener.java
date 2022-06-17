@@ -16,6 +16,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
+import edu.lehigh.libraries.purchase_request.model.PurchasedItem;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners.WorkflowServiceListener;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.post_purchase.PostPurchaseService;
@@ -26,6 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnWebApplication
 @Slf4j
 public class EmailListener implements WorkflowServiceListener {
+
+    private static final String FORMAT_ELECTRONIC_FILENAME_SUFFIX = "-electronic";
 
     private final String SUBJECT_PREFIX;
     private final String FROM_ADDRESS;
@@ -96,7 +99,7 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        message.setText(buildText("requested", purchaseRequest, false));
+        message.setText(buildText("requested", purchaseRequest));
 
         emailSender.send(message);
         log.info("Emailed new purchase request: " + message.getText());
@@ -125,7 +128,7 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        message.setText(buildText("approved", purchaseRequest, false));
+        message.setText(buildText("approved", purchaseRequest));
 
         emailSender.send(message);
         log.info("Emailed approved purchase request: " + message.getText());
@@ -154,7 +157,7 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        message.setText(buildText("denied", purchaseRequest, false));
+        message.setText(buildText("denied", purchaseRequest));
 
         emailSender.send(message);
         log.info("Emailed denied purchase request: " + message.getText());
@@ -184,10 +187,19 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        message.setText(buildText("arrived", purchaseRequest, true));
+        PurchasedItem purchasedItem = postPurchaseService.getFromRequest(purchaseRequest);
+        String templateName = determineTemplate("arrived", purchasedItem);
+        message.setText(buildText(templateName, purchaseRequest, purchasedItem));
 
         emailSender.send(message);
         log.info("Emailed arrived purchase request: " + message.getText());
+    }
+
+    private String determineTemplate(String statusPart, PurchasedItem purchasedItem) {
+        if (purchasedItem != null && purchasedItem.getElectronicAccessUrl() != null) {
+            return statusPart + FORMAT_ELECTRONIC_FILENAME_SUFFIX;
+        }
+        return statusPart;
     }
 
     private void email(Emailer emailer, Duration delay) {
@@ -225,12 +237,17 @@ public class EmailListener implements WorkflowServiceListener {
         }
     }
 
-    private String buildText(String templateName, PurchaseRequest purchaseRequest, boolean isArrived) {
+    private String buildText(String templateName, PurchaseRequest purchaseRequest) {
+        return buildText(templateName, purchaseRequest, null);
+    }
+
+    private String buildText(String templateName, PurchaseRequest purchaseRequest, PurchasedItem purchasedItem) {
+        log.debug("Using template " + templateName);
         Context context = new Context();
         context.setVariable("purchaseRequest", purchaseRequest);
         context.setVariable("workflowUrl", workflowService.getWebUrl(purchaseRequest));
-        if (isArrived) {
-            context.setVariable("purchasedItem", postPurchaseService.getFromRequest(purchaseRequest));
+        if (purchasedItem != null) {
+            context.setVariable("purchasedItem", purchasedItem);
         }
         return emailTemplateEngine.process(templateName, context);
     }

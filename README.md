@@ -100,7 +100,9 @@ The `EmailListener` sends an email based on the new status of a purchase request
 - Denied: To `workflow.email.purchase-denied-address`.
 - Arrived: To the requester and to `workflow.email.purchase-arrived-address`.
 
-The body text of the email is defined by a file `{statusName}.txt` within a `mail` subfolder of [the configuration folder where `application.properties` is located](#deployment).  The template uses [Thymeleaf's TEXT mode](https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#textual-template-modes) and supports interpolation of any `PurchaseRequest` object properties as seen in the example files.
+The body text of the email is defined by a template file `{statusName}.txt` within a `mail` subfolder of [the configuration folder where `application.properties` is located](#deployment).  For Arrived, there is an additional template `arrived-electronic.txt` template for purchased items with electronic access, so the email may include a link to the item.
+
+The template uses [Thymeleaf's TEXT mode](https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#textual-template-modes) and supports interpolation of any `PurchaseRequest` object properties as seen in the example files.
 
 ## Matching Pre-Submission
 
