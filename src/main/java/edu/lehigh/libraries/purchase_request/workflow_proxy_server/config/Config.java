@@ -584,7 +584,7 @@ public class Config {
         /** 
          * Proxy server prefix for electronic access URLs. 
          */
-        private String proxyPrefix = "";
+        private String proxyPrefix = null;
 
     }
 
