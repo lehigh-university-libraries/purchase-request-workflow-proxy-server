@@ -1,6 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.librarian;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -29,12 +30,14 @@ public class LibrarianEnrichment implements EnrichmentService {
     private final LibrarianCallNumbersConnection connection;
 
     private final String BASE_URL;
+    private final String NO_CALL_NUMBER_USERNAME;
 
     LibrarianEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) {
         this.workflowService = workflowService;
         connection = new LibrarianCallNumbersConnection();
 
         BASE_URL = config.getLibrarianCallNumbers().getBaseUrl();
+        NO_CALL_NUMBER_USERNAME = config.getLibrarianCallNumbers().getNoCallNumberUsername();
 
         manager.addListener(this, 500);
         log.debug("LibrarianEnrichment ready.");
@@ -49,8 +52,16 @@ public class LibrarianEnrichment implements EnrichmentService {
 
         String callNumber = purchaseRequest.getCallNumber();
         if (callNumber == null) {
-            log.debug("Skipping LibrarianEnrichment, no call number provided.");
-            return;
+            if (NO_CALL_NUMBER_USERNAME == null) {
+                log.debug("Skipping LibrarianEnrichment, no call number provided and no default librarian.");
+                return;
+            }
+            else {
+                log.debug("No call number provided, using default librarian username.");
+                workflowService.enrich(purchaseRequest, EnrichmentType.LIBRARIANS, 
+                    Arrays.asList(new String[] { NO_CALL_NUMBER_USERNAME} ));
+                return;
+            }
         }
 
         String url = BASE_URL + "/search?callNumber=" + ConnectionUtil.encodeUrl(callNumber);

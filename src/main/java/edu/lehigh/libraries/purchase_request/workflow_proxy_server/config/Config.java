@@ -480,6 +480,11 @@ public class Config {
          */
         private String baseUrl;
 
+        /**
+         * Username of a librarian to assign if the request has no call number.
+         */
+        private String noCallNumberUsername = null;
+
     }
 
     @Getter @Setter

@@ -132,6 +132,7 @@ workflow.isbn-db.title-search.filter-on-contributor=true
 
 workflow.librarian-call-numbers=service
 workflow.librarian-call-numbers.base-url=http://hostname.someuniversity.edu:8080
+workflow.librarian-call-numbers.no-call-number-username=librarians
 
 
 # Email

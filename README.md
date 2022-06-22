@@ -358,12 +358,13 @@ Used by Pricing Enrichment to retrieve the list price(s) of a requested purchase
 
 ### Librarian Enrichment Section
 
-Librarian Enrichment makes use of a separate [Librarian Call Numbers](https://github.com/lehigh-university-libraries/librarian-call-numbers) web service which maps a call number to a list of librarians who are involved in selection for that range.
+Librarian Enrichment makes use of a separate [Librarian Call Numbers](https://github.com/lehigh-university-libraries/librarian-call-numbers) web service which maps a call number to a list of librarians who are involved in selection for that range.  It optionally assigns a default librarian if no call number has been identified.
 
 | Property | Description | Required |
 | -- | -- | -- |
 | workflow.librarian-call-numbers | `service` to enable librarian enrichment. | N |
 | workflow.librarian-call-numbers.base-url | Base URL of the Librarian Call Numbers service. | If `workflow.librarian-call-numbers` is set |
+| workflow.librarian-call-numbers.no-call-number-username | Username of a librarian to assign if the request has no call number (after [Identifiers Enrichment](#identifiers-enrichment-section)). | N |
 
 ### Email Section
 
