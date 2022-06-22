@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -151,7 +152,7 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
                     Iterator<String> targetContributorNamesIterator = targetContributorNames.iterator();
                     while (targetContributorNamesIterator.hasNext()) {
                         String targetName = targetContributorNamesIterator.next();
-                        if (resultContributor.contains(targetName)) {
+                        if (StringUtils.containsIgnoreCase(resultContributor, targetName)) {
                             foundMatch = true;
                         }
                     }
