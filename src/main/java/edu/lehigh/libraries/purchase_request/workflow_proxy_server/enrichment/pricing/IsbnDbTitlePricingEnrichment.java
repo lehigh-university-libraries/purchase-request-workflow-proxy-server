@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -143,6 +144,11 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
     private List<IsbnDbSearchResult> filterByContributor(List<IsbnDbSearchResult> results, String targetContributor) {
         Iterator<IsbnDbSearchResult> resultsIterator = results.iterator();
         List<String> targetContributorNames = Arrays.asList(targetContributor.split("[, ]"));
+
+        // Filter out any empty string or one-character (middle initial) contributor name parts.
+        targetContributorNames = targetContributorNames.stream().filter(name -> name.length() > 1).collect(Collectors.toList());
+
+        // Check each result
         while (resultsIterator.hasNext()) {
             boolean foundMatch = false;
             String[] resultContributors = resultsIterator.next().getContributors();
@@ -162,6 +168,7 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
                 resultsIterator.remove();
             }
         }
+
         return results;
     }
 
