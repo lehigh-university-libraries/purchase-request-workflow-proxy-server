@@ -66,8 +66,8 @@ public class FullRecordGoogleSheetsListener extends GoogleSheetsListener {
         @ConditionalOnProperty("workflow.google-sheets.full-record.requested-spreadsheet-id")
         static class Requested {}
     
-        @ConditionalOnProperty("workflow.google-sheets.full-record.accepted-spreadsheet-id")
-        static class Accepted {}
+        @ConditionalOnProperty("workflow.google-sheets.full-record.approved-spreadsheet-id")
+        static class Approved {}
     
     }
 

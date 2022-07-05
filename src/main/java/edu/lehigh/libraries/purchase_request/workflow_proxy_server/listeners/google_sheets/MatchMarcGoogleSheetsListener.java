@@ -69,8 +69,8 @@ public class MatchMarcGoogleSheetsListener extends GoogleSheetsListener {
         @ConditionalOnProperty("workflow.google-sheets.match-marc.requested-spreadsheet-id")
         static class Requested {}
     
-        @ConditionalOnProperty("workflow.google-sheets.match-marc.accepted-spreadsheet-id")
-        static class Accepted {}
+        @ConditionalOnProperty("workflow.google-sheets.match-marc.approved-spreadsheet-id")
+        static class Approved {}
     
     }
 
