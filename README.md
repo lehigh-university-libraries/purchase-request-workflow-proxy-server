@@ -116,7 +116,7 @@ The Maven configuration generates a .war file that can be run standalone (equiva
 
 In either case, it requires the `application.properties` configuration file to be available [where the application can find it](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#features.external-config).
 
-### Standalone JAR File (with embedded Tomcat)
+### Standalone WAR File (with embedded Tomcat)
 
 Recommended only as a development instance, as this runs the server over insecure HTTP.  In that context, it's simplest to just store the `application.properties` in the same directory as the .war file.
 
@@ -195,6 +195,12 @@ Copy/rename `application.properties.example` to `application.properties` and con
 | -- | -- | -- |
 | workflow.enabled | Enable the application. Must be 'true'.  | Y |
 | workflow.storage | Storage & workflow engine used.  Must be 'jira' or 'restyaboard'.  | Y |
+
+### Deployment Section
+
+Comment out (precede with '#') both of these properties if [deploying as a standalone application](#standalone-jar-file-with-embedded-tomcat).
+
+Enable both properties if deploying to a [separate application server](#deployed-to-jetty).
 
 ### Database Section
 

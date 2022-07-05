@@ -7,6 +7,12 @@ workflow.enabled=true
 workflow.storage=jira
 
 
+# Deployment
+
+spring.devtools.restart.enabled=false
+spring.devtools.livereload.enabled=false
+
+
 # Database
 
 workflow.db.host=some_database_host
