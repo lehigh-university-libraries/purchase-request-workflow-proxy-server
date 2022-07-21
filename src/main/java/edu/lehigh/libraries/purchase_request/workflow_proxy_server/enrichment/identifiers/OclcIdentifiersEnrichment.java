@@ -42,8 +42,8 @@ public class OclcIdentifiersEnrichment implements EnrichmentService {
 
     @Override
     public void enrichPurchaseRequest(PurchaseRequest purchaseRequest) {
-        if (purchaseRequest.getOclcNumber() != null) {
-            log.debug("Skipping OCLC enrichment, item already has an OCLC number.");
+        if (purchaseRequest.getOclcNumber() != null && purchaseRequest.getCallNumber() != null) {
+            log.debug("Skipping OCLC enrichment, item already has an OCLC number and call number.");
             return;
         }
 
@@ -104,6 +104,11 @@ public class OclcIdentifiersEnrichment implements EnrichmentService {
     }
 
     private void enrichOclcNumber(PurchaseRequest purchaseRequest, JsonObject bibRecord) {
+        if (purchaseRequest.getOclcNumber() != null) {
+            log.debug("OCLC number already present, skipping enrichment.");
+            return;
+        }
+
         JsonObject identifier = bibRecord.getAsJsonObject("identifier");
         if (identifier == null) {
             log.debug("No identifier found, cannot enrich OCLC number.");
@@ -115,6 +120,11 @@ public class OclcIdentifiersEnrichment implements EnrichmentService {
     }
 
     private void enrichCallNumber(PurchaseRequest purchaseRequest, JsonObject bibRecord) {
+        if (purchaseRequest.getCallNumber() != null) {
+            log.debug("Call number already present, skipping enrichment.");
+            return;
+        }
+
         JsonObject classification = bibRecord.getAsJsonObject("classification");
         if (classification == null) {
             log.debug("No classification found, cannot enrich call number.");
