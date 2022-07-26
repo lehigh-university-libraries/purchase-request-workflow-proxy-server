@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
@@ -32,8 +33,14 @@ public class WorkflowApplication extends SpringBootServletInitializer {
 	@Override
 	protected WebApplicationContext run(SpringApplication application) {
 		WebApplicationContext context = super.run(application);
+		reportBuild(context);
 		reportServices(context);
 		return context;
+	}
+
+	private static void reportBuild(ApplicationContext context) {
+		BuildProperties buildProperties = context.getBean(BuildProperties.class);
+		log.info("Build time: " + buildProperties.getTime());
 	}
 
 	private static void reportServices(ApplicationContext context) {
@@ -57,6 +64,7 @@ public class WorkflowApplication extends SpringBootServletInitializer {
 	public static void main(String[] args) {
 		log.info("Starting the Workflow Application");
 		ApplicationContext context = SpringApplication.run(WorkflowApplication.class, args);
+		reportBuild(context);
 		reportServices(context);
         log.info("Workflow Application started");
 	}
