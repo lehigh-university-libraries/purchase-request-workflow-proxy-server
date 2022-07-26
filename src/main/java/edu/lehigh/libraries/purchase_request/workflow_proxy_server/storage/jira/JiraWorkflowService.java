@@ -13,6 +13,7 @@ import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
 import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.IssueField;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
@@ -21,6 +22,8 @@ import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientF
 
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.utils.URIBuilder;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -456,13 +459,34 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         purchaseRequest.setRequesterComments(issue.getDescription());
         purchaseRequest.setLibrarianUsername(issue.getAssignee() != null ? issue.getAssignee().getName() : null);
         if (issue.getField(FUND_CODE_FIELD_ID) != null) {
-            purchaseRequest.setFundCode((String)issue.getField(FUND_CODE_FIELD_ID).getValue());
-            purchaseRequest.setObjectCode((String)issue.getField(OBJECT_CODE_FIELD_ID).getValue());
+            purchaseRequest.setFundCode(getStringValue(issue.getField(FUND_CODE_FIELD_ID)));
+            purchaseRequest.setObjectCode(getStringValue(issue.getField(OBJECT_CODE_FIELD_ID)));
         }
         purchaseRequest.setPostPurchaseId((String)issue.getField(POST_PURCHASE_ID_FIELD_ID).getValue());
         purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
         purchaseRequest.setUpdateDate(formatDateTime(issue.getUpdateDate()));
         return purchaseRequest;
+    }
+
+    private String getStringValue(IssueField field) {
+        Object value = field.getValue();
+        if (value == null) {
+            return null;
+        }
+
+        // Jira text field values are simple strings
+        if (value instanceof String) {
+            return (String)value;
+        }
+
+        // Jira drop-down field values are JSONObjects with a 'value' String within
+        JSONObject jsonObject = (JSONObject)value;
+        try {
+            return jsonObject.getString("value");
+        } catch (JSONException e) {
+            log.error("Could not read value field from JSON object: ", jsonObject);
+            return null;
+        }
     }
 
     private String formatDateTime(DateTime dateTime) {
