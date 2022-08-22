@@ -412,10 +412,14 @@ Load data from the LSP after a purchase is complete.  Used by `EmailListener`.
 | workflow.post-purchase.data-source | `FOLIO` | Y |
 | workflow.post-purchase.proxy-prefix | Proxy server prefix for electronic access URLs. | N | 
 
-### Debugging
+### Debugging & Error Reporting
 
 To optionally change the default [SLF4J](https://www.slf4j.org/index.html) logging [level](https://www.slf4j.org/api/org/slf4j/event/Level.html#enum.constant.summary) from INFO.
 
 | Property | Description | Required |
 | -- | -- | -- |
 | logging.level.edu.lehigh.libraries.purchase_request | `DEBUG`, `ERROR`, etc. | N |
+
+#### Advanced Logging Configuration
+
+In addition to these `application.properties` settings, a standard `logback-spring.xml` file can be used for additional configuration.  For example, the included `logback-spring.xml.example` file can email `ERROR` log events to a specified recipient.

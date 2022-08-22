@@ -35,6 +35,9 @@ build/
 ### Spring ###
 **/application.properties
 
+### LogBack ###
+logback-spring.xml
+
 ### Google ###
 google-sheets-client-secret.json
 
