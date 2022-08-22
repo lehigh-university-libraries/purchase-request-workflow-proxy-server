@@ -40,10 +40,13 @@ public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
         if (purchaseRequest.getTitle() != null && purchaseRequest.getContributor() != null) {
             message += findMatchesOnTitleAndContributor(purchaseRequest);
         }
-        else {
+        else if (purchaseRequest.getIsbn() != null || purchaseRequest.getOclcNumber() != null) {
             message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getIsbn(), IdentifierType.ISBN, null);
             message += findMatchesOnIdentifier(purchaseRequest, purchaseRequest.getOclcNumber(), IdentifierType.OclcNumber, 
                 purchaseRequest.getPrefixedOclcNumber());    
+        }
+        else {
+            log.debug("Cannot enrich holdings, doesn't have both title & contributor, and no ISBN or OCLC number.");
         }
         workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
         log.debug("Done creating enrichment for " + purchaseRequest);
