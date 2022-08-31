@@ -75,6 +75,21 @@ public class WorkflowController {
         return new ResponseEntity<PurchaseRequest>(savedRequest, HttpStatus.CREATED);
     }
 
+    @PostMapping("/purchase-requests/{key}/comments")
+    ResponseEntity<PurchaseRequest> postComment(
+        @PathVariable @Pattern(regexp = PurchaseRequest.KEY_PATTERN) String key, 
+        @Valid @RequestBody PurchaseRequest.Comment comment, 
+        Authentication authentication) {
+        
+        log.debug("Request: POST /purchase-requests/" + key + "/comments " + comment);
+        PurchaseRequest purchaseRequest = service.findByKey(key);
+        if (purchaseRequest == null) {
+            return ResponseEntity.notFound().build();
+        }
+        PurchaseRequest updatedRequest = service.addComment(purchaseRequest, comment);
+        return new ResponseEntity<PurchaseRequest>(updatedRequest, HttpStatus.CREATED);
+    }    
+
     @GetMapping("/search")
     List<PurchaseRequest> search(SearchQuery query) {
         log.debug("Request: GET /search/ " + query);

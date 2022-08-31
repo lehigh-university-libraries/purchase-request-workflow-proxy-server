@@ -23,6 +23,8 @@ public interface WorkflowService {
 
     void enrichmentComplete(PurchaseRequest purchaseRequest);
 
+    PurchaseRequest addComment(PurchaseRequest purchaseRequest, PurchaseRequest.Comment comment);
+
     void addListener(WorkflowServiceListener listener);
 
 }

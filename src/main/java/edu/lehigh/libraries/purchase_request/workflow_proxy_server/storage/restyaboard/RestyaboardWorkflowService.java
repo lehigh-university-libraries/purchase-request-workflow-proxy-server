@@ -387,4 +387,9 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
         }
     }
 
+    public PurchaseRequest addComment(PurchaseRequest purchaseRequest, PurchaseRequest.Comment comment) {
+        // TODO Implement addComment.   
+        throw new UnsupportedOperationException("Not implemented.");     
+    }
+
 }

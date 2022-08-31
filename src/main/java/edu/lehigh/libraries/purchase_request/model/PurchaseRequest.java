@@ -1,5 +1,7 @@
 package edu.lehigh.libraries.purchase_request.model;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -84,6 +86,8 @@ public class PurchaseRequest {
     @NoHtml
     private String objectCode;
 
+    private List<Comment> postRequestComments;
+
     @NoHtml
     private String postPurchaseId;
 
@@ -95,6 +99,17 @@ public class PurchaseRequest {
 
     public String getPrefixedOclcNumber() {
         return OCLC_NUMBER_PREFIX + oclcNumber;
+    }
+
+    @Getter @Setter @EqualsAndHashCode @ToString
+    public static class Comment {
+
+        @NoHtml
+        private String text;
+
+        @Pattern(regexp = SANITIZED_STRING_PATTERN)
+        private String creationDate;
+
     }
 
 }

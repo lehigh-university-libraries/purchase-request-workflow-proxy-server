@@ -440,6 +440,15 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
     }
 
+    @Override
+    public PurchaseRequest addComment(PurchaseRequest purchaseRequest, PurchaseRequest.Comment comment) {
+        enrichComment(purchaseRequest, comment.getText());
+
+        Issue issue = getByKey(purchaseRequest.getKey());
+        PurchaseRequest updatedRequest = toPurchaseRequest(issue);
+        return updatedRequest;
+    }
+
     private PurchaseRequest toPurchaseRequest(Issue issue) {
         PurchaseRequest purchaseRequest = new PurchaseRequest();
         purchaseRequest.setKey(issue.getKey());
@@ -466,6 +475,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             purchaseRequest.setFundCode(getStringValue(issue.getField(FUND_CODE_FIELD_ID)));
             purchaseRequest.setObjectCode(getStringValue(issue.getField(OBJECT_CODE_FIELD_ID)));
         }
+        purchaseRequest.setPostRequestComments(getComments(issue));
         purchaseRequest.setPostPurchaseId((String)issue.getField(POST_PURCHASE_ID_FIELD_ID).getValue());
         purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
         purchaseRequest.setUpdateDate(formatDateTime(issue.getUpdateDate()));
@@ -496,6 +506,17 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String formatDateTime(DateTime dateTime) {
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd hh:mm:ss aa");
         return fmt.print(dateTime);
+    }
+
+    private List<PurchaseRequest.Comment> getComments(Issue issue) {
+        List<PurchaseRequest.Comment> prComments = new LinkedList<PurchaseRequest.Comment>();
+        for (Comment comment : issue.getComments()) {
+            PurchaseRequest.Comment prComment = new PurchaseRequest.Comment();
+            prComment.setText(comment.getBody());
+            prComment.setCreationDate(comment.getCreationDate().toString());
+            prComments.add(prComment);
+        }
+        return prComments;
     }
 
     void purchaseRequestUpdated(String key) {
