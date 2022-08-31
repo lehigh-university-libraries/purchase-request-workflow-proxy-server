@@ -168,6 +168,9 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     @Override
     public PurchaseRequest findByKey(String key) {
         Issue issue = getByKey(key);
+        if (issue == null) {
+            return null;
+        }
         return toPurchaseRequest(issue);
     }
 
