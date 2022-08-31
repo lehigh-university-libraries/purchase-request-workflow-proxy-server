@@ -8,6 +8,8 @@ import lombok.ToString;
 @Getter @Setter @EqualsAndHashCode @ToString
 public class SearchQuery {
 
+    private String isbn;
+
     private String reporterName;
 
 }

@@ -288,23 +288,24 @@ public class JiraWorkflowService extends AbstractWorkflowService {
 
     @Override
     public List<PurchaseRequest> search(SearchQuery query) {
-        if (HOSTING_CLOUD.equals(HOSTING)) {
-            String jql = "project=" + PROJECT_CODE + " and " +
-                formatCustomFieldIdForQuery(REPORTER_NAME_FIELD_ID) + " ~ '" + query.getReporterName() + "' " +
-                "order by created DESC";
-            log.debug("jql: " + jql);
-            return searchJql(jql);
+        String jql = "project=" + PROJECT_CODE;
+        if (query.getIsbn() != null) {
+            jql += " and " + "isbn ~ '" + query.getIsbn() + "' ";
         }
-        else if (HOSTING_SERVER.equals(HOSTING)) {
-            String jql = "project=" + PROJECT_CODE + " and " +
-                "reporter = '" + query.getReporterName() + "' " +
-                "order by created DESC";
-            log.debug("jql: " + jql);
-            return searchJql(jql);
+        if (query.getReporterName() != null) {
+            if (HOSTING_CLOUD.equals(HOSTING)) {
+                jql += " and " + formatCustomFieldIdForQuery(REPORTER_NAME_FIELD_ID) + " ~ '" + query.getReporterName() + "' ";
+            }
+            else if (HOSTING_SERVER.equals(HOSTING)) {
+                jql += " and " + "reporter = '" + query.getReporterName() + "' ";
+            }
+            else {
+                throw new IllegalArgumentException("Unknown hosting environment: " + HOSTING);
+            }
         }
-        else {
-            throw new IllegalArgumentException("Unknown hosting environment: " + HOSTING);
-        }
+        jql += "order by created DESC";
+        log.debug("jql: " + jql);
+        return searchJql(jql);
     }
 
     /**
