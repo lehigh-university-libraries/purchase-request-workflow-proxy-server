@@ -33,15 +33,12 @@ abstract class HoldingsEnrichment implements EnrichmentService {
             else if (IdentifierType.TitleAndContributor == identifierType) {
                 return config.getVuFind().getBaseUrl()
                     + "/Search/Results?"
-                    + ConnectionUtil.encodeUrl("lookfor0_0[]") + "=" + ConnectionUtil.encodeUrl(identifier)
-                    + "&" + ConnectionUtil.encodeUrl("lookfor1_0[]") + "=" 
-                    + "&" + ConnectionUtil.encodeUrl("lookfor2_0[]") + "=" 
+                    + "join=AND"
+                    + "&" + ConnectionUtil.encodeUrl("lookfor0[]") + "=" + ConnectionUtil.encodeUrl(identifier)
                     + "&" + ConnectionUtil.encodeUrl("type0[]") + "=" + "Title" 
-                    + "&" + "join1=AND"
-                    + "&" + ConnectionUtil.encodeUrl("lookfor0_1[]") + "=" + ConnectionUtil.encodeUrl(secondaryIdentifier)
-                    + "&" + ConnectionUtil.encodeUrl("lookfor1_1[]") + "=" 
-                    + "&" + ConnectionUtil.encodeUrl("lookfor2_1[]") + "=" 
-                    + "&" + ConnectionUtil.encodeUrl("type1[]") + "=" + "Author";
+                    + "&" + ConnectionUtil.encodeUrl("lookfor0[]") + "=" + ConnectionUtil.encodeUrl(secondaryIdentifier)
+                    + "&" + ConnectionUtil.encodeUrl("type0[]") + "=" + "Author"
+                    + "&" + ConnectionUtil.encodeUrl("bool0[]") + "=" + "AND";
             }
             else {
                 throw new IllegalArgumentException("Unexpected identifier type: " + identifierType);
