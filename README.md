@@ -237,6 +237,7 @@ For use with `JiraWorkflowService` implementation, connecting via Jira's API as 
 | workflow.jira.issueTypeId | ID of the Jira [issue type](https://support.atlassian.com/jira-cloud-administration/docs/what-are-issue-types/) to use for purchase requests.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-types/#api-group-issue-types) or [via the Jira UI](https://confluence.atlassian.com/jirakb/finding-the-id-for-issue-types-646186508.html) | If `workflow.storage` is `jira` |
 | workflow.jira.maxSearchResults | Maximum results to return when retrieving issues in bulk. | If `workflow.storage` is `jira` |
 | workflow.jira.multipleLibrariansUsername | Username of a Jira user / librarian to assign a purchase request to via Librarian Enrichment, if the enrichment determines that more than one librarian is interested in the item's call number.  Intended to be a username that forwards email to all librarian selectors. | If `workflow.storage` is `jira` |
+| workflow.jira.defaultReporterUsername | Username of a Jira user to set as the reporter of each purchase request where the client has not specified a reporter.  Intended to be used for automated clients such the Lost Items Client. Jira will email this user with every comment and status update, so a dedicated API user account may be preferred. | If `workflow.storage` is `jira` |
 
 #### Jira Statuses
 

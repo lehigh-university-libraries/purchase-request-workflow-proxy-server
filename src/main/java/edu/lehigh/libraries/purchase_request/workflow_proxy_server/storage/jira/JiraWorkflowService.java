@@ -77,6 +77,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private Long ARRIVED_STATUS_ID;
     private Integer MAX_SEARCH_RESULTS;
     private String MULTIPLE_LIBRARIANS_USERNAME;
+    private String DEFAULT_REPORTER_USERNAME;
 
     public JiraWorkflowService(Config config) {
         super();
@@ -112,6 +113,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         ARRIVED_STATUS_ID = config.getJira().getArrivedStatusId();
         MAX_SEARCH_RESULTS = config.getJira().getMaxSearchResults();
         MULTIPLE_LIBRARIANS_USERNAME = config.getJira().getMultipleLibrariansUsername();
+        DEFAULT_REPORTER_USERNAME = config.getJira().getDefaultReporterUsername();
     }
 
     private void initConnection() {
@@ -243,8 +245,14 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private void setReporter(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
         String reporterName = purchaseRequest.getReporterName();
         if (reporterName == null) {
-            log.debug("Cannot set reporter, null");
-            return;
+            if (DEFAULT_REPORTER_USERNAME != null) {
+                log.debug("Using default reporter: " + DEFAULT_REPORTER_USERNAME);
+                reporterName = DEFAULT_REPORTER_USERNAME;
+            }
+            else {
+                log.debug("Cannot set reporter, null");
+                return;
+            }
         }
         
         if (HOSTING_CLOUD.equals(HOSTING)) {

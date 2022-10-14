@@ -261,6 +261,11 @@ public class Config {
          */
         private String multipleLibrariansUsername;
 
+        /**
+         * Username to use as Jira reporter if none is specified by a client application.
+         */
+        private String defaultReporterUsername;
+
     }
 
     @Getter @Setter

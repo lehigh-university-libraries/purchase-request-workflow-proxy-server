@@ -40,6 +40,7 @@ workflow.jira.project=PR
 workflow.jira.issueTypeId=12345
 workflow.jira.maxSearchResults=5
 workflow.jira.multipleLibrariansUsername=librarians
+workflow.jira.defaultReporterUsername=api_account
 
 workflow.jira.deferredStatusName=Deferred
 workflow.jira.deferredStatusTransitionId=1
