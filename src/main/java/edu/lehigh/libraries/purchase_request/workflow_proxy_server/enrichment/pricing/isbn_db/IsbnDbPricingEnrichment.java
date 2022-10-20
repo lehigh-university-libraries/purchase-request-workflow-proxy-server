@@ -1,4 +1,4 @@
-package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.pricing;
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.pricing.isbn_db;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.IsbnDbConnection;
