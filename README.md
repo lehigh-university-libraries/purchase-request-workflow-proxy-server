@@ -51,7 +51,7 @@ Supplied implementations:
 | ---------- | ----------- | ------------------------ |
 | Local Holdings | Identify existing local holdings, and link to them in the ILS/LSP or online catalog.  See also [Matching Pre-Submission](#matching-pre-submission).  | FOLIO or OCLC WorldCat |
 | Consortial Holdings | Identify holdings at consortia with borrowing relationships. | OCLC WorldCat |
-| Pricing | Gather list price information. | IsbnDB |
+| Pricing | Gather list price information. | IsbnDB or Amazon |
 | Requester | Identify the patron's university role (i.e. faculty, undergraduate) and department as provided by the university's directory information. | LDAP | 
 | Librarian Selector | Identify the librarian(s) who should decide the purchase request, based on the item's call number. | [Librarian Call Numbers](https://github.com/lehigh-university-libraries/librarian-call-numbers) |
 | Budget Codes | Set budget codes to use if the purchase is approved, based on the librarian enrichment. | FOLIO |
