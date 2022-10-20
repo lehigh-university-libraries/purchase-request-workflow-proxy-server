@@ -134,8 +134,8 @@ public class AmazonAxessoPricingEnrichment implements EnrichmentService {
 
     private String formatAsWikiTable(AmazonAxessoProduct product) {
         String comment = 
-            "\n\nTitle: [" + product.getDescription() + "|" + product.getPageUrl() + "]"
-            + "\n!" + product.getImageUrl() + "|align=right, vspace=10, hspace=10, height=150!"
+            "\n\n!" + product.getImageUrl() + "|align=right, vspace=10, hspace=10, height=150!"
+            + " Title: [" + product.getDescription() + "|" + product.getPageUrl() + "]"
             + "\n||Binding||Price||";
         for (AmazonAxessoProduct.Variation variation : product.getVariations()) {
             comment += "\n|" 
