@@ -127,12 +127,21 @@ workflow.ldap.username-query-field=uid
 workflow.ldap.role-result-field=description
 
 
-# Pricing Enrichment
+# IsbnDB Pricing Enrichment
 
-workflow.pricing=IsbnDB
+workflow.isbn-db.enabled=true
 workflow.isbn-db.method=title
 workflow.isbn-db.api-key=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 workflow.isbn-db.title-search.filter-on-contributor=true
+
+
+# Amazon via Axesso Pricing Enrichment
+
+workflow.amazon-axesso.enabled=true
+workflow.amazon-axesso.api-key=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+workflow.amazon-axesso.api-domain-code=com
+workflow.amazon-axesso.page-url-prefix=https://www.amazon.com/dp/
+workflow.amazon-axesso.max-products=2
 
 
 # Librarian Enrichment

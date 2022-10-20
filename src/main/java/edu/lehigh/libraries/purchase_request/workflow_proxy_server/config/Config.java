@@ -62,6 +62,7 @@ public class Config {
     private VuFind vuFind;
     private Ldap ldap;
     private IsbnDb isbnDb;
+    private AmazonAxesso amazonAxesso;
     private LibrarianCallNumbers librarianCallNumbers;
     private Email email;
     private GoogleSheets googleSheets;
@@ -475,6 +476,31 @@ public class Config {
 
         }
         
+    }
+
+    @Getter @Setter
+    public static class AmazonAxesso {
+
+        /**
+         * Axesso API key for Amazon pricing information
+         */
+        private String apiKey;
+
+        /**
+         * Domain of the Amazon website to be searched, i.e. "com" for the U.S. based site.
+         */
+        private String apiDomainCode;
+
+        /**
+         * Prefix before the ASIN of a direct URL to an Amazon product page.
+         */
+        private String pageUrlPrefix;
+
+        /**
+         * Maximum number of matching Amazon product search results for which to display pricing info.
+         */
+        private Integer maxProducts;
+
     }
 
     @Getter @Setter

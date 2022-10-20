@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@ConditionalOnExpression("'${workflow.pricing}'.equals('IsbnDB') and '${workflow.isbn-db.method}'.equals('title')")
+@ConditionalOnExpression("'${workflow.isbn-db.enabled}'.equals('true') and '${workflow.isbn-db.method}'.equals('title')")
 @ConditionalOnWebApplication
 public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
 
@@ -60,7 +60,7 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
         }
         results.sort(RESULTS_ORDER);
 
-        String comment = "Pricing by title: " + title;
+        String comment = "IsbnDB Pricing by title: " + title;
         if (results.size() == 0) {
             comment += "\n No ISBNs with list price found for this title.";
             log.debug("No pricing found for title: " + title);

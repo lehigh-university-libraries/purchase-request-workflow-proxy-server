@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@ConditionalOnExpression("'${workflow.pricing}'.equals('IsbnDb') and '${workflow.isbn-db.method}'.equals('isbn')")
+@ConditionalOnExpression("'${workflow.isbn-db.enabled}'.equals('true') and '${workflow.isbn-db.method}'.equals('isbn')")
 @ConditionalOnWebApplication
 public class IsbnDbIsbnPricingEnrichment extends IsbnDbPricingEnrichment {
 

@@ -352,16 +352,32 @@ Used for information about the patron requesting a purchase.
 | workflow.ldap.username-query-field | Parameter representing the username in the LDAP query.  Generally `uid`.  | If `workflow.requester` is set | 
 | workflow.ldap.role-result-field | LDAP search result field containing the role string reported by Requester Enrichment.  Generally `description`. | If `workflow.requester` is set | 
 
-### Pricing Enrichment Section
+### Pricing Enrichment Sections
 
-Used by Pricing Enrichment to retrieve the list price(s) of a requested purchase.  The [IsbnDB API](https://isbndb.com/isbn-database) is is a commercial service, but relatively affordable (~ $10/m).
+Pricing Enrichment providers retrieve the list price(s) and related information of a requested purchase.  They may also link to the item page on the vendor website. 
+
+#### IsbnDB Pricing Enrichment Section
+
+ The [IsbnDB API](https://isbndb.com/isbn-database) is is a commercial service, but relatively affordable (~ $10/m).
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.pricing | `IsbnDB` to enable pricing enrichment | N |
-| workflow.isbn-db.method | `title` or `isbn`.  Two methods are available to search IsbnDB.  Title search is recommended, as the odds of a given ISBN being present in the database are lower. | If `workflow.pricing` is set |
-| workflow.isbn-db.api-key | API key provided by IsbnDB. | If `workflow.pricing` is set |
+| workflow.isbn-db.enabled | `true` to enable pricing enrichment from IsbnDB | N |
+| workflow.isbn-db.method | `title` or `isbn`.  Two methods are available to search IsbnDB.  Title search is recommended, as the odds of a given ISBN being present in the database are lower. | If `workflow.isbn-db.enabled` is `true` |
+| workflow.isbn-db.api-key | API key provided by IsbnDB. | If `workflow.isbn-db.enabled` is `true` |
 | workflow.isbn-db.title-search.filter-on-contributor | `true` or `false`.  If `true`, title search results are filtered by the requested contributor name. | If `workflow.isbn-db.method` is title | 
+
+#### Amazon via Axesso Pricing Enrichment Section
+
+[Axesso offers an API](https://rapidapi.com/axesso/api/axesso-amazon-data-service1) via the [RapidAPI platform](https://rapidapi.com/) to search Amazon websites for product information.  It's also relatively affordable with a free tier.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.amazon-axesso.enabled | `true` to enable Amazon pricing enrichment via Axesso | N |
+| workflow.amazon-axesso.api-key | Axesso API key for Amazon pricing information | If `workflow.amazon-axesso.enabled` is `true` |
+| workflow.amazon-axesso.api-domain-code | Domain of the Amazon website to be searched, i.e. "com" for the U.S. based site. | If `workflow.amazon-axesso.enabled` is `true` |
+| workflow.amazon-axesso.page-url-prefix | Prefix before the ASIN of a direct URL to an Amazon product page. | If `workflow.amazon-axesso.enabled` is `true` |
+| workflow.amazon-axesso.max-products | Maximum number of matching Amazon product search results for which to display pricing info. | If `workflow.amazon-axesso.enabled` is `true` |
 
 ### Librarian Enrichment Section
 
