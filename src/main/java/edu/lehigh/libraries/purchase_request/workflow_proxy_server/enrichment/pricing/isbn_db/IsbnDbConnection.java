@@ -1,4 +1,4 @@
-package edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection;
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.pricing.isbn_db;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
