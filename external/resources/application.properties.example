@@ -142,6 +142,7 @@ workflow.amazon-axesso.api-key=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 workflow.amazon-axesso.api-domain-code=com
 workflow.amazon-axesso.page-url-prefix=https://www.amazon.com/dp/
 workflow.amazon-axesso.max-products=2
+workflow.amazon-axesso.quota-monitor.overage-allowed=0
 
 
 # Librarian Enrichment

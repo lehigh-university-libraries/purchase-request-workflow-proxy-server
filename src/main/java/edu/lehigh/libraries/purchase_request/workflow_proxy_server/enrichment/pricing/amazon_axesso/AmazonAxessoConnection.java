@@ -21,11 +21,15 @@ public class AmazonAxessoConnection {
     private final String API_HOST;
     private final String API_KEY;
 
+    private AmazonAxessoQuotaMonitor quotaMonitor;
+    private boolean futureCallsAllowed = true;
     private CloseableHttpClient client;
-
+ 
     AmazonAxessoConnection(Config config, String API_HOST) {
         this.API_HOST = API_HOST;
         this.API_KEY = config.getAmazonAxesso().getApiKey();
+        this.quotaMonitor = new AmazonAxessoQuotaMonitor(config);
+        this.futureCallsAllowed = true;
         initConnection();
     }
 
@@ -34,6 +38,10 @@ public class AmazonAxessoConnection {
     }
 
     public JSONObject execute(String url) {
+        if (!futureCallsAllowed) {
+            throw new AmazonAxessoQuotaMonitor.QuotaException("Blocking call since futureCallsAllowed is false.");
+        }
+
         HttpUriRequest getRequest = RequestBuilder.get()
             .setUri(url)
             .setHeader("X-RapidAPI-Key", API_KEY)
@@ -44,6 +52,7 @@ public class AmazonAxessoConnection {
         String responseString;
         try {
             response = client.execute(getRequest);
+            futureCallsAllowed = quotaMonitor.incrementUsage(response);
             HttpEntity entity = response.getEntity();
             responseString = EntityUtils.toString(entity);
 

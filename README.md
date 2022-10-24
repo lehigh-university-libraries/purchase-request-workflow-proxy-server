@@ -378,6 +378,7 @@ Pricing Enrichment providers retrieve the list price(s) and related information 
 | workflow.amazon-axesso.api-domain-code | Domain of the Amazon website to be searched, i.e. "com" for the U.S. based site. | If `workflow.amazon-axesso.enabled` is `true` |
 | workflow.amazon-axesso.page-url-prefix | Prefix before the ASIN of a direct URL to an Amazon product page. | If `workflow.amazon-axesso.enabled` is `true` |
 | workflow.amazon-axesso.max-products | Maximum number of matching Amazon product search results for which to display pricing info. | If `workflow.amazon-axesso.enabled` is `true` |
+| workflow.amazon-axesso.quota-monitor.overage-allowed | Number of calls over the quota that are allowed (incurring overage charges).  Note that counting this number resets when the server is restarted.  Also note that the remaining quota is not known until after the first call, so a single call will proceed even if the overage allowed is zero and quota has already been reached. | If `workflow.amazon-axesso.enabled` is `true` |
 
 ### Librarian Enrichment Section
 

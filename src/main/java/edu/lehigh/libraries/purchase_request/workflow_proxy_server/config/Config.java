@@ -481,6 +481,8 @@ public class Config {
     @Getter @Setter
     public static class AmazonAxesso {
 
+        private QuotaMonitor quotaMonitor;
+
         /**
          * Axesso API key for Amazon pricing information
          */
@@ -500,6 +502,22 @@ public class Config {
          * Maximum number of matching Amazon product search results for which to display pricing info.
          */
         private Integer maxProducts;
+
+        @Getter @Setter
+        public static class QuotaMonitor {
+
+            /**
+             * Number of calls over the quota that are allowed (incurring overage charges).  
+             * 
+             * Note that counting this number resets when the server is restarted.  
+             * 
+             * Also note that the remaining quota is not known until after the first call, 
+             * so a single call will proceed even if the overage allowed is zero and quota 
+             * has already been reached.
+             */
+            private int overageAllowed;
+
+        }
 
     }
 
