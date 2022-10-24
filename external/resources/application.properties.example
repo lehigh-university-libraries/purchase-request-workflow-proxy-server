@@ -145,6 +145,12 @@ workflow.amazon-axesso.max-products=2
 workflow.amazon-axesso.quota-monitor.overage-allowed=0
 
 
+# Links Enrichment
+
+workflow.links.enabled=true
+workflow.links.google-scholar-enabled=true
+
+
 # Librarian Enrichment
 
 workflow.librarian-call-numbers=service

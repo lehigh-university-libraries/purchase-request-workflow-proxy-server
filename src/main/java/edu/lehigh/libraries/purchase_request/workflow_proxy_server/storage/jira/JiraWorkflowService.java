@@ -365,6 +365,9 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         else if (EnrichmentType.OBJECT_CODE == type) {
             enrichObjectCode(purchaseRequest, (String)data);
         }
+        else if (EnrichmentType.LINKS == type) {
+            enrichComment(purchaseRequest, (String)data);
+        }
         else {
             throw new IllegalArgumentException("Unknown enrichment type " + type);
         }

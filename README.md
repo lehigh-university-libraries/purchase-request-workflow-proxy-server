@@ -56,6 +56,7 @@ Supplied implementations:
 | Librarian Selector | Identify the librarian(s) who should decide the purchase request, based on the item's call number. | [Librarian Call Numbers](https://github.com/lehigh-university-libraries/librarian-call-numbers) |
 | Budget Codes | Set budget codes to use if the purchase is approved, based on the librarian enrichment. | FOLIO |
 | Identifiers | For use by the other enrichments, use supplied title & contributor to suggest (if not already supplied) an OCLC number and Dewey call number from Library of Congress holdings. | OCLC WorldCat 
+| Links | Provide links to quickly query additional data sources. | No requirements.  Links to Google Scholar. |
 
 ## Clients
 
@@ -379,6 +380,15 @@ Pricing Enrichment providers retrieve the list price(s) and related information 
 | workflow.amazon-axesso.page-url-prefix | Prefix before the ASIN of a direct URL to an Amazon product page. | If `workflow.amazon-axesso.enabled` is `true` |
 | workflow.amazon-axesso.max-products | Maximum number of matching Amazon product search results for which to display pricing info. | If `workflow.amazon-axesso.enabled` is `true` |
 | workflow.amazon-axesso.quota-monitor.overage-allowed | Number of calls over the quota that are allowed (incurring overage charges).  Note that counting this number resets when the server is restarted.  Also note that the remaining quota is not known until after the first call, so a single call will proceed even if the overage allowed is zero and quota has already been reached. | If `workflow.amazon-axesso.enabled` is `true` |
+
+### Links Enrichment Section
+
+Links Enrichment generates a simple list of outgoing search links to additional sources like Google Scholar, that staff may want to consult to support the purchase decision.  These may be useful if the data source has no API.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.links.enabled | `true` to enable Links Enrichment | N |
+| workflow.links.google-scholar-enabled | `true` to link to a Google Scholar title search for the purchase request  | N |
 
 ### Librarian Enrichment Section
 

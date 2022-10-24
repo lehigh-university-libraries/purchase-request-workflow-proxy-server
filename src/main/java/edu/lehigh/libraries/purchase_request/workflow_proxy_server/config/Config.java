@@ -63,6 +63,7 @@ public class Config {
     private Ldap ldap;
     private IsbnDb isbnDb;
     private AmazonAxesso amazonAxesso;
+    private Links links;
     private LibrarianCallNumbers librarianCallNumbers;
     private Email email;
     private GoogleSheets googleSheets;
@@ -518,6 +519,16 @@ public class Config {
             private int overageAllowed;
 
         }
+
+    }
+
+    @Getter @Setter
+    public static class Links {
+
+        /**
+         * Generates a link to search Google Scholar if true.
+         */
+        private boolean googleScholarEnabled = false;
 
     }
 

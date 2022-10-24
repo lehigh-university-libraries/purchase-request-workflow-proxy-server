@@ -8,5 +8,6 @@ public enum EnrichmentType {
     REQUESTER_ROLE,
     LIBRARIANS,
     FUND_CODE,
-    OBJECT_CODE;
+    OBJECT_CODE,
+    LINKS;
 }
