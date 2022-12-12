@@ -145,6 +145,11 @@ workflow.amazon-axesso.max-products=2
 workflow.amazon-axesso.quota-monitor.overage-allowed=0
 
 
+# Directory of Open Access Books (DOAB) Enrichment
+
+workflow.doab.enabled=true
+
+
 # Links Enrichment
 
 workflow.links.enabled=true

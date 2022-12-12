@@ -381,6 +381,14 @@ Pricing Enrichment providers retrieve the list price(s) and related information 
 | workflow.amazon-axesso.max-products | Maximum number of matching Amazon product search results for which to display pricing info. | If `workflow.amazon-axesso.enabled` is `true` |
 | workflow.amazon-axesso.quota-monitor.overage-allowed | Number of calls over the quota that are allowed (incurring overage charges).  Note that counting this number resets when the server is restarted.  Also note that the remaining quota is not known until after the first call, so a single call will proceed even if the overage allowed is zero and quota has already been reached. | If `workflow.amazon-axesso.enabled` is `true` |
 
+#### Directory of Open Access Books (DOAB) Enrichment Section
+
+This enrichment searches the [Directory of Open Access Books](https://www.doabooks.org/) for available titles matching the title & contributor.  The API is freely available.  There is no actual "pricing" data as these books are free to read.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.doab.enabled | `true` to enable DOAB availability enrichment | N |
+
 ### Links Enrichment Section
 
 Links Enrichment generates a simple list of outgoing search links to additional sources like Google Scholar, that staff may want to consult to support the purchase decision.  These may be useful if the data source has no API.
