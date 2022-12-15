@@ -1,6 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.identifiers;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -130,7 +131,12 @@ public class OclcIdentifiersEnrichment implements EnrichmentService {
             log.debug("No classification found, cannot enrich call number.");
             return;
         }
-        String callNumber = classification.get(CLASSIFICATION_TYPE).getAsString();
+        JsonElement callNumberElement = classification.get(CLASSIFICATION_TYPE);
+        if (callNumberElement == null) {
+            log.debug("No classification found of type " + CLASSIFICATION_TYPE);
+            return;
+        }
+        String callNumber = callNumberElement.getAsString();
         log.debug("found call number for item: " + callNumber);
         workflowService.enrich(purchaseRequest, EnrichmentType.CALL_NUMBER, callNumber);
     }
