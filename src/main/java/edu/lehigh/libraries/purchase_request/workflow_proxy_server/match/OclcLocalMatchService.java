@@ -34,15 +34,22 @@ public class OclcLocalMatchService implements MatchService {
 
     @Override
     public List<Match> search(MatchQuery query) {
+        List<String> queryParameters = new LinkedList<String>();
+        if (query.getTitle() != null) {
+            queryParameters.add("ti:" + ConnectionUtil.encodeUrl(query.getTitle()));
+        }
+        if (query.getContributor() != null) {
+            queryParameters.add("au:" + ConnectionUtil.encodeUrl(query.getContributor()));
+        }
+        if (query.getIsbn() != null) {
+            queryParameters.add("bn:" + query.getIsbn());
+        }
+        String queryString = String.join(ConnectionUtil.encodeUrl(" AND "), queryParameters);
+
         String url = OclcConnection.WORLDCAT_BASE_URL 
             + "/bibs"
             + "?heldBySymbol=" + LOCAL_OCLC_SYMBOL
-            + "&q=("
-            + "ti:" + ConnectionUtil.encodeUrl(query.getTitle());
-        if (query.getContributor() != null) {
-            url += ConnectionUtil.encodeUrl(" AND au:\"" + query.getContributor() + "\"");
-        }
-        url += ")";
+            + "&q=(" + queryString + ")";
 
         JsonObject responseObject;
         try {

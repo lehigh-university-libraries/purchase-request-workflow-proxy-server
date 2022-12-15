@@ -15,4 +15,7 @@ public class MatchQuery {
     @NoHtml
     private String contributor;
 
+    @NoHtml
+    private String isbn;
+
 }
