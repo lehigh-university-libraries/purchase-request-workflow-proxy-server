@@ -58,9 +58,9 @@ public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
         String contributor = purchaseRequest.getContributor();
 
         String queryString = "("
-            + "title = \"" + title + "\"" 
+            + "title = \"" + sanitize(title) + "\"" 
             + " and" 
-            + " contributors all \"" + contributor + "\""
+            + " contributors all \"" + sanitize(contributor) + "\""
             + ")";
         JSONObject responseObject;
             try {
@@ -117,6 +117,11 @@ public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
             message = "NO Local holdings found in FOLIO: No instances matching this " + identifierType + ".\n";
         }
         return message;
+    }
+
+    private String sanitize(String raw) {
+        // Queries with '?' return a 400 error: "? wildcard not allowed in full text query string"
+        return raw.replaceAll("\\?", "");
     }
 
 }
