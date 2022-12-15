@@ -15,6 +15,7 @@ import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.IssueField;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
+import com.atlassian.jira.rest.client.api.domain.User;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
@@ -466,28 +467,22 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         purchaseRequest.setId(issue.getId());
         purchaseRequest.setStatus(issue.getStatus().getName());
         purchaseRequest.setTitle(issue.getSummary());
-        purchaseRequest.setContributor((String)issue.getField(CONTRIBUTOR_FIELD_ID).getValue());
-        purchaseRequest.setIsbn((String)issue.getField(ISBN_FIELD_ID).getValue());
-        if (issue.getField(OCLC_NUMBER_FIELD_ID) != null) {
-            purchaseRequest.setOclcNumber((String)issue.getField(OCLC_NUMBER_FIELD_ID).getValue());
-            purchaseRequest.setCallNumber((String)issue.getField(CALL_NUMBER_FIELD_ID).getValue());
-        }
-        purchaseRequest.setFormat((String)issue.getField(FORMAT_FIELD_ID).getValue());
-        purchaseRequest.setSpeed((String)issue.getField(SPEED_FIELD_ID).getValue());
-        purchaseRequest.setDestination((String)issue.getField(DESTINATION_FIELD_ID).getValue());
-        purchaseRequest.setClientName((String)issue.getField(CLIENT_NAME_FIELD_ID).getValue());
-        purchaseRequest.setRequesterUsername((String)issue.getField(REQUESTER_USERNAME_FIELD_ID).getValue());
-        if (issue.getField(REQUESTER_ROLE_FIELD_ID) != null) {
-            purchaseRequest.setRequesterRole((String)issue.getField(REQUESTER_ROLE_FIELD_ID).getValue());
-        }
+        purchaseRequest.setContributor(getStringValue(issue.getField(CONTRIBUTOR_FIELD_ID)));
+        purchaseRequest.setIsbn(getStringValue(issue.getField(ISBN_FIELD_ID)));
+        purchaseRequest.setOclcNumber(getStringValue(issue.getField(OCLC_NUMBER_FIELD_ID)));
+        purchaseRequest.setCallNumber(getStringValue(issue.getField(CALL_NUMBER_FIELD_ID)));
+        purchaseRequest.setFormat(getStringValue(issue.getField(FORMAT_FIELD_ID)));
+        purchaseRequest.setSpeed(getStringValue(issue.getField(SPEED_FIELD_ID)));
+        purchaseRequest.setDestination(getStringValue(issue.getField(DESTINATION_FIELD_ID)));
+        purchaseRequest.setClientName(getStringValue(issue.getField(CLIENT_NAME_FIELD_ID)));
+        purchaseRequest.setRequesterUsername(getStringValue(issue.getField(REQUESTER_USERNAME_FIELD_ID)));
+        purchaseRequest.setRequesterRole(getStringValue(issue.getField(REQUESTER_ROLE_FIELD_ID)));
         purchaseRequest.setRequesterComments(issue.getDescription());
-        purchaseRequest.setLibrarianUsername(issue.getAssignee() != null ? issue.getAssignee().getName() : null);
-        if (issue.getField(FUND_CODE_FIELD_ID) != null) {
-            purchaseRequest.setFundCode(getStringValue(issue.getField(FUND_CODE_FIELD_ID)));
-            purchaseRequest.setObjectCode(getStringValue(issue.getField(OBJECT_CODE_FIELD_ID)));
-        }
+        purchaseRequest.setLibrarianUsername(getUsername(issue.getAssignee()));
+        purchaseRequest.setFundCode(getStringValue(issue.getField(FUND_CODE_FIELD_ID)));
+        purchaseRequest.setObjectCode(getStringValue(issue.getField(OBJECT_CODE_FIELD_ID)));
         purchaseRequest.setPostRequestComments(getComments(issue));
-        purchaseRequest.setPostPurchaseId((String)issue.getField(POST_PURCHASE_ID_FIELD_ID).getValue());
+        purchaseRequest.setPostPurchaseId(getStringValue(issue.getField(POST_PURCHASE_ID_FIELD_ID)));
         purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
         purchaseRequest.setUpdateDate(formatDateTime(issue.getUpdateDate()));
         return purchaseRequest;
@@ -512,6 +507,14 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             log.error("Could not read value field from JSON object: ", jsonObject);
             return null;
         }
+    }
+
+    private String getUsername(User user) {
+        if (user == null) {
+            return null;
+        }
+
+        return user.getName();
     }
 
     private String formatDateTime(DateTime dateTime) {
