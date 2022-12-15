@@ -74,16 +74,24 @@ public class OclcLocalMatchService implements MatchService {
 
     private Match parseBibRecord(JsonObject bibRecord) {
         Match match = new Match();
-        addIdentifier(bibRecord, match);
+        addIdentifiers(bibRecord, match);
         addTitle(bibRecord, match);
         addContributor(bibRecord, match);
         return match;
     }
 
-    private void addIdentifier(JsonObject bibRecord, Match match) {
+    private void addIdentifiers(JsonObject bibRecord, Match match) {
         JsonObject identifier = bibRecord.getAsJsonObject("identifier");
+
         String oclcNumber = identifier.get("oclcNumber").getAsString();
         match.setOclcNumber(oclcNumber);
+
+        List<String> isbns = new LinkedList<String>();
+        JsonArray isbnsArray = identifier.getAsJsonArray("isbns");
+        for (int i=0; i < isbnsArray.size(); i++) {
+            isbns.add(isbnsArray.get(i).getAsString());
+        }
+        match.setIsbns(isbns);
     }
     
     private void addTitle(JsonObject bibRecord, Match match) {
