@@ -64,15 +64,19 @@ public class DoabPricingEnrichment implements EnrichmentService {
         }
         else {
             comment += formatAsWikiTable(results);
-            log.debug("Found pricing for title: " + title);
+            log.debug("Found availability for title: " + title);
         } 
 
         workflowService.enrich(purchaseRequest, EnrichmentType.PRICING, comment);
     }
 
     private List<DoabSearchResult> search(String title, String contributor) {
-        String query = "dc.title:\"" + title + "\""
-            + " and dc.contributor.author:\"" + contributor + "\"";
+        String query = "dc.title:\"" + title + "\" AND "
+            + "("
+            + "dc.contributor.author:\"" + contributor + "\""
+            + " OR "
+            + "dc.contributor.editor:\"" + contributor + "\""
+            + ")";
         String url = BASE_URL + "/search?expand=metadata&query=" + connection.encode(query);
         JSONArray jsonResult = connection.executeForArray(url);
         List<DoabSearchResult> searchResults = parseResults(jsonResult);
@@ -94,13 +98,16 @@ public class DoabPricingEnrichment implements EnrichmentService {
         result.setTitle(resultJson.optString("name", null));
 
         JSONArray metadataList = resultJson.getJSONArray("metadata");
-        List<String> authorsList = new LinkedList<String>();
+        List<String> contributorsList = new LinkedList<String>();
         for (int i=0; i < metadataList.length(); i++) {
             JSONObject metadataItem = metadataList.getJSONObject(i);
             String key = metadataItem.optString("key", null);
             String value = metadataItem.optString("value", null);
             if ("dc.contributor.author".equals(key)) {
-                authorsList.add(value);
+                contributorsList.add(value);
+            }
+            if ("dc.contributor.editor".equals(key)) {
+                contributorsList.add(value);
             }
             else if ("publisher.name".equals(key)) {
                 result.setPublisherName(value);
@@ -109,7 +116,7 @@ public class DoabPricingEnrichment implements EnrichmentService {
                 result.setUrl(value);
             }
         }
-        result.setContributors(String.join("\n", authorsList));
+        result.setContributors(String.join("\n", contributorsList));
         return result;
     }
 
