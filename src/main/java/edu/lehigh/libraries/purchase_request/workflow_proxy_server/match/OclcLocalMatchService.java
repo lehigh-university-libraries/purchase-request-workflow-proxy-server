@@ -81,13 +81,13 @@ public class OclcLocalMatchService implements MatchService {
 
     private Match parseBibRecord(JsonObject bibRecord) {
         Match match = new Match();
-        addIdentifiers(bibRecord, match);
-        addTitle(bibRecord, match);
-        addContributor(bibRecord, match);
+        parseIdentifiers(bibRecord, match);
+        parseTitle(bibRecord, match);
+        parseContributor(bibRecord, match);
         return match;
     }
 
-    private void addIdentifiers(JsonObject bibRecord, Match match) {
+    private void parseIdentifiers(JsonObject bibRecord, Match match) {
         JsonObject identifier = bibRecord.getAsJsonObject("identifier");
 
         String oclcNumber = identifier.get("oclcNumber").getAsString();
@@ -101,7 +101,7 @@ public class OclcLocalMatchService implements MatchService {
         match.setIsbns(isbns);
     }
     
-    private void addTitle(JsonObject bibRecord, Match match) {
+    private void parseTitle(JsonObject bibRecord, Match match) {
         JsonObject title = bibRecord.getAsJsonObject("title");
         JsonArray mainTitles = title.getAsJsonArray("mainTitles");
         JsonObject mainTitle = mainTitles.get(0).getAsJsonObject();
@@ -109,7 +109,7 @@ public class OclcLocalMatchService implements MatchService {
         match.setTitle(titleText);
     }
 
-    private void addContributor(JsonObject bibRecord, Match match) {
+    private void parseContributor(JsonObject bibRecord, Match match) {
         JsonObject contributor = bibRecord.getAsJsonObject("contributor");
         try {
             JsonObject statementOfResponsibility = contributor.getAsJsonObject("statementOfResponsibility");
