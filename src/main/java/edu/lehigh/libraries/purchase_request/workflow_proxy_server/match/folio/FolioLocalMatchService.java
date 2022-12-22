@@ -39,7 +39,9 @@ public class FolioLocalMatchService implements MatchService {
     }
 
     @Override
-    public List<Match> search(MatchQuery query) {
+    public List<Match> search(MatchQuery query) throws IllegalArgumentException {
+        validate(query);
+
         List<String> queryParameters = new LinkedList<String>();
         if (query.getTitle() != null) {
             queryParameters.add("title = \"" + connection.sanitize(query.getTitle()) + "\"");
@@ -64,6 +66,16 @@ public class FolioLocalMatchService implements MatchService {
         List<Match> matches = parseMatches(responseObject.getJSONArray("instances"));
         log.debug("Found " + matches.size() + " matches.");
         return matches;
+    }
+
+    private void validate(MatchQuery query) {
+        if (query.getTitle() != null ||
+            query.getContributor() != null ||
+            query.getIsbn() != null) {
+                return;
+        }
+
+        throw new IllegalArgumentException("At least one query parameter must be present.");
     }
 
     private List<Match> parseMatches(JSONArray instances) {

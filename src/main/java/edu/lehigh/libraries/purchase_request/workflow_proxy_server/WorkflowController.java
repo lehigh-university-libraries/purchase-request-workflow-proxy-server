@@ -109,4 +109,11 @@ public class WorkflowController {
         log.debug("found constraint violation");
     }
 
+    @ResponseStatus(value=HttpStatus.BAD_REQUEST, reason="Illegal arguments")
+    @ExceptionHandler(IllegalArgumentException.class)
+    public void illegalArgumentsException() {
+        // no op
+        log.debug("found illegal arguments");
+    }
+
 }
