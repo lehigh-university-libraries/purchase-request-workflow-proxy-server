@@ -107,7 +107,9 @@ The template uses [Thymeleaf's TEXT mode](https://www.thymeleaf.org/doc/tutorial
 
 ## Matching Pre-Submission
 
-A matching service equivalent to [Local Holdings enrichment](#enrichment) is also available for clients to use before submitting a purchase request.  Informing the patron of potential local matches (linking to the catalog) may allow them to access the resource immediately.
+A matching service, available for clients to use before submitting a purchase request, searches local holdings for title, contributor and/or ISBN matches similar to [Local Holdings enrichment](#enrichment).  This allows a client application to inform the patron potential local matches, linking to the catalog, where they may access the resource immediately.
+
+Like Local Holdings Enrichment, [multiple data sources are supported](#match-section).
 
 ## Deployment
 
@@ -334,6 +336,8 @@ For connecting to the FOLIO API.
 | workflow.folio.tenantId | Tenant ID for the FOLIO server environment. | Y |
 | workflow.folio.okapiBaseUrl | Base URL for FOLIO OKAPI API calls. | Y |
 | workflow.folio.websiteBaseUrl | Base URL for the FOLIO UI.  Used to format links to FOLIO local holdings. | Y | 
+| workflow.folio.isbnIdentifierType | FOLIO UUID for the identifier type representing an ISBN.  Determine from the [FOLIO Get /identifier-types API](https://s3.amazonaws.com/foliodocs/api/mod-inventory-storage/p/identifier-type.html). | If `workflow.match.data-source` is `FOLIO`.
+| workflow.folio.oclcNumberIdentifierType | FOLIO UUID for the identifier type representing an OCLC Number.  Determine from the [FOLIO Get /identifier-types API](https://s3.amazonaws.com/foliodocs/api/mod-inventory-storage/p/identifier-type.html). | If `workflow.match.data-source` is `FOLIO`.
 
 ### VuFind Section
 
@@ -438,6 +442,14 @@ For reporting to Google Sheets spreadsheets.  See [reporting and post-approval p
 | workflow.google-sheets.match-marc.approved-spreadsheet-id | ID of a spreadsheet to use for reporting approved items in MatchMARC format. | N |
 | workflow.google-sheets.full-record.requested-spreadsheet-id | ID of a spreadsheet to use for reporting newly requested items in full record format. | N |
 | workflow.google-sheets.full-record.approved-spreadsheet-id | ID of a spreadsheet to use for reporting approved items in full record format. | N |
+
+### Match Section
+
+Determines the data source for the [match service](#matching-pre-submission).
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.match.data-source | `OCLC` or `FOLIO` | Y |
 
 ### Post Purchase Section
 

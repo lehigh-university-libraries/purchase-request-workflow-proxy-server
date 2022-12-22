@@ -17,6 +17,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners.WorkflowServiceListener;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.MatchService;
 import lombok.extern.slf4j.Slf4j;
 
 @SpringBootApplication
@@ -45,17 +46,25 @@ public class WorkflowApplication extends SpringBootServletInitializer {
 
 	private static void reportServices(ApplicationContext context) {
 		String[] beanNames = context.getBeanDefinitionNames();
-		reportServices(beanNames, EnrichmentManager.class);
-		reportServices(beanNames, WorkflowServiceListener.class);
+		reportServices(beanNames, MatchService.class, false);
+		reportServices(beanNames, EnrichmentManager.class, true);
+		reportServices(beanNames, WorkflowServiceListener.class, true);
 	}
 
-	private static void reportServices(String[] beanNames, Class<?> clazz) {
+	private static void reportServices(String[] beanNames, Class<?> clazz, 
+		boolean expectMultiple) {
+
 		List<String> services = Stream.of(beanNames)
 			.filter(name -> name.contains(clazz.getPackageName()))
 			.filter(name -> !name.equals(clazz.getCanonicalName()))
 			.map(name -> name.substring(clazz.getPackageName().length() + 1))
 			.collect(Collectors.toList());
-		log.info(services.size() + " " + clazz.getSimpleName() + " services loaded:");
+		if (expectMultiple) {
+			log.info(services.size() + " " + clazz.getSimpleName() + " services loaded:");
+		}
+		else {
+			log.info(clazz.getSimpleName() + " loaded:");
+		}
 		for (String name: services) {
 			log.info("... " + name);
 		}

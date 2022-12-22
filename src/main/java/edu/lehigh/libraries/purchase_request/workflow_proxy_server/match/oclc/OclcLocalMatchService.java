@@ -1,4 +1,4 @@
-package edu.lehigh.libraries.purchase_request.workflow_proxy_server.match;
+package edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.oclc;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -7,15 +7,20 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.OclcConnection;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.Match;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.MatchQuery;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.MatchService;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
+@ConditionalOnProperty(name="workflow.match.data-source", havingValue="OCLC")
 @ConditionalOnWebApplication
 @Slf4j
 public class OclcLocalMatchService implements MatchService {
@@ -30,6 +35,7 @@ public class OclcLocalMatchService implements MatchService {
         this.oclcConnection = new OclcConnection(config, SCOPE);
 
         LOCAL_OCLC_SYMBOL = config.getOclc().getLocalInstitutionSymbol();
+        log.debug("OclcLocalMatchService ready");
     }
 
     @Override

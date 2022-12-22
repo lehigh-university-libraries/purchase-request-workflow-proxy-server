@@ -111,6 +111,8 @@ workflow.folio.password=abc123
 workflow.folio.tenantId=SOMEID
 workflow.folio.okapiBaseUrl=https://subdomain-okapi.folio.indexdata.com
 workflow.folio.websiteBaseUrl=https://subdomain.folio.indexdata.com
+workflow.folio.isbnIdentifierType=12345678-1234-1234-1234-1234567890ab
+workflow.folio.oclcNumberIdentifierType=12345678-1234-1234-1234-1234567890ab
 
 
 # VuFind
@@ -186,6 +188,11 @@ workflow.google-sheets.credentials-file-path=./google-sheets-client-secret.json
 workflow.google-sheets.match-marc.approved-spreadsheet-id=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 workflow.google-sheets.full-record.requested-spreadsheet-id=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 workflow.google-sheets.full-record.approved-spreadsheet-id=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+
+
+# Match
+
+workflow.match.data-source=OCLC
 
 
 # Post Purchase

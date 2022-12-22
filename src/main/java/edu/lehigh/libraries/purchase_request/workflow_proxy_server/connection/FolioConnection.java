@@ -101,4 +101,9 @@ public class FolioConnection {
         return jsonObject;
     }
 
+    public String sanitize(String raw) {
+        // Queries with '?' return a 400 error: "? wildcard not allowed in full text query string"
+        return raw.replaceAll("\\?", "");
+    }
+
 }

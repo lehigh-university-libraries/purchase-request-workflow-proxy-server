@@ -425,6 +425,16 @@ public class Config {
          */
         private String websiteBaseUrl;
 
+        /**
+         * FOLIO UUID for the identifier type for an ISBN
+         */
+        private String isbnIdentifierType;
+
+        /**
+         * FOLIO UUID for the identifier type for an OCLC Number
+         */
+        private String oclcNumberIdentifierType;
+        
     }
 
     @Getter @Setter
