@@ -489,6 +489,10 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     private String getStringValue(IssueField field) {
+        if (field == null) {
+            return null;
+        }
+
         Object value = field.getValue();
         if (value == null) {
             return null;
