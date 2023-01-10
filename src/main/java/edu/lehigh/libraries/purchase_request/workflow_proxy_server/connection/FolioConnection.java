@@ -1,6 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -84,13 +85,21 @@ public class FolioConnection {
     }
 
     public JSONObject executeGet(String url, String queryString) throws Exception {
-        HttpUriRequest getRequest = RequestBuilder.get()
+        return executeGet(url, queryString, null);
+    }
+
+    public JSONObject executeGet(String url, String queryString, Map<String, String> extraParameters) throws Exception {
+        RequestBuilder requestBuilder = RequestBuilder.get()
             .setUri(config.getFolio().getOkapiBaseUrl() + url)
             .setHeader(TENANT_HEADER, config.getFolio().getTenantId())
             .setHeader(TOKEN_HEADER, token)
-            .addParameter("query", queryString)
-            .build();
-
+            .addParameter("query", queryString);
+        if (extraParameters != null) {
+            for (Map.Entry<String, String> entry : extraParameters.entrySet()) {
+                requestBuilder.addParameter(entry.getKey(), entry.getValue());
+            }
+        }
+        HttpUriRequest getRequest = requestBuilder.build();
         CloseableHttpResponse response;
         response = client.execute(getRequest);
         HttpEntity entity = response.getEntity();

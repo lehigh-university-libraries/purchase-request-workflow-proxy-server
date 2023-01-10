@@ -2,6 +2,7 @@ package edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.folio;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class FolioLocalMatchService implements MatchService {
 
-    private static final String INSTANCES_PATH = "/inventory/instances";
+    private static final String INSTANCES_PATH = "/search/instances";
     private static final String OCLC_NUMBER_PREFIX = "(OCoLC)";
 
     private final FolioConnection connection;
@@ -50,13 +51,13 @@ public class FolioLocalMatchService implements MatchService {
             queryParameters.add("contributors all \"" + connection.sanitize(query.getContributor()) + "\"");
         }
         if (query.getIsbn() != null) {
-            queryParameters.add("(identifiers =/@value '" + query.getIsbn() + "')");
+            queryParameters.add("isbn = \"" + connection.sanitize(query.getIsbn()) + "\"");
         }
         String queryString = String.join(" AND ", queryParameters);
-
+        Map<String, String> extraParams = Map.of("expandAll", Boolean.TRUE.toString());
         JSONObject responseObject;
         try {
-            responseObject = connection.executeGet(INSTANCES_PATH, queryString);
+            responseObject = connection.executeGet(INSTANCES_PATH, queryString, extraParams);
         }
         catch (Exception e) {
             log.error("Exception querying FOLIO for matches.", e);
