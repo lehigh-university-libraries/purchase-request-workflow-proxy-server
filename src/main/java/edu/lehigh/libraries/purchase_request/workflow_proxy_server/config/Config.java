@@ -63,6 +63,7 @@ public class Config {
     private Ldap ldap;
     private IsbnDb isbnDb;
     private AmazonAxesso amazonAxesso;
+    private Oasis oasis;
     private Links links;
     private LibrarianCallNumbers librarianCallNumbers;
     private Email email;
@@ -530,6 +531,26 @@ public class Config {
 
         }
 
+    }
+
+    @Getter @Setter
+    public static class Oasis {
+
+        /**
+         * API key to the OASIS API
+         */
+        private String apiKey;
+
+        /**
+         * Three-letter currency code for which pricing should be retrieved, i.e. AUD, CAD.
+         * Search results that do have pricing listed in this currency will be skipped.
+         */
+        private String localCurrency;
+
+        /** 
+         * Maximum number of results to display.  Default is 10.
+         */
+        private int maxResults = 10;
     }
 
     @Getter @Setter

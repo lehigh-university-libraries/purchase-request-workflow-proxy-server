@@ -385,6 +385,17 @@ Pricing Enrichment providers retrieve the list price(s) and related information 
 | workflow.amazon-axesso.max-products | Maximum number of matching Amazon product search results for which to display pricing info. | If `workflow.amazon-axesso.enabled` is `true` |
 | workflow.amazon-axesso.quota-monitor.overage-allowed | Number of calls over the quota that are allowed (incurring overage charges).  Note that counting this number resets when the server is restarted.  Also note that the remaining quota is not known until after the first call, so a single call will proceed even if the overage allowed is zero and quota has already been reached. | If `workflow.amazon-axesso.enabled` is `true` |
 
+#### OASIS Pricing Enrichment
+
+[ProQuest OASIS](https://oasis.proquest.com) offers an API for pricing information.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.oasis.enabled | `true` to enable OASIS pricing enrichment | N |
+| workflow.oasis.api-key | OASIS API Key | If `workflow.oasis.enabled` is `true` |
+| workflow.oasis.local-currency | Three-letter currency code for which pricing should be retrieved, i.e. AUD, CAD.  Search results that do have pricing listed in this currency will be skipped. | If `workflow.oasis.enabled` is `true` |
+| workflow.oasis.max-results | Maximum number of matching OASIS results to display. | N.  The default is 10. |
+
 #### Directory of Open Access Books (DOAB) Enrichment Section
 
 This enrichment searches the [Directory of Open Access Books](https://www.doabooks.org/) for available titles matching the title & contributor.  The API is freely available.  There is no actual "pricing" data as these books are free to read.
