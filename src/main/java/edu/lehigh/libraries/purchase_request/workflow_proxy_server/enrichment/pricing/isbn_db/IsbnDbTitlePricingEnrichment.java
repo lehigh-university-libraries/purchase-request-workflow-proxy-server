@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.WorkflowService;
@@ -89,7 +90,7 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
     }
 
     private List<IsbnDbSearchResult> search(PurchaseRequest purchaseRequest) {
-        String encodedTitle = connection.encode("\"" + purchaseRequest.getTitle() + "\"");
+        String encodedTitle = ConnectionUtil.encodeUrl("\"" + purchaseRequest.getTitle() + "\"");
         String url = BASE_URL + "/books/" + encodedTitle + "?column=title";
         JSONObject jsonResult = connection.execute(url);
         List<IsbnDbSearchResult> searchResults = parseResults(jsonResult);

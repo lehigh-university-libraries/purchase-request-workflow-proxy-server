@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
@@ -77,7 +78,7 @@ public class DoabPricingEnrichment implements EnrichmentService {
             + " OR "
             + "dc.contributor.editor:\"" + contributor + "\""
             + ")";
-        String url = BASE_URL + "/search?expand=metadata&query=" + connection.encode(query);
+        String url = BASE_URL + "/search?expand=metadata&query=" + ConnectionUtil.encodeUrl(query);
         JSONArray jsonResult = connection.executeForArray(url);
         List<DoabSearchResult> searchResults = parseResults(jsonResult);
         return searchResults;

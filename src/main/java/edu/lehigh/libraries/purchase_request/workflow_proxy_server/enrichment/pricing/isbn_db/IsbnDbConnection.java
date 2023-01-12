@@ -1,8 +1,5 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.pricing.isbn_db;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -54,10 +51,6 @@ public class IsbnDbConnection {
         }
         JSONObject jsonObject = new JSONObject(responseString);
         return jsonObject;
-    }
-
-    public String encode(String raw) {
-        return URLEncoder.encode(raw, StandardCharsets.UTF_8);
     }
 
 }

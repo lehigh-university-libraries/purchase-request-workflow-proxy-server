@@ -1,8 +1,5 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.pricing.doab;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -44,10 +41,6 @@ public class DoabConnection {
         log.debug("Response string: " + responseString);
         JSONArray jsonArray = new JSONArray(responseString);
         return jsonArray;
-    }
-
-    public String encode(String raw) {
-        return URLEncoder.encode(raw, StandardCharsets.UTF_8);
     }
 
 }

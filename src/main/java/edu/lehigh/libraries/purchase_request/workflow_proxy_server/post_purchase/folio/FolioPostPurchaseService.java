@@ -1,8 +1,5 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.post_purchase.folio;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -12,6 +9,7 @@ import org.springframework.stereotype.Service;
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.model.PurchasedItem;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.FolioConnection;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.post_purchase.PostPurchaseService;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +66,7 @@ public class FolioPostPurchaseService implements PostPurchaseService {
             JSONObject electronicAccess = electronicAccessArray.getJSONObject(0);
             String uri = electronicAccess.getString("uri");
             if (PROXY_PREFIX != null) {
-                uri = PROXY_PREFIX + URLEncoder.encode(uri, StandardCharsets.UTF_8);
+                uri = PROXY_PREFIX + ConnectionUtil.encodeUrl(uri);
             }
             purchasedItem.setElectronicAccessUrl(uri);
         }

@@ -1,14 +1,12 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.links;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Service;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
@@ -54,7 +52,7 @@ public class LinksEnrichment implements EnrichmentService {
             return "";
         }
 
-        String url = GOOGLE_SCHOLAR_BASE_URL + URLEncoder.encode(title, StandardCharsets.UTF_8);
+        String url = GOOGLE_SCHOLAR_BASE_URL + ConnectionUtil.encodeUrl(title);
         return "\n\n[Google Scholar|" + url + "]";
     }
 }
