@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnWebApplication
 public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
 
-    private static final String INSTANCES_PATH = "/inventory/instances";
+    private static final String INSTANCES_PATH = "/search/instances";
 
     private final WorkflowService workflowService;
     private final FolioConnection connection;
@@ -84,7 +84,7 @@ public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
         }
 
         log.debug("Enriching local holdings by " + identifierType + " request for " + purchaseRequest);
-        String queryString = "(identifiers =/@value '" + identifier + "')";
+        String queryString = "(" + getIdentifierKey(identifierType) + " = '" + identifier + "')";
         JSONObject responseObject;
         try {
             responseObject = findMatches(queryString);
@@ -96,6 +96,17 @@ public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
         long totalRecords = responseObject.getLong("totalRecords");
 
         return buildEnrichmentMessage(totalRecords, identifier, null, identifierType, identifierForWebsiteUrl, null);
+    }
+
+    private String getIdentifierKey(IdentifierType type) {
+        switch(type) {
+            case ISBN:
+                return "isbn";
+            case OclcNumber:
+                return "oclc";
+            default:
+                throw new IllegalArgumentException("Unexpected identifier type as key: " + type);
+        }
     }
 
     private JSONObject findMatches(String queryString) throws Exception {
