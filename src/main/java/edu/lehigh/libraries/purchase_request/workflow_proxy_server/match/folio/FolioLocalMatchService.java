@@ -122,7 +122,10 @@ public class FolioLocalMatchService implements MatchService {
         for (int i=0; i < identifiers.length(); i++ ) {
             JSONObject identifier = identifiers.getJSONObject(i);
             if (ISBN_IDENTIFIER_TYPE.equals(identifier.getString("identifierTypeId"))) {
-                isbns.add(identifier.getString("value"));
+                String value = identifier.optString("value", null);
+                if (value != null) {
+                    isbns.add(value);
+                }
             }
         }
         return isbns;
@@ -133,11 +136,13 @@ public class FolioLocalMatchService implements MatchService {
         for (int i=0; i < identifiers.length(); i++ ) {
             JSONObject identifier = identifiers.getJSONObject(i);
             if (OCLC_NUMBER_IDENTIFIER_TYPE.equals(identifier.getString("identifierTypeId"))) {
-                String rawValue = identifier.getString("value");
-                if (rawValue.startsWith(OCLC_NUMBER_PREFIX)) {
-                    return rawValue.substring(OCLC_NUMBER_PREFIX.length());
+                String rawValue = identifier.optString("value", null);
+                if (rawValue != null) {
+                    if (rawValue.startsWith(OCLC_NUMBER_PREFIX)) {
+                        return rawValue.substring(OCLC_NUMBER_PREFIX.length());
+                    }
+                    return rawValue;
                 }
-                return rawValue;
             }
         }
         return null;
