@@ -1,5 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.pricing.oasis;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,6 +31,15 @@ public class OasisPricingEnrichment implements EnrichmentService {
 
     private final String LOCAL_CURRENCY;
     private final int MAX_RESULTS;
+
+    private final Comparator<OasisResult> RECENT_FIRST_COMPARATOR = new Comparator<OasisResult>() {
+        @Override
+        public int compare(OasisResult o1, OasisResult o2) {
+            if (o1 == null || o1.getPubYear() == null) return 1;
+            if (o2 == null || o2.getPubYear() == null) return -1;
+            return o1.getPubYear().compareTo(o2.getPubYear()) * -1;
+        }
+    };
 
     OasisPricingEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) {
         this.workflowService = workflowService;
@@ -98,6 +109,7 @@ public class OasisPricingEnrichment implements EnrichmentService {
                 break;
             }
         }
+        Collections.sort(oasisResults, RECENT_FIRST_COMPARATOR);
         return oasisResults;
     }
 
