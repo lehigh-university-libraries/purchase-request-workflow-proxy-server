@@ -18,4 +18,6 @@ public class Match {
 
     private List<String> isbns;
 
+    private String catalogId;
+
 }

@@ -95,6 +95,7 @@ public class FolioLocalMatchService implements MatchService {
         match.setContributor(parseContributor(instance));
         match.setIsbns(parseIsbns(instance));
         match.setOclcNumber(parseOclcNumber(instance));
+        match.setCatalogId(parseHrid(instance));
         return match;
     }
 
@@ -146,6 +147,10 @@ public class FolioLocalMatchService implements MatchService {
             }
         }
         return null;
+    }
+
+    private String parseHrid(JSONObject instance) {
+        return instance.getString("hrid");
     }
     
 }
