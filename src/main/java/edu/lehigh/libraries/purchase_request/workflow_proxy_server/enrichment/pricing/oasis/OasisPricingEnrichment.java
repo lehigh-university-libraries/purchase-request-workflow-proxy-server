@@ -134,12 +134,19 @@ public class OasisPricingEnrichment implements EnrichmentService {
             comment += "\n|" 
                 + "[" + result.getTitle() + "|" + result.getUrl() + "]" + "|"
                 + result.getAuthor() + "|"
-                + result.getPubYear() + "|"
+                + formatValue(result.getPubYear()) + "|"
                 + result.getIsbn() + "|"
                 + result.getLocalPrice() + "|"
                 ;
         }
         return comment;
+    }
+
+    private String formatValue(String raw) {
+        if (raw == null) {
+            return "--";
+        }
+        return raw;
     }
 
 }
