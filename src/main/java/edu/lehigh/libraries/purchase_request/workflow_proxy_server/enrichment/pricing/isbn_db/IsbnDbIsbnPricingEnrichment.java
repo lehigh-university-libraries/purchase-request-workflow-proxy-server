@@ -9,6 +9,7 @@ import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.WorkflowService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,12 +50,7 @@ public class IsbnDbIsbnPricingEnrichment extends IsbnDbPricingEnrichment {
             log.debug("can't get MSRP");
             return null;
         }
-        if (msrp == null) {
-            log.debug("no MSRP");
-            return null;
-        }
-        String listPrice = msrp.toString();
-        return listPrice;    
+        return EnrichmentUtil.formatPrice(msrp);
     }
 
 }

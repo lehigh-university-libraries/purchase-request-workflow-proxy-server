@@ -20,6 +20,7 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.WorkflowService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -83,7 +84,7 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
                 + result.getPublicationYear() + "|"
                 + result.getIsbn() + "|"
                 + result.getBinding() + "|"
-                + result.getMsrp() + "|"
+                + EnrichmentUtil.formatPrice(result.getMsrp()) + "|"
                 ;
         }
         return comment;

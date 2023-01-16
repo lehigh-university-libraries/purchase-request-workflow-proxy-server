@@ -15,6 +15,7 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.Co
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.WorkflowService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -141,7 +142,7 @@ public class AmazonAxessoPricingEnrichment implements EnrichmentService {
         for (AmazonAxessoProduct.Variation variation : product.getVariations()) {
             comment += "\n|" 
                 + variation.getFormat() + "|"
-                + variation.getPrice() + "|";
+                + EnrichmentUtil.formatPrice(variation.getPrice()) + "|";
         }
         return comment;
     }

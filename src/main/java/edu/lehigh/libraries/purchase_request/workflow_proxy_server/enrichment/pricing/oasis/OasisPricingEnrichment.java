@@ -17,6 +17,7 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.Co
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentUtil;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.WorkflowService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -146,19 +147,12 @@ public class OasisPricingEnrichment implements EnrichmentService {
             comment += "\n|" 
                 + "[" + result.getTitle() + "|" + result.getUrl() + "]" + "|"
                 + result.getAuthor() + "|"
-                + formatValue(result.getPubYear()) + "|"
+                + EnrichmentUtil.formatString(result.getPubYear()) + "|"
                 + result.getIsbn() + "|"
-                + result.getLocalPrice() + "|"
+                + EnrichmentUtil.formatPrice(result.getLocalPrice()) + "|"
                 ;
         }
         return comment;
-    }
-
-    private String formatValue(String raw) {
-        if (raw == null) {
-            return "--";
-        }
-        return raw;
     }
 
 }
