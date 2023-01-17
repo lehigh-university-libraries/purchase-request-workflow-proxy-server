@@ -40,7 +40,10 @@ public class PurchaseRequest {
     @NotNull
     @NoHtml
     private String title;
-    
+    public void setTitle(String title) {
+        this.title = sanitize(title);
+    }
+
     @NoHtml
     private String contributor;
 
@@ -99,6 +102,11 @@ public class PurchaseRequest {
 
     public String getPrefixedOclcNumber() {
         return OCLC_NUMBER_PREFIX + oclcNumber;
+    }
+
+    private String sanitize(String raw) {
+        // Remove any double-quotes
+        return raw.replaceAll("\"", "");
     }
 
     @Getter @Setter @EqualsAndHashCode @ToString
