@@ -1,6 +1,7 @@
 package edu.lehigh.libraries.purchase_request.model;
 
 import java.util.List;
+import java.util.regex.Matcher;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -29,6 +30,12 @@ public class PurchaseRequest {
 
     private static final String OCLC_NUMBER_PREFIX = "(OCoLC)";
 
+    private static final java.util.regex.Pattern TRAILING_SLASH_PATTERN = java.util.regex.Pattern.compile(
+        "(?<BASE>.*?)(?<SLASH>\\s*/)");
+    // Regex representing the life years sometimes appended to a contributor.
+    private static final java.util.regex.Pattern TRAILING_YEARS_PATTERN = java.util.regex.Pattern.compile(
+        "(?<BASE>.*?)(?<COMMAnSPACE>[,]*\\s+)(?<YEARS>[\\(]?[-\\d]{3,9}[\\)]?)");
+
     @Pattern(regexp = KEY_PATTERN)
     private String key;
 
@@ -41,11 +48,14 @@ public class PurchaseRequest {
     @NoHtml
     private String title;
     public void setTitle(String title) {
-        this.title = sanitize(title);
+        this.title = normalizeTitle(sanitize(title));
     }
 
     @NoHtml
     private String contributor;
+    public void setContributor(String contributor) {
+        this.contributor = normalizeContributor(contributor);
+    }
 
     @Pattern(regexp = SANITIZED_ISBN_PATTERN)
     private String isbn;
@@ -107,6 +117,22 @@ public class PurchaseRequest {
     private String sanitize(String raw) {
         // Remove any double-quotes
         return raw.replaceAll("\"", "");
+    }
+
+    private String normalizeTitle(String raw) {
+        Matcher matcher = TRAILING_SLASH_PATTERN.matcher(raw);
+        if (matcher.find()) {
+            return matcher.group("BASE");
+        }
+        return raw;
+    }
+
+    private String normalizeContributor(String raw) {
+        Matcher matcher = TRAILING_YEARS_PATTERN.matcher(raw);
+        if (matcher.find()) {
+            return matcher.group("BASE");
+        }
+        return raw;
     }
 
     @Getter @Setter @EqualsAndHashCode @ToString
