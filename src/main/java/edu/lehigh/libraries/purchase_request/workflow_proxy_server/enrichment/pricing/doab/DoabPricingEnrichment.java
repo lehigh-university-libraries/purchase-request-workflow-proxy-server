@@ -56,6 +56,9 @@ public class DoabPricingEnrichment implements EnrichmentService {
         }
 
         List<DoabSearchResult> results = search(title, contributor);
+        if (results == null) {
+            return;
+        }
         log.debug("results size: " + results.size());
 
         String comment = "Directory of Open Access Books";
@@ -80,6 +83,9 @@ public class DoabPricingEnrichment implements EnrichmentService {
             + ")";
         String url = BASE_URL + "/search?expand=metadata&query=" + ConnectionUtil.encodeUrl(query);
         JSONArray jsonResult = connection.executeForArray(url);
+        if (jsonResult == null) {
+            return null;
+        }
         List<DoabSearchResult> searchResults = parseResults(jsonResult);
         return searchResults;
     }

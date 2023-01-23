@@ -25,21 +25,21 @@ public class DoabConnection {
     }
 
     public JSONArray executeForArray(String url) {
+        log.debug("Executing query: " + url);
         HttpUriRequest getRequest = RequestBuilder.get(url).build();
         CloseableHttpResponse response;
-        String responseString;
+        JSONArray jsonArray;
         try {
             response = client.execute(getRequest);
             HttpEntity entity = response.getEntity();
-            responseString = EntityUtils.toString(entity);
+            String responseString = EntityUtils.toString(entity);
+            log.debug("Response string: " + responseString);
+            jsonArray = new JSONArray(responseString);
         }
         catch (Exception e) {
             log.error("Could not query DOAB.", e);
             return null;
         }
-
-        log.debug("Response string: " + responseString);
-        JSONArray jsonArray = new JSONArray(responseString);
         return jsonArray;
     }
 
