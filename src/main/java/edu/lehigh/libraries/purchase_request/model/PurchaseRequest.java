@@ -115,11 +115,17 @@ public class PurchaseRequest {
     }
 
     private String sanitize(String raw) {
+        if (raw == null) {
+            return null;
+        }
         // Remove any double-quotes
         return raw.replaceAll("\"", "");
     }
 
     private String normalizeTitle(String raw) {
+        if (raw == null) {
+            return null;
+        }
         Matcher matcher = TRAILING_SLASH_PATTERN.matcher(raw);
         if (matcher.find()) {
             return matcher.group("BASE");
@@ -128,6 +134,9 @@ public class PurchaseRequest {
     }
 
     private String normalizeContributor(String raw) {
+        if (raw == null) {
+            return null;
+        }
         Matcher matcher = TRAILING_YEARS_PATTERN.matcher(raw);
         if (matcher.find()) {
             return matcher.group("BASE");
