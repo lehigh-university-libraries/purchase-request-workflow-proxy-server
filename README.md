@@ -276,6 +276,12 @@ Each of the following configuration parameters defines the Jira ID of a custom f
 | workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | If `workflow.storage` is `jira` and `workflow.enrichment.budget-code` is set | 
 | workflow.jira.postPurchaseIdFieldId | Stores the unique ID of a purchased item, for use in emails about Arrived purchase requests. | If `workflow.storage` is `jira` | 
 
+#### Jira Priorities
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.jira.priorityByClientName.`client_name` | Numeric ID of a Jira issue priority.  This property can appear multiple times.  It maps the given `client_name` to the Jira priority defined by the property value.  If a particular `client_name` is not configured, it will receive the default priority configured for the Jira project.  Find the IDs [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-issue-priorities/). | N |
+
 ### Restyaboard Section
 
 For use with `RestyaboardWorkflowService` implementation, connecting via Restyaboard's API as the purchase requests storage and workflow engine.

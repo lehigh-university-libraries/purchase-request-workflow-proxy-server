@@ -2,6 +2,7 @@ package edu.lehigh.libraries.purchase_request.workflow_proxy_server.config;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
@@ -268,6 +269,11 @@ public class Config {
          * Username to use as Jira reporter if none is specified by a client application.
          */
         private String defaultReporterUsername;
+
+        /**
+         * Map of client name to a the Jira ID of a priority.
+         */
+        private Map<String, Long> priorityByClientName;
 
     }
 
