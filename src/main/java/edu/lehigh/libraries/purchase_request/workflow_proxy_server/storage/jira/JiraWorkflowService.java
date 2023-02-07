@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.atlassian.httpclient.api.HttpStatus;
 import com.atlassian.httpclient.api.Request.Builder;
@@ -53,6 +54,8 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         HOSTING_CLOUD = "cloud",
         HOSTING_SERVER = "server";
     private static final int SUMMARY_MAX_LENGTH = 254;
+
+    private String REQUEST_TYPE_FIELD_ID = "labels";
 
     private String HOSTING;
     private String PROJECT_CODE;
@@ -219,6 +222,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             issueBuilder.setAssigneeName(purchaseRequest.getLibrarianUsername());
         }
         setReporter(issueBuilder, purchaseRequest);
+        setRequestType(issueBuilder, purchaseRequest);
         if (purchaseRequest.getRequesterComments() != null) {            
             issueBuilder.setDescription("Patron Comment: " + purchaseRequest.getRequesterComments());        
         }
@@ -276,6 +280,15 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         else {
             throw new IllegalArgumentException("Unknown hosting environment: " + HOSTING);
         }
+    }
+
+    private void setRequestType(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
+        String requestType = purchaseRequest.getRequestType();
+        if (requestType == null) {
+            return;
+        }
+
+        issueBuilder.setFieldValue(REQUEST_TYPE_FIELD_ID, List.of(requestType));
     }
 
     private void setInitialPriority(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
@@ -494,6 +507,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         purchaseRequest.setSpeed(getStringValue(issue.getField(SPEED_FIELD_ID)));
         purchaseRequest.setDestination(getStringValue(issue.getField(DESTINATION_FIELD_ID)));
         purchaseRequest.setClientName(getStringValue(issue.getField(CLIENT_NAME_FIELD_ID)));
+        purchaseRequest.setRequestType(getRequestType(issue));
         purchaseRequest.setRequesterUsername(getStringValue(issue.getField(REQUESTER_USERNAME_FIELD_ID)));
         purchaseRequest.setRequesterRole(getStringValue(issue.getField(REQUESTER_ROLE_FIELD_ID)));
         purchaseRequest.setRequesterComments(issue.getDescription());
@@ -530,6 +544,15 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             log.error("Could not read value field from JSON object: ", jsonObject);
             return null;
         }
+    }
+
+    private String getRequestType(Issue issue) {
+        Set<String> labels = issue.getLabels();
+        if (labels == null || labels.size() == 0) {
+            return null;
+        }
+
+        return labels.iterator().next();
     }
 
     private String getUsername(User user) {

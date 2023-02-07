@@ -22,6 +22,7 @@ public class PurchaseRequest {
     public static final String SANITIZED_STRING_PATTERN = "^[A-Za-z0-9,_:\\.\\s-]+$";
     public static final String SANITIZED_NUMERIC_PATTERN = "^[0-9]+$";
     public static final String SANITIZED_USERNAME_PATTERN = "^[A-Za-z0-9]+$";
+    public static final String SANITIZED_REQUEST_TYPE_PATTERN = "^[A-Za-z0-9_]+$";
 
     public static final String SANITIZED_OCLC_NUMBER_PATTERN = SANITIZED_NUMERIC_PATTERN;
     public static final String SANITIZED_ISBN_PATTERN = "^[0-9X\\-]+$";
@@ -74,6 +75,9 @@ public class PurchaseRequest {
 
     @NoHtml
     private String destination;
+
+    @Pattern(regexp = SANITIZED_REQUEST_TYPE_PATTERN)
+    private String requestType;
 
     @NoHtml
     private String clientName;
