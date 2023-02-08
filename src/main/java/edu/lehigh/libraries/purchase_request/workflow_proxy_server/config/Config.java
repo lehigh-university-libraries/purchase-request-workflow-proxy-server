@@ -272,11 +272,6 @@ public class Config {
          */
         private String defaultReporterUsername;
 
-        /**
-         * Map of client name to a the Jira ID of a priority.
-         */
-        private Map<String, Long> priorityByClientName;
-
     }
 
     @Getter @Setter

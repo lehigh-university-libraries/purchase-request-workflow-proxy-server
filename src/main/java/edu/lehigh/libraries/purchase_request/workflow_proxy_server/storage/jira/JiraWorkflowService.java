@@ -4,7 +4,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.atlassian.httpclient.api.HttpStatus;
@@ -83,7 +82,6 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private Integer MAX_SEARCH_RESULTS;
     private String MULTIPLE_LIBRARIANS_USERNAME;
     private String DEFAULT_REPORTER_USERNAME;
-    private Map<String, Long> PRIORITY_BY_CLIENT_NAME;
 
     public JiraWorkflowService(Config config) {
         super();
@@ -120,7 +118,6 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         MAX_SEARCH_RESULTS = config.getJira().getMaxSearchResults();
         MULTIPLE_LIBRARIANS_USERNAME = config.getJira().getMultipleLibrariansUsername();
         DEFAULT_REPORTER_USERNAME = config.getJira().getDefaultReporterUsername();
-        PRIORITY_BY_CLIENT_NAME = config.getJira().getPriorityByClientName();
     }
 
     private void initConnection() {
@@ -227,9 +224,6 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             issueBuilder.setDescription("Patron Comment: " + purchaseRequest.getRequesterComments());        
         }
 
-        // Set derived fields
-        setInitialPriority(issueBuilder, purchaseRequest);
-
         // Save stub issue
         String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
         Issue issue = getByKey(key);
@@ -289,21 +283,6 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         }
 
         issueBuilder.setFieldValue(REQUEST_TYPE_FIELD_ID, List.of(requestType));
-    }
-
-    private void setInitialPriority(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
-        String clientName = purchaseRequest.getClientName();
-        if (clientName == null) {
-            return;
-        }
-
-        if (PRIORITY_BY_CLIENT_NAME != null) {
-            Long priorityId = PRIORITY_BY_CLIENT_NAME.get(clientName);
-            if (priorityId != null) {
-                log.debug("Setting initial priority: " + priorityId);
-                issueBuilder.setPriorityId(priorityId);
-            }
-        }
     }
 
     private void setInitialStatus(PurchaseRequest purchaseRequest, URI transitionsUri) {

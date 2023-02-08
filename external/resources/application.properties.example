@@ -64,7 +64,6 @@ workflow.jira.fundCodeFieldId=customfield_12345
 workflow.jira.objectCodeFieldId=customfield_12345
 workflow.jira.postPurchaseIdFieldId=customfield_12345
 
-workflow.jira.priorityByClientName.patron_form_client=2
 
 # Restyaboard
 
