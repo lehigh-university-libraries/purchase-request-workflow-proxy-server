@@ -39,7 +39,7 @@ public class RequesterEnrichment implements EnrichmentService {
         LDAP_USERNAME_QUERY_FIELD = config.getLdap().getUsernameQueryField();
         LDAP_ROLE_RESULT_FIELD = config.getLdap().getRoleResultField();
 
-        manager.addListener(this);
+        manager.addListener(this, 800);
         log.debug("RequesterEnrichment ready");
     }
 

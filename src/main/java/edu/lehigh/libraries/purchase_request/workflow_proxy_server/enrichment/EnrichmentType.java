@@ -9,5 +9,6 @@ public enum EnrichmentType {
     LIBRARIANS,
     FUND_CODE,
     OBJECT_CODE,
-    LINKS;
+    LINKS,
+    PRIORITY;
 }

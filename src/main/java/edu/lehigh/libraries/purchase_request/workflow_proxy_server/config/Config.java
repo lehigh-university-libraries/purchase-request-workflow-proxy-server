@@ -3,6 +3,7 @@ package edu.lehigh.libraries.purchase_request.workflow_proxy_server.config;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
@@ -67,6 +68,7 @@ public class Config {
     private Oasis oasis;
     private Links links;
     private LibrarianCallNumbers librarianCallNumbers;
+    private Priority priority;
     private Email email;
     private GoogleSheets googleSheets;
     private PostPurchase postPurchase;
@@ -467,6 +469,12 @@ public class Config {
          */
         private String roleResultField;
 
+        /**
+         * Regex to extract the role (alone) from the returned full value of the roleResultField,
+         * in a group "ROLE". 
+         */
+        private Pattern requesterDescriptionRolePattern;
+
     }
 
     @Getter @Setter
@@ -581,6 +589,16 @@ public class Config {
          * Username of a librarian to assign if the request has no call number.
          */
         private String noCallNumberUsername = null;
+
+    }
+
+    @Getter @Setter
+    public static class Priority {
+
+        /**
+         * Map of request type plus requester role key to the a priority ID.
+         */
+        private Map<String, Long> byRequestType;
 
     }
 

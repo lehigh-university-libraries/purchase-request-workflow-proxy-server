@@ -403,6 +403,9 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         else if (EnrichmentType.LINKS == type) {
             enrichComment(purchaseRequest, (String)data);
         }
+        else if (EnrichmentType.PRIORITY == type) {
+            enrichPriority(purchaseRequest, (Long)data);
+        }
         else {
             throw new IllegalArgumentException("Unknown enrichment type " + type);
         }
@@ -482,6 +485,13 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private void enrichObjectCode(PurchaseRequest purchaseRequest, String objetCode) {
         IssueInput input = new IssueInputBuilder()
             .setFieldValue(OBJECT_CODE_FIELD_ID, objetCode)
+            .build();
+        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+    }
+
+    private void enrichPriority(PurchaseRequest purchaseRequest, Long priority) {
+        IssueInput input = new IssueInputBuilder()
+            .setPriorityId(priority)
             .build();
         client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
     }

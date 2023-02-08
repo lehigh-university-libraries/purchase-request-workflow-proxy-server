@@ -57,6 +57,7 @@ Supplied implementations:
 | Budget Codes | Set budget codes to use if the purchase is approved, based on the librarian enrichment. | FOLIO |
 | Identifiers | For use by the other enrichments, use supplied title & contributor to suggest (if not already supplied) an OCLC number and Dewey call number from Library of Congress holdings. | OCLC WorldCat 
 | Links | Provide links to quickly query additional data sources. | No requirements.  Links to Google Scholar. |
+| Priority | Set a priority based on factors determined from the purchase request and prior enrichments, such as the academic role of the requester and the urgency of the request. | --
 
 ## Clients
 
@@ -362,6 +363,7 @@ Used for information about the patron requesting a purchase.
 | spring.ldap.base | Base string for LDAP queries. | If `workflow.requester` is set |
 | workflow.ldap.username-query-field | Parameter representing the username in the LDAP query.  Generally `uid`.  | If `workflow.requester` is set | 
 | workflow.ldap.role-result-field | LDAP search result field containing the role string reported by Requester Enrichment.  Generally `description`. | If `workflow.requester` is set | 
+| workflow.ldap.requester-description-role-pattern | [Java regular expression](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html) to extract the role (alone) from the full value returned in the roleResultField, which may include other elements like academic department.  The role should be identified in the regular expression by a named group "ROLE".  If supplied, this property be used later for Priority Enrichment. | N |
 
 ### Pricing Enrichment Sections
 
@@ -428,6 +430,19 @@ Librarian Enrichment makes use of a separate [Librarian Call Numbers](https://gi
 | workflow.librarian-call-numbers | `service` to enable librarian enrichment. | N |
 | workflow.librarian-call-numbers.base-url | Base URL of the Librarian Call Numbers service. | If `workflow.librarian-call-numbers` is set |
 | workflow.librarian-call-numbers.no-call-number-username | Username of a librarian to assign if the request has no call number (after [Identifiers Enrichment](#identifiers-enrichment-section)). | N |
+
+### Priority Enrichment Section
+
+Priority Enrichment set the priority of the purchase request based on other data supplied by the client application and/or determined through prior enrichments.  Issue priorities should be visible within the workflow service and used there for filtering, sorting, etc. by library staff to address the most urgent requests first.
+
+Priority values should be those undestood by the workflow service API.
+* For Jira, find the priority IDs [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-issue-priorities/).
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.priority.enabled | `true` to enable Priority Enrichment | N |
+| workflow.priority.by-request-type.`request_type`__`requester_role` | Priority value used by the workflow service.  This priority will be applied to requests matching the given `request_type`, that also match the the given `requester_role` as determined by `workflow.ldap.requester-description-role-pattern` in Requester Enrichment.  This property can be defined multiple times for different `request_type`s and `requester_role`s. | N | 
+| workflow.priority.by-request-type.`request_type`__default | Priority value used by the workflow service.  This priority will be applied to requests matching the given `request_type` if no more specific priority is determined.  This property can be defined multiple times for different `request_type`s.| N |
 
 ### Email Section
 

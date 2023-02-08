@@ -128,6 +128,7 @@ spring.ldap.urls=ldaps://ldap.someuniversity.edu:123
 spring.ldap.base=dc=someuniversity,dc=edu
 workflow.ldap.username-query-field=uid
 workflow.ldap.role-result-field=description
+workflow.ldap.requester-description-role-pattern=(?<ROLE>.*)\\s-\\s(?<DEPARTMENT>.*)
 
 
 # IsbnDB Pricing Enrichment
@@ -172,6 +173,14 @@ workflow.links.google-scholar-enabled=true
 workflow.librarian-call-numbers=service
 workflow.librarian-call-numbers.base-url=http://hostname.someuniversity.edu:8080
 workflow.librarian-call-numbers.no-call-number-username=librarians
+
+
+# Priority Enrichment
+
+workflow.priority.enabled=true
+workflow.priority.by-request-type.important__default=2
+workflow.priority.by-request-type.important__Faculty=1
+workflow.priority.by-request-type.suggestion__Faculty=3
 
 
 # Email
