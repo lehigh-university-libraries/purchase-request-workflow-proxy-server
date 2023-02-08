@@ -297,10 +297,12 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             return;
         }
 
-        Long priorityId = PRIORITY_BY_CLIENT_NAME.get(clientName);
-        if (priorityId != null) {
-            log.debug("Setting initial priority: " + priorityId);
-            issueBuilder.setPriorityId(priorityId);
+        if (PRIORITY_BY_CLIENT_NAME != null) {
+            Long priorityId = PRIORITY_BY_CLIENT_NAME.get(clientName);
+            if (priorityId != null) {
+                log.debug("Setting initial priority: " + priorityId);
+                issueBuilder.setPriorityId(priorityId);
+            }
         }
     }
 
