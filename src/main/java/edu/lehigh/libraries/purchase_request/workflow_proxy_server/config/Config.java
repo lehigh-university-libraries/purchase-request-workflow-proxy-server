@@ -234,12 +234,12 @@ public class Config {
         private String requesterUsernameFieldId;
 
         /**
-         * ID of the Jira custom field representing the role (faculty, undergraduate, etc.) of the person 
-         * who requested the item.
+         * ID of the Jira custom field representing directory info about the person who requested 
+         * the item, including their role (faculty, undergraduate, etc.).
          * 
          * A list of fields with IDs can be retrieved with {{jira.url}}/field
          */
-        private String requesterRoleFieldId;
+        private String requesterInfoFieldId;
 
         /**
          * ID of the Jira custom field representing a budget fund code for this request.
@@ -465,15 +465,16 @@ public class Config {
         private String usernameQueryField;
 
         /**
-         * LDAP field in the query result containing the user's role.
+         * LDAP field in the query result containing information about the requester, including 
+         * the user's role.
          */
-        private String roleResultField;
+        private String infoResultField;
 
         /**
-         * Regex to extract the role (alone) from the returned full value of the roleResultField,
+         * Regex to extract the role from the returned full value of the infoResultField,
          * in a group "ROLE". 
          */
-        private Pattern requesterDescriptionRolePattern;
+        private Pattern requesterInfoRolePattern;
 
     }
 

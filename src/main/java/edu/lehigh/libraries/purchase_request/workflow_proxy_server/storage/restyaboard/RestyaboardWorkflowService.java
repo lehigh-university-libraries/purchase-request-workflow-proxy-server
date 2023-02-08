@@ -33,7 +33,7 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
     private static final String CLIENT_NAME_KEY = "Client";
     private static final String REPORTER_NAME_KEY = "Reporter";
     private static final String REQUESTER_USERNAME_KEY = "Requester";
-    private static final String REQUESTER_ROLE_KEY = "Requester Role";
+    private static final String REQUESTER_INFO_KEY = "Requester Info";
     private static final String FUND_CODE_KEY = "Fund Code";
     private static final String OBJECT_CODE_KEY = "Object Code";
     private static final String COMMENT_DELIMITER = ": ";
@@ -156,7 +156,7 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
         enrichMapCommentIfPresent(savedRequest, DESTINATION_KEY, purchaseRequest.getDestination());
         enrichMapCommentIfPresent(savedRequest, CLIENT_NAME_KEY, purchaseRequest.getClientName());
         enrichMapCommentIfPresent(savedRequest, REQUESTER_USERNAME_KEY, purchaseRequest.getRequesterUsername());
-        enrichMapCommentIfPresent(savedRequest, REQUESTER_ROLE_KEY, purchaseRequest.getRequesterRole());
+        enrichMapCommentIfPresent(savedRequest, REQUESTER_INFO_KEY, purchaseRequest.getRequesterInfo());
         enrichMapCommentIfPresent(savedRequest, REPORTER_NAME_KEY, purchaseRequest.getReporterName());
 
         // TODO set assignee name
@@ -238,8 +238,8 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
         else if (EnrichmentType.PRICING == type) {
             enrichComment(purchaseRequest, (String)data);
         }
-        else if (EnrichmentType.REQUESTER_ROLE == type) {
-            enrichMapCommentIfPresent(purchaseRequest, REQUESTER_ROLE_KEY, (String)data);
+        else if (EnrichmentType.REQUESTER_INFO == type) {
+            enrichMapCommentIfPresent(purchaseRequest, REQUESTER_INFO_KEY, (String)data);
         }
         // TODO else if (EnrichmentType.LIBRARIANS == type) {
         //     enrichAssignee(purchaseRequest, data);
@@ -355,8 +355,8 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
                     else if (REQUESTER_USERNAME_KEY.equals(key)) {
                         purchaseRequest.setRequesterUsername(value);
                     }
-                    else if (REQUESTER_ROLE_KEY.equals(key)) {
-                        purchaseRequest.setRequesterRole(value);
+                    else if (REQUESTER_INFO_KEY.equals(key)) {
+                        purchaseRequest.setRequesterInfo(value);
                     }
                     else if (FUND_CODE_KEY.equals(key)) {
                         purchaseRequest.setFundCode(value);

@@ -29,7 +29,7 @@ public class RequesterEnrichment implements EnrichmentService {
     private LdapTemplate ldapTemplate;
 
     private final String LDAP_USERNAME_QUERY_FIELD;
-    private final String LDAP_ROLE_RESULT_FIELD;
+    private final String LDAP_INFO_RESULT_FIELD;
 
     private final WorkflowService workflowService;
 
@@ -37,7 +37,7 @@ public class RequesterEnrichment implements EnrichmentService {
         this.workflowService = workflowService;
 
         LDAP_USERNAME_QUERY_FIELD = config.getLdap().getUsernameQueryField();
-        LDAP_ROLE_RESULT_FIELD = config.getLdap().getRoleResultField();
+        LDAP_INFO_RESULT_FIELD = config.getLdap().getInfoResultField();
 
         manager.addListener(this, 800);
         log.debug("RequesterEnrichment ready");
@@ -54,7 +54,7 @@ public class RequesterEnrichment implements EnrichmentService {
         LdapQuery query = LdapQueryBuilder.query()
             .where(LDAP_USERNAME_QUERY_FIELD).is(username);
         List<String> result = ldapTemplate.search(query, 
-            (AttributesMapper<String>) attributes -> (String)attributes.get(LDAP_ROLE_RESULT_FIELD).get()
+            (AttributesMapper<String>) attributes -> (String)attributes.get(LDAP_INFO_RESULT_FIELD).get()
         );
 
         if (result.size() == 0) {
@@ -63,7 +63,7 @@ public class RequesterEnrichment implements EnrichmentService {
         }
 
         String role = result.get(0);
-        workflowService.enrich(purchaseRequest, EnrichmentType.REQUESTER_ROLE, role);        
+        workflowService.enrich(purchaseRequest, EnrichmentType.REQUESTER_INFO, role);        
     }
   
 }

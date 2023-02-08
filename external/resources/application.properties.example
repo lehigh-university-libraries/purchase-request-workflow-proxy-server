@@ -59,7 +59,7 @@ workflow.jira.speedFieldId=customfield_12345
 workflow.jira.destinationFieldId=customfield_12345
 workflow.jira.clientNameFieldId=customfield_12345
 workflow.jira.requesterUsernameFieldId=customfield_12345
-workflow.jira.requesterRoleFieldId=customfield_12345
+workflow.jira.requesterInfoFieldId=customfield_12345
 workflow.jira.fundCodeFieldId=customfield_12345
 workflow.jira.objectCodeFieldId=customfield_12345
 workflow.jira.postPurchaseIdFieldId=customfield_12345
@@ -127,8 +127,8 @@ workflow.requester=ldap
 spring.ldap.urls=ldaps://ldap.someuniversity.edu:123
 spring.ldap.base=dc=someuniversity,dc=edu
 workflow.ldap.username-query-field=uid
-workflow.ldap.role-result-field=description
-workflow.ldap.requester-description-role-pattern=(?<ROLE>.*)\\s-\\s(?<DEPARTMENT>.*)
+workflow.ldap.info-result-field=description
+workflow.ldap.requester-info-role-pattern=(?<ROLE>.*)\\s-\\s(?<DEPARTMENT>.*)
 
 
 # IsbnDB Pricing Enrichment

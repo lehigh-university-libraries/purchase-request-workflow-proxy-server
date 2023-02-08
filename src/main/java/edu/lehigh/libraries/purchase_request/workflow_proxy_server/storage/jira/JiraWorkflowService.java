@@ -69,7 +69,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String CLIENT_NAME_FIELD_ID;
     private String REPORTER_NAME_FIELD_ID;
     private String REQUESTER_USERNAME_FIELD_ID;
-    private String REQUESTER_ROLE_FIELD_ID;
+    private String REQUESTER_INFO_FIELD_ID;
     private String FUND_CODE_FIELD_ID;
     private String OBJECT_CODE_FIELD_ID;
     private String POST_PURCHASE_ID_FIELD_ID;
@@ -106,7 +106,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         CLIENT_NAME_FIELD_ID = config.getJira().getClientNameFieldId();
         REPORTER_NAME_FIELD_ID = config.getJira().getReporterNameFieldId();
         REQUESTER_USERNAME_FIELD_ID = config.getJira().getRequesterUsernameFieldId();
-        REQUESTER_ROLE_FIELD_ID = config.getJira().getRequesterRoleFieldId();
+        REQUESTER_INFO_FIELD_ID = config.getJira().getRequesterInfoFieldId();
         FUND_CODE_FIELD_ID = config.getJira().getFundCodeFieldId();
         OBJECT_CODE_FIELD_ID = config.getJira().getObjectCodeFieldId();
         POST_PURCHASE_ID_FIELD_ID = config.getJira().getPostPurchaseIdFieldId();
@@ -215,7 +215,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         issueBuilder.setFieldValue(DESTINATION_FIELD_ID, purchaseRequest.getDestination());
         issueBuilder.setFieldValue(CLIENT_NAME_FIELD_ID, purchaseRequest.getClientName());
         issueBuilder.setFieldValue(REQUESTER_USERNAME_FIELD_ID, purchaseRequest.getRequesterUsername());
-        issueBuilder.setFieldValue(REQUESTER_ROLE_FIELD_ID, purchaseRequest.getRequesterRole());
+        issueBuilder.setFieldValue(REQUESTER_INFO_FIELD_ID, purchaseRequest.getRequesterInfo());
 
         // Set conditional fields
         if (purchaseRequest.getLibrarianUsername() != null && userExists(purchaseRequest.getLibrarianUsername())) {
@@ -388,8 +388,8 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         else if (EnrichmentType.PRICING == type) {
             enrichComment(purchaseRequest, (String)data);
         }
-        else if (EnrichmentType.REQUESTER_ROLE == type) {
-            enrichRequesterType(purchaseRequest, (String)data);
+        else if (EnrichmentType.REQUESTER_INFO == type) {
+            enrichRequesterInfo(purchaseRequest, (String)data);
         }
         else if (EnrichmentType.LIBRARIANS == type) {
             enrichAssignee(purchaseRequest, data);
@@ -442,9 +442,9 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
     }
 
-    private void enrichRequesterType(PurchaseRequest purchaseRequest, String requesterType) {
+    private void enrichRequesterInfo(PurchaseRequest purchaseRequest, String requesterInfo) {
         IssueInput input = new IssueInputBuilder()
-            .setFieldValue(REQUESTER_ROLE_FIELD_ID, requesterType)
+            .setFieldValue(REQUESTER_INFO_FIELD_ID, requesterInfo)
             .build();
         client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
     }
@@ -521,7 +521,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         purchaseRequest.setClientName(getStringValue(issue.getField(CLIENT_NAME_FIELD_ID)));
         purchaseRequest.setRequestType(getRequestType(issue));
         purchaseRequest.setRequesterUsername(getStringValue(issue.getField(REQUESTER_USERNAME_FIELD_ID)));
-        purchaseRequest.setRequesterRole(getStringValue(issue.getField(REQUESTER_ROLE_FIELD_ID)));
+        purchaseRequest.setRequesterInfo(getStringValue(issue.getField(REQUESTER_INFO_FIELD_ID)));
         purchaseRequest.setRequesterComments(issue.getDescription());
         purchaseRequest.setLibrarianUsername(getUsername(issue.getAssignee()));
         purchaseRequest.setFundCode(getStringValue(issue.getField(FUND_CODE_FIELD_ID)));

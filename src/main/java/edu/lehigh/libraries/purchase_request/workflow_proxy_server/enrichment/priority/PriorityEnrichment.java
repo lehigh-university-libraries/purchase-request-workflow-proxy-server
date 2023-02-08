@@ -28,14 +28,14 @@ public class PriorityEnrichment implements EnrichmentService {
     private final WorkflowService workflowService;
 
     private final Map<String, Long> PRIORITY_BY_REQUEST_TYPE;
-    private final Pattern REQUESTER_DESCRIPTION_ROLE_PATTERN;
+    private final Pattern REQUESTER_INFO_ROLE_PATTERN;
 
 
     PriorityEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) {
         this.workflowService = workflowService;
 
         PRIORITY_BY_REQUEST_TYPE = config.getPriority().getByRequestType();
-        REQUESTER_DESCRIPTION_ROLE_PATTERN = config.getLdap().getRequesterDescriptionRolePattern();
+        REQUESTER_INFO_ROLE_PATTERN = config.getLdap().getRequesterInfoRolePattern();
 
         manager.addListener(this, 900);
         log.debug("PriorityEnrichment ready");
@@ -61,22 +61,27 @@ public class PriorityEnrichment implements EnrichmentService {
         }
         
         // Narrow by requester role if possible.
-        if (REQUESTER_DESCRIPTION_ROLE_PATTERN != null 
-            && purchaseRequest.getRequesterRole() != null) {
-                
-            String requesterDescription = purchaseRequest.getRequesterRole();
-            Matcher matcher = REQUESTER_DESCRIPTION_ROLE_PATTERN.matcher(requesterDescription);
+        if (REQUESTER_INFO_ROLE_PATTERN != null 
+            && purchaseRequest.getRequesterInfo() != null) {
+
+            String requesterInfo = purchaseRequest.getRequesterInfo();
+            Matcher matcher = REQUESTER_INFO_ROLE_PATTERN.matcher(requesterInfo);
             if (matcher.find()) {
                 String requesterRole = matcher.group("ROLE");
                 if (requesterRole != null) {
                     Long requesterRolePriority = 
                         PRIORITY_BY_REQUEST_TYPE.get(requestType + KEY_SEPARATOR + requesterRole);
                     if (requesterRolePriority != null) {
-                        log.debug("Found more specific priority by request type + role: " + requesterRole);
+                        log.debug("Found more specific priority by request type + role: " + requesterRolePriority);
                         priority = requesterRolePriority;
                     }
                 }
             }
+        }
+
+        if (priority == null) {
+            log.debug("No priority rules found for this request.");
+            return;
         }
 
         workflowService.enrich(purchaseRequest, EnrichmentType.PRIORITY, priority);

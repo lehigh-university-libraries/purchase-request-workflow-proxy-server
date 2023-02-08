@@ -362,8 +362,8 @@ Used for information about the patron requesting a purchase.
 | spring.ldap.urls | URL for LDAP queries. | If `workflow.requester` is set |
 | spring.ldap.base | Base string for LDAP queries. | If `workflow.requester` is set |
 | workflow.ldap.username-query-field | Parameter representing the username in the LDAP query.  Generally `uid`.  | If `workflow.requester` is set | 
-| workflow.ldap.role-result-field | LDAP search result field containing the role string reported by Requester Enrichment.  Generally `description`. | If `workflow.requester` is set | 
-| workflow.ldap.requester-description-role-pattern | [Java regular expression](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html) to extract the role (alone) from the full value returned in the roleResultField, which may include other elements like academic department.  The role should be identified in the regular expression by a named group "ROLE".  If supplied, this property be used later for Priority Enrichment. | N |
+| workflow.ldap.info-result-field | LDAP search result field containing information about the requester, including their role and potentially other data like academic department.  Generally `description`. | If `workflow.requester` is set | 
+| workflow.ldap.requester-info-role-pattern | [Java regular expression](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html) to extract the role from the full value returned in the `workflow.ldap.info-result=field`.  The role should be identified in the regular expression by a named group "ROLE".  If supplied, this property be used later for Priority Enrichment. | N |
 
 ### Pricing Enrichment Sections
 
@@ -435,7 +435,7 @@ Librarian Enrichment makes use of a separate [Librarian Call Numbers](https://gi
 
 Priority Enrichment set the priority of the purchase request based on other data supplied by the client application and/or determined through prior enrichments.  Issue priorities should be visible within the workflow service and used there for filtering, sorting, etc. by library staff to address the most urgent requests first.
 
-Priority values should be those undestood by the workflow service API.
+Priority values should be those understood by the workflow service API.
 * For Jira, find the priority IDs [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v2/api-group-issue-priorities/).
 
 | Property | Description | Required |

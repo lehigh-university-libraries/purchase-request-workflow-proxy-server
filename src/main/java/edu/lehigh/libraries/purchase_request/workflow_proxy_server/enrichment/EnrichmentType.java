@@ -5,7 +5,7 @@ public enum EnrichmentType {
     CALL_NUMBER,
     LOCAL_HOLDINGS,
     PRICING,
-    REQUESTER_ROLE,
+    REQUESTER_INFO,
     LIBRARIANS,
     FUND_CODE,
     OBJECT_CODE,

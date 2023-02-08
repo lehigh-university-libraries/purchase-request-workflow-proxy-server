@@ -92,7 +92,7 @@ public class PurchaseRequest {
     private String requesterComments;
 
     @NoHtml
-    private String requesterRole;
+    private String requesterInfo;
 
     @NoHtml
     private String librarianUsername;
