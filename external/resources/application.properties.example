@@ -63,6 +63,7 @@ workflow.jira.requesterInfoFieldId=customfield_12345
 workflow.jira.fundCodeFieldId=customfield_12345
 workflow.jira.objectCodeFieldId=customfield_12345
 workflow.jira.postPurchaseIdFieldId=customfield_12345
+workflow.jira.decisionReasonFieldId=customfield_12345
 
 
 # Restyaboard
@@ -197,6 +198,8 @@ workflow.email.purchase-requested-delay=PT30S
 workflow.email.purchase-approved-delay=PT30S
 workflow.email.purchase-denied-delay=PT30S
 workflow.email.purchase-arrived-delay=PT30S
+workflow.email.purchase-denied-reasons.cost-prohibitive=that book is too expensive
+workflow.email.purchase-denied-reasons.owned=our library already owns that book
 
 
 # Google Sheets Listener

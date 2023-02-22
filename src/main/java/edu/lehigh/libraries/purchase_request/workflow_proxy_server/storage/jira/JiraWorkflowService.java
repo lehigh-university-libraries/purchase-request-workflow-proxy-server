@@ -72,12 +72,13 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String FUND_CODE_FIELD_ID;
     private String OBJECT_CODE_FIELD_ID;
     private String POST_PURCHASE_ID_FIELD_ID;
+    private String DECISION_REASON_FIELD_ID;
     private String DEFERRED_STATUS_NAME;
     private Integer DEFERRED_STATUS_TRANSITION_ID;
     private Long APPROVED_STATUS_ID;
     private String APPROVED_STATUS_NAME;
     private Integer APPROVED_STATUS_TRANSITION_ID;
-    private Long DENIED_STATUS_ID;
+    private List<Long> DENIED_STATUS_ID;
     private Long ARRIVED_STATUS_ID;
     private Integer MAX_SEARCH_RESULTS;
     private String MULTIPLE_LIBRARIANS_USERNAME;
@@ -108,6 +109,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         FUND_CODE_FIELD_ID = config.getJira().getFundCodeFieldId();
         OBJECT_CODE_FIELD_ID = config.getJira().getObjectCodeFieldId();
         POST_PURCHASE_ID_FIELD_ID = config.getJira().getPostPurchaseIdFieldId();
+        DECISION_REASON_FIELD_ID = config.getJira().getDecisionReasonFieldId();
         DEFERRED_STATUS_NAME = config.getJira().getDeferredStatusName();
         DEFERRED_STATUS_TRANSITION_ID = config.getJira().getDeferredStatusTransitionId();
         APPROVED_STATUS_ID = config.getJira().getApprovedStatusId();
@@ -507,6 +509,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         purchaseRequest.setObjectCode(getStringValue(issue.getField(OBJECT_CODE_FIELD_ID)));
         purchaseRequest.setPostRequestComments(getComments(issue));
         purchaseRequest.setPostPurchaseId(getStringValue(issue.getField(POST_PURCHASE_ID_FIELD_ID)));
+        purchaseRequest.setDecisionReason(getStringValue(issue.getField(DECISION_REASON_FIELD_ID)));
         purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
         purchaseRequest.setUpdateDate(formatDateTime(issue.getUpdateDate()));
         return purchaseRequest;
@@ -581,7 +584,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         if (APPROVED_STATUS_ID.equals(issue.getStatus().getId())) {
             notifyPurchaseRequestApproved(purchaseRequest);
         }
-        else if (DENIED_STATUS_ID.equals(issue.getStatus().getId())) {
+        else if (DENIED_STATUS_ID.contains(issue.getStatus().getId())) {
             notifyPurchaseRequestDenied(purchaseRequest);
         }
         else if (ARRIVED_STATUS_ID.equals(issue.getStatus().getId())) {

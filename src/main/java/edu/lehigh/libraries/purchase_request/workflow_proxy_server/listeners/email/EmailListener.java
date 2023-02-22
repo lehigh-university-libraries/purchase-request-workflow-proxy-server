@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -41,6 +42,7 @@ public class EmailListener implements WorkflowServiceListener {
     private final Duration PURCHASE_APPROVED_DELAY;
     private final Duration PURCHASE_DENIED_DELAY;
     private final Duration PURCHASE_ARRIVED_DELAY;
+    private final Map<String, String> PURCHASE_DENIED_REASONS;
 
     @Autowired
     private JavaMailSender emailSender;
@@ -71,6 +73,7 @@ public class EmailListener implements WorkflowServiceListener {
         PURCHASE_APPROVED_DELAY = config.getEmail().getPurchaseApprovedDelay();
         PURCHASE_DENIED_DELAY = config.getEmail().getPurchaseDeniedDelay();
         PURCHASE_ARRIVED_DELAY = config.getEmail().getPurchaseArrivedDelay();
+        PURCHASE_DENIED_REASONS = config.getEmail().getPurchaseDeniedReasons();
 
         log.debug("EmailListener listening.");
     }
@@ -157,10 +160,23 @@ public class EmailListener implements WorkflowServiceListener {
         message.setTo(recipients.toArray(new String[0]));
 
         // Body
-        message.setText(buildText("denied", purchaseRequest));
+        String deniedReason = getDeniedReason(purchaseRequest);
+        message.setText(buildText("denied", purchaseRequest, null, deniedReason));
 
         emailSender.send(message);
         log.info("Emailed denied purchase request: " + message.getText());
+    }
+
+    private String getDeniedReason(PurchaseRequest purchaseRequest) {
+        if (PURCHASE_DENIED_REASONS == null || 
+            purchaseRequest.getDecisionReason() == null) { 
+            return "";
+        }
+        String deniedReasonKey = purchaseRequest.getDecisionReason()
+            .toLowerCase()
+            .replaceAll(" ", "-");
+        String deniedReason = PURCHASE_DENIED_REASONS.get(deniedReasonKey);
+        return deniedReason == null ? "" : deniedReason;
     }
 
     @Override
@@ -189,7 +205,7 @@ public class EmailListener implements WorkflowServiceListener {
         // Body
         PurchasedItem purchasedItem = postPurchaseService.getFromRequest(purchaseRequest);
         String templateName = determineTemplate("arrived", purchasedItem);
-        message.setText(buildText(templateName, purchaseRequest, purchasedItem));
+        message.setText(buildText(templateName, purchaseRequest, purchasedItem, null));
 
         emailSender.send(message);
         log.info("Emailed arrived purchase request: " + message.getText());
@@ -238,13 +254,16 @@ public class EmailListener implements WorkflowServiceListener {
     }
 
     private String buildText(String templateName, PurchaseRequest purchaseRequest) {
-        return buildText(templateName, purchaseRequest, null);
+        return buildText(templateName, purchaseRequest, null, null);
     }
 
-    private String buildText(String templateName, PurchaseRequest purchaseRequest, PurchasedItem purchasedItem) {
+    private String buildText(String templateName, PurchaseRequest purchaseRequest, 
+        PurchasedItem purchasedItem, String decisionReason) {
+
         log.debug("Using template " + templateName);
         Context context = new Context();
         context.setVariable("purchaseRequest", purchaseRequest);
+        context.setVariable("decisionReason", decisionReason);
         context.setVariable("workflowUrl", workflowService.getWebUrl(purchaseRequest));
         if (purchasedItem != null) {
             context.setVariable("purchasedItem", purchasedItem);

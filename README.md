@@ -104,7 +104,7 @@ The `EmailListener` sends an email based on the new status of a purchase request
 
 The body text of the email is defined by a template file `{statusName}.txt` within a `mail` subfolder of [the configuration folder where `application.properties` is located](#deployment).  For Arrived, there is an additional template `arrived-electronic.txt` template for purchased items with electronic access, so the email may include a link to the item.
 
-The template uses [Thymeleaf's TEXT mode](https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#textual-template-modes) and supports interpolation of any `PurchaseRequest` object properties as seen in the example files.
+The template uses [Thymeleaf's TEXT mode](https://www.thymeleaf.org/doc/tutorials/3.0/usingthymeleaf.html#textual-template-modes) and supports interpolation of any `PurchaseRequest` object properties as seen in the example files.  Emails about denied purchase requests can also include a configurable reason for the decision.
 
 ## Matching Pre-Submission
 
@@ -254,7 +254,7 @@ These parameters define the IDs and names of Jira statuses and the transitions b
 | workflow.jira.approvedStatusId | ID of the Jira status to use identify approved purchases.  Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-status/#api-group-status) or [via the Jira UI](https://community.atlassian.com/t5/Jira-Service-Management/How-do-I-get-a-list-of-statuses-that-show-the-associated-status/qaq-p/1803682). | If `workflow.storage` is `jira` | 
 | workflow.jira.approvedStatusName | Name of the Jira status used to identify approved purchases.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` |
 | workflow.jira.approvedStatusTransitionId | ID of the Jira transition that takes an issue from New to Approved. Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-transitions-get) |  If `workflow.storage` is `jira` |
-| workflow.jira.deniedStatusId | ID of the Jira status to use identify denied purchase requests.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` | 
+| workflow.jira.deniedStatusId | ID of the Jira status to use identify denied purchase requests.  If multiple Jira status values signify a denied request, this property may be a comma-separated list.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` | 
 | workflow.jira.arrivedStatusId | ID of the Jira status to use identify purchases that have arrived at their destination.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` | 
 
 #### Jira Field IDs
@@ -276,6 +276,7 @@ Each of the following configuration parameters defines the Jira ID of a custom f
 | workflow.jira.fundCodeFieldId | Stores the requested budget fund code to assign to an item purchase. | If `workflow.storage` is `jira` and `workflow.enrichment.budget-code` is set | 
 | workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | If `workflow.storage` is `jira` and `workflow.enrichment.budget-code` is set | 
 | workflow.jira.postPurchaseIdFieldId | Stores the unique ID of a purchased item, for use in emails about Arrived purchase requests. | If `workflow.storage` is `jira` | 
+| workflow.jira.decisionReasonFieldId | Stores the selector-indicated reason behind a purchase decision, for use in emails about decided purchase requests. | If `workflow.storage` is `jira` | 
 
 ### Restyaboard Section
 
@@ -457,6 +458,7 @@ For reporting via the Email Listener.
 | workflow.email.purchase-approved-delay | Delay after a purchase request is approved before any email is sent, if specified.  See `purchase-requested-delay` for format. | N |
 | workflow.email.purchase-denied-delay | Delay after a purchase request is denied before any email is sent, if specified.  See `purchase-requested-delay` for format. | N |
 | workflow.email.purchase-arrived-delay | Delay after a purchase request is arrived before any email is sent, if specified.  See `purchase-requested-delay` for format. | N |
+| workflow.email.purchase-denied-reasons.`decisionReason` | Text to be inserted into the `denied` email template at the `decisionReason` template variable.  This priority will be applied to requests with a reason matching the given `decisionReason`.  (Before matching, the `decisionReason` in the request is converted to lowercase, and spaces are replaced by hyphens.)  This property can be defined multiple times for different `request_type`s. | N |
 
 ### Google Sheets Listener Section
 

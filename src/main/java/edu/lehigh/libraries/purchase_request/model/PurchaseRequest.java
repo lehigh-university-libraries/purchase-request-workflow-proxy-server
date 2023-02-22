@@ -108,6 +108,9 @@ public class PurchaseRequest {
     @NoHtml
     private String postPurchaseId;
 
+    @NoHtml
+    private String decisionReason;
+
     @Pattern(regexp = SANITIZED_STRING_PATTERN)
     private String creationDate;
 

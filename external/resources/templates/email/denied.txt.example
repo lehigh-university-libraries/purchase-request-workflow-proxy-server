@@ -2,4 +2,5 @@ Purchase Request Denied
 
 Title: [( ${purchaseRequest.title} )]
 Contributor: [( ${purchaseRequest.contributor} )]
+Decision reason: [( ${decisionReason} )]
 Workflow URL: [( ${workflowUrl} )]

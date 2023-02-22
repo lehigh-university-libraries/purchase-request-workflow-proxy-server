@@ -147,10 +147,12 @@ public class Config {
 
         /**
          * ID of the Jira status that indicates a purchase request has been denied.
+         * If multiple Jira status values signify a denied request, this property may be 
+         * a comma-separated list.
          * 
          * A list of statuses with IDs can be retrieved with {{jira.url}}/status
          */
-        private Long deniedStatusId;
+        private List<Long> deniedStatusId;
 
         /**
          * ID of the Jira status that indicates a purchase request has arrived at its destination.
@@ -255,6 +257,11 @@ public class Config {
          * ID of the Jira custom field representing the unique ID of the purchased item within the LMS.
          */
         private String postPurchaseIdFieldId;
+
+        /**
+         * ID of the Jira custom field representing the reason for the purchase decision.
+         */
+        private String decisionReasonFieldId;
 
         /**
          * Maximum results to return from a call to /search
@@ -655,6 +662,12 @@ public class Config {
          * Duration of delay before emails are sent about arrived purchases.
          */
         private Duration purchaseArrivedDelay = null;
+
+        /**
+         * Mapping of a decline reason value to a sentence (fragment) to include 
+         * in the email to the requester.
+         */
+        private Map<String, String> purchaseDeniedReasons;
     }
 
     @Getter @Setter
