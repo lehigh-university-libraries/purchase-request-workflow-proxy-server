@@ -151,6 +151,7 @@ public class EmailListener implements WorkflowServiceListener {
 
         // Recipients
         List<String> recipients = new ArrayList<String>();
+        addRequesterRecipient(recipients, purchaseRequest);
         if (PURCHASE_DENIED_ADDRESS != null) {
             recipients.add(PURCHASE_DENIED_ADDRESS);
         }
