@@ -21,7 +21,7 @@ public interface WorkflowService {
 
     void enrich(PurchaseRequest purchaseRequest, EnrichmentType enrichmentType, Object data);
 
-    void enrichmentComplete(PurchaseRequest purchaseRequest);
+    void initialEnrichmentComplete(PurchaseRequest purchaseRequest);
 
     PurchaseRequest addComment(PurchaseRequest purchaseRequest, PurchaseRequest.Comment comment);
 

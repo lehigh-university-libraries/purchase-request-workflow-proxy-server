@@ -49,22 +49,36 @@ public class EnrichmentManager {
 
     @Async
     public void notifyNewPurchaseRequest(PurchaseRequest purchaseRequest) {
+        enrich(purchaseRequest, null);
+    }
+
+    @Async
+    public void notifyRepeatEnrichment(PurchaseRequest purchaseRequest, EnrichmentRequest repeatEnrichmentRequest) {
+        enrich(purchaseRequest, repeatEnrichmentRequest);
+    }
+ 
+    private void enrich(PurchaseRequest purchaseRequest, EnrichmentRequest repeatEnrichmentRequest) {
         for (Map.Entry<Integer, List<EnrichmentService>> entry: enrichmentServices.entrySet()) {
             List<EnrichmentService> listAtPriority = entry.getValue();
             for (EnrichmentService service : listAtPriority) {
-                try {
-                    service.enrichPurchaseRequest(purchaseRequest);
+                if (repeatEnrichmentRequest == null ||
+                    repeatEnrichmentRequest.getEnrichments().contains(service.getClass().getSimpleName())) {
+                    try {
+                        service.enrichPurchaseRequest(purchaseRequest);
 
-                    // get updated purchase request
-                    purchaseRequest = workflowService.findByKey(purchaseRequest.getKey());
-                }
-                catch (Exception e) {
-                    log.error("Caught exception during enrichment: ", e);
+                        // get updated purchase request
+                        purchaseRequest = workflowService.findByKey(purchaseRequest.getKey());
+                    }
+                    catch (Exception e) {
+                        log.error("Caught exception during enrichment: ", e);
+                    }
                 }
             }
         }
         log.debug("Done with all enrichment.");
-        workflowService.enrichmentComplete(purchaseRequest);
+        if (repeatEnrichmentRequest == null) {
+            workflowService.initialEnrichmentComplete(purchaseRequest);
+        }
     }
 
 }

@@ -20,7 +20,7 @@ abstract public class AbstractWorkflowService implements WorkflowService {
     }
 
     @Override
-    public void enrichmentComplete(PurchaseRequest createdRequest) {
+    public void initialEnrichmentComplete(PurchaseRequest createdRequest) {
         notifyPurchaseRequestCreated(createdRequest);
     }
 
