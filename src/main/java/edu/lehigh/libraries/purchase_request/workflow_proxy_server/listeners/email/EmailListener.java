@@ -3,14 +3,18 @@ package edu.lehigh.libraries.purchase_request.workflow_proxy_server.listeners.em
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+
+import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -33,15 +37,22 @@ public class EmailListener implements WorkflowServiceListener {
 
     private final String SUBJECT_PREFIX;
     private final String FROM_ADDRESS;
-    private final String PURCHASE_REQUESTED_ADDRESS;
-    private final String PURCHASE_APPROVED_ADDRESS;
-    private final String PURCHASE_DENIED_ADDRESS;
-    private final String PURCHASE_ARRIVED_ADDRESS;
+    private final String 
+        PURCHASE_REQUESTED_ADDRESS,
+        PURCHASE_APPROVED_ADDRESS,
+        PURCHASE_DENIED_ADDRESS,
+        PURCHASE_ARRIVED_ADDRESS;
     private final String ADDRESS_DOMAIN;
-    private final Duration PURCHASE_REQUESTED_DELAY;
-    private final Duration PURCHASE_APPROVED_DELAY;
-    private final Duration PURCHASE_DENIED_DELAY;
-    private final Duration PURCHASE_ARRIVED_DELAY;
+    private final boolean
+        PURCHASE_REQUESTED_HTML, 
+        PURCHASE_APPROVED_HTML, 
+        PURCHASE_DENIED_HTML, 
+        PURCHASE_ARRIVED_HTML; 
+    private final Duration 
+        PURCHASE_REQUESTED_DELAY,
+        PURCHASE_APPROVED_DELAY,
+        PURCHASE_DENIED_DELAY,
+        PURCHASE_ARRIVED_DELAY;
     private final Map<String, String> PURCHASE_DENIED_REASONS;
 
     @Autowired
@@ -64,11 +75,19 @@ public class EmailListener implements WorkflowServiceListener {
 
         SUBJECT_PREFIX = config.getEmail().getSubjectPrefix();
         FROM_ADDRESS = config.getEmail().getFromAddress();
+
         PURCHASE_REQUESTED_ADDRESS = config.getEmail().getPurchaseRequestedAddress();
         PURCHASE_APPROVED_ADDRESS = config.getEmail().getPurchaseApprovedAddress();
         PURCHASE_DENIED_ADDRESS = config.getEmail().getPurchaseDeniedAddress();
         PURCHASE_ARRIVED_ADDRESS = config.getEmail().getPurchaseArrivedAddress();
+
         ADDRESS_DOMAIN = config.getEmail().getAddressDomain();
+
+        PURCHASE_REQUESTED_HTML = config.getEmail().getPurchaseRequestedHtml();
+        PURCHASE_APPROVED_HTML = config.getEmail().getPurchaseApprovedHtml();
+        PURCHASE_DENIED_HTML = config.getEmail().getPurchaseDeniedHtml();
+        PURCHASE_ARRIVED_HTML = config.getEmail().getPurchaseArrivedHtml();
+
         PURCHASE_REQUESTED_DELAY = config.getEmail().getPurchaseRequestedDelay();
         PURCHASE_APPROVED_DELAY = config.getEmail().getPurchaseApprovedDelay();
         PURCHASE_DENIED_DELAY = config.getEmail().getPurchaseDeniedDelay();
@@ -85,28 +104,34 @@ public class EmailListener implements WorkflowServiceListener {
     }
 
     private void emailPurchaseRequested(PurchaseRequest purchaseRequest) {
-        SimpleMailMessage message = buildStubMessage();
+        try {            
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            prepStubMessage(helper);
 
-        // Subject
-        message.setSubject(buildSubject("New Purchase Requested at " + purchaseRequest.getCreationDate()));
+            // Subject
+            message.setSubject(buildSubject("New Purchase Requested at " + purchaseRequest.getCreationDate()));
 
-        // Recipients
-        List<String> recipients = new ArrayList<String>();
-        addLibrarianRecipient(recipients, purchaseRequest);
-        if (PURCHASE_REQUESTED_ADDRESS != null) {
-            recipients.add(PURCHASE_REQUESTED_ADDRESS);
+            // Recipients
+            addLibrarianRecipient(message, purchaseRequest);
+            if (PURCHASE_REQUESTED_ADDRESS != null) {
+                addToRecipient(message, PURCHASE_REQUESTED_ADDRESS);
+            }
+            if (getRecipientCount(message) == 0) {
+                return;
+            }
+
+            // Body
+            String text = buildText("requested", purchaseRequest);
+            helper.setText(text, PURCHASE_REQUESTED_HTML);
+
+            emailSender.send(message);
+            log.info("Emailed new purchase request: " + text);
         }
-        if (recipients.size() == 0) {
-            return;
+        catch (MessagingException e) {
+            log.error("Failed to email new purchase request", e);
         }
-        message.setTo(recipients.toArray(new String[0]));
-
-        // Body
-        message.setText(buildText("requested", purchaseRequest));
-
-        emailSender.send(message);
-        log.info("Emailed new purchase request: " + message.getText());
-}
+    }
 
     @Override
     public void purchaseApproved(PurchaseRequest purchaseRequest) {
@@ -115,26 +140,32 @@ public class EmailListener implements WorkflowServiceListener {
     }
 
     private void emailPurchaseApproved(PurchaseRequest purchaseRequest) {
-        SimpleMailMessage message = buildStubMessage();
+        try {            
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            prepStubMessage(helper);
 
-        // Subject
-        message.setSubject(buildSubject("Purchase Approved at " + purchaseRequest.getCreationDate()));
+            // Subject
+            message.setSubject(buildSubject("Purchase Approved at " + purchaseRequest.getCreationDate()));
 
-        // Recipients
-        List<String> recipients = new ArrayList<String>();
-        if (PURCHASE_APPROVED_ADDRESS != null) {
-            recipients.add(PURCHASE_APPROVED_ADDRESS);
+            // Recipients
+            if (PURCHASE_APPROVED_ADDRESS != null) {
+                addToRecipient(message, PURCHASE_APPROVED_ADDRESS);
+            }
+            if (getRecipientCount(message) == 0) {
+                return;
+            }
+
+            // Body
+            String text = buildText("approved", purchaseRequest);
+            helper.setText(text, PURCHASE_APPROVED_HTML);
+
+            emailSender.send(message);
+            log.info("Emailed approved purchase request: " + text);
         }
-        if (recipients.size() == 0) {
-            return;
+        catch (MessagingException e) {
+            log.error("Failed to email approved purchase request", e);
         }
-        message.setTo(recipients.toArray(new String[0]));
-
-        // Body
-        message.setText(buildText("approved", purchaseRequest));
-
-        emailSender.send(message);
-        log.info("Emailed approved purchase request: " + message.getText());
     }
 
     @Override
@@ -144,28 +175,34 @@ public class EmailListener implements WorkflowServiceListener {
     }
 
     private void emailPurchaseDenied(PurchaseRequest purchaseRequest) {
-        SimpleMailMessage message = buildStubMessage();
+        try {            
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            prepStubMessage(helper);
 
-        // Subject
-        message.setSubject(buildSubject("Purchase Denied at " + purchaseRequest.getCreationDate()));
+            // Subject
+            message.setSubject(buildSubject("Purchase Denied at " + purchaseRequest.getCreationDate()));
+                
+            // Recipients
+            addRequesterRecipient(message, purchaseRequest);
+            if (PURCHASE_DENIED_ADDRESS != null) {
+                addToRecipient(message, PURCHASE_DENIED_ADDRESS);
+            }
+            if (getRecipientCount(message) == 0) {
+                return;
+            }
 
-        // Recipients
-        List<String> recipients = new ArrayList<String>();
-        addRequesterRecipient(recipients, purchaseRequest);
-        if (PURCHASE_DENIED_ADDRESS != null) {
-            recipients.add(PURCHASE_DENIED_ADDRESS);
+            // Body
+            String deniedReason = getDeniedReason(purchaseRequest);
+            String text = buildText("denied", purchaseRequest, null, deniedReason);
+            helper.setText(text, PURCHASE_DENIED_HTML);
+
+            emailSender.send(message);
+            log.info("Emailed denied purchase request: " + text);
         }
-        if (recipients.size() == 0) {
-            return;
+        catch (MessagingException e) {
+            log.error("Failed to email new purchase request", e);
         }
-        message.setTo(recipients.toArray(new String[0]));
-
-        // Body
-        String deniedReason = getDeniedReason(purchaseRequest);
-        message.setText(buildText("denied", purchaseRequest, null, deniedReason));
-
-        emailSender.send(message);
-        log.info("Emailed denied purchase request: " + message.getText());
     }
 
     private String getDeniedReason(PurchaseRequest purchaseRequest) {
@@ -187,30 +224,37 @@ public class EmailListener implements WorkflowServiceListener {
     }
 
     private void emailPurchaseArrived(PurchaseRequest purchaseRequest) {
-        SimpleMailMessage message = buildStubMessage();
+        try {            
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            prepStubMessage(helper);
 
-        // Subject
-        message.setSubject(buildSubject("Purchase Arrived"));
+            // Subject
+            message.setSubject(buildSubject("Purchase Arrived"));
 
-        // Recipients
-        List<String> recipients = new ArrayList<String>();
-        addRequesterRecipient(recipients, purchaseRequest);
-        if (PURCHASE_ARRIVED_ADDRESS != null) {
-            recipients.add(PURCHASE_ARRIVED_ADDRESS);
+            // Recipients
+            addRequesterRecipient(message, purchaseRequest);
+            if (PURCHASE_ARRIVED_ADDRESS != null) {
+                addToRecipient(message, PURCHASE_ARRIVED_ADDRESS);
+            }
+            if (getRecipientCount(message) == 0) {
+                return;
+            }
+
+            // Body
+            PurchasedItem purchasedItem = postPurchaseService.getFromRequest(purchaseRequest);
+            String templateName = determineTemplate("arrived", purchasedItem);
+            String text = buildText(templateName, purchaseRequest, purchasedItem, null);
+            helper.setText(text, PURCHASE_ARRIVED_HTML);
+
+            emailSender.send(message);
+            log.info("Emailed arrived purchase request: " + text);
         }
-        if (recipients.size() == 0) {
-            return;
+        catch (MessagingException e) {
+            log.error("Failed to email arrived purchase request", e);
         }
-        message.setTo(recipients.toArray(new String[0]));
-
-        // Body
-        PurchasedItem purchasedItem = postPurchaseService.getFromRequest(purchaseRequest);
-        String templateName = determineTemplate("arrived", purchasedItem);
-        message.setText(buildText(templateName, purchaseRequest, purchasedItem, null));
-
-        emailSender.send(message);
-        log.info("Emailed arrived purchase request: " + message.getText());
     }
+
 
     private String determineTemplate(String statusPart, PurchasedItem purchasedItem) {
         if (purchasedItem != null && purchasedItem.getElectronicAccessUrl() != null) {
@@ -229,10 +273,17 @@ public class EmailListener implements WorkflowServiceListener {
         }
     }
 
-    private SimpleMailMessage buildStubMessage() {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(FROM_ADDRESS);
-        return message;
+    private void prepStubMessage(MimeMessageHelper helper) throws MessagingException {
+        helper.setFrom(FROM_ADDRESS);
+    }
+
+    private void addToRecipient(MimeMessage message, String address) throws MessagingException {
+        message.addRecipient(Message.RecipientType.TO, new InternetAddress(address));
+    }
+
+    private int getRecipientCount(MimeMessage message) throws MessagingException {
+        Address[] toRecipients = message.getRecipients(Message.RecipientType.TO);
+        return toRecipients == null ? 0 : toRecipients.length;
     }
 
     private String buildSubject(String subject) {
@@ -242,15 +293,19 @@ public class EmailListener implements WorkflowServiceListener {
         return subject;
     }
 
-    private void addLibrarianRecipient(List<String> recipients, PurchaseRequest purchaseRequest) {
+    private void addLibrarianRecipient(MimeMessage message, PurchaseRequest purchaseRequest) 
+        throws MessagingException {
+
         if (purchaseRequest.getLibrarianUsername() != null) {
-            recipients.add(purchaseRequest.getLibrarianUsername() + '@' + ADDRESS_DOMAIN);
+            addToRecipient(message, purchaseRequest.getLibrarianUsername() + '@' + ADDRESS_DOMAIN);
         }
     }
 
-    private void addRequesterRecipient(List<String> recipients, PurchaseRequest purchaseRequest) {
+    private void addRequesterRecipient(MimeMessage message, PurchaseRequest purchaseRequest) 
+        throws MessagingException {
+        
         if (purchaseRequest.getRequesterUsername() != null) {
-            recipients.add(purchaseRequest.getRequesterUsername() + '@' + ADDRESS_DOMAIN);
+            addToRecipient(message, purchaseRequest.getRequesterUsername() + '@' + ADDRESS_DOMAIN);
         }
     }
 

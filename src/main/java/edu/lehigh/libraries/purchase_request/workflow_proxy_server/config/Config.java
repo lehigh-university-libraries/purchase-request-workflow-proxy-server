@@ -644,6 +644,26 @@ public class Config {
         private String addressDomain;
 
         /**
+         * Boolean indicating if emails about new purchase requests are rendered as HTML.
+         */
+        private Boolean purchaseRequestedHtml = false;
+
+        /**
+         * Boolean indicating if emails about approved purchase requests are rendered as HTML.
+         */
+        private Boolean purchaseApprovedHtml = false;
+
+        /**
+         * Boolean indicating if emails about denied purchase requests are rendered as HTML.
+         */
+        private Boolean purchaseDeniedHtml = false;
+
+        /**
+         * Boolean indicating if emails about arrived purchase requests are rendered as HTML.
+         */
+        private Boolean purchaseArrivedHtml = false;
+
+        /**
          * Duration of delay before emails are sent about new purchases.
          */
         private Duration purchaseRequestedDelay = null;
