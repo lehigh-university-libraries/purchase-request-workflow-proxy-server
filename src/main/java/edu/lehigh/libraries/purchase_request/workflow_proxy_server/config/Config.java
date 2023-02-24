@@ -1,6 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.config;
 
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -477,6 +478,11 @@ public class Config {
          * in a group "ROLE". 
          */
         private Pattern requesterInfoRolePattern;
+
+        /**
+         * Skip the LDAP query for specific users and return a defined info field string.
+         */
+        private Map<String, String> infoResultOverrides = Collections.emptyMap();
 
     }
 

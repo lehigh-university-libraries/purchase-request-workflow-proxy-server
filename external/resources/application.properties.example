@@ -129,6 +129,7 @@ spring.ldap.base=dc=someuniversity,dc=edu
 workflow.ldap.username-query-field=uid
 workflow.ldap.info-result-field=description
 workflow.ldap.requester-info-role-pattern=(?<ROLE>.*)\\s-\\s(?<DEPARTMENT>.*)
+workflow.ldap.info-result-overrides.staff_username=Faculty - But Not Really
 
 
 # IsbnDB Pricing Enrichment

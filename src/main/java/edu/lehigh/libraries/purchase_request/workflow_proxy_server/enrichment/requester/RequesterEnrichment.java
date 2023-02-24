@@ -1,6 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.requester;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -30,6 +31,7 @@ public class RequesterEnrichment implements EnrichmentService {
 
     private final String LDAP_USERNAME_QUERY_FIELD;
     private final String LDAP_INFO_RESULT_FIELD;
+    private final Map<String, String> LDAP_INFO_RESULT_OVERRIDES;
 
     private final WorkflowService workflowService;
 
@@ -38,6 +40,7 @@ public class RequesterEnrichment implements EnrichmentService {
 
         LDAP_USERNAME_QUERY_FIELD = config.getLdap().getUsernameQueryField();
         LDAP_INFO_RESULT_FIELD = config.getLdap().getInfoResultField();
+        LDAP_INFO_RESULT_OVERRIDES = config.getLdap().getInfoResultOverrides();
 
         manager.addListener(this, 800);
         log.debug("RequesterEnrichment ready");
@@ -48,6 +51,13 @@ public class RequesterEnrichment implements EnrichmentService {
         String username = purchaseRequest.getRequesterUsername();
         if (username == null) {
             log.debug("Skipping Requester enrichment, no username provided.");
+            return;
+        }
+
+        String roleOverride = LDAP_INFO_RESULT_OVERRIDES.get(username);
+        if (roleOverride != null) {
+            log.debug("Using LDAP override for user " + username + ": " + roleOverride);
+            workflowService.enrich(purchaseRequest, EnrichmentType.REQUESTER_INFO, roleOverride);
             return;
         }
 

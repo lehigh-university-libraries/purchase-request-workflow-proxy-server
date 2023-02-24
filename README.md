@@ -359,6 +359,7 @@ Used for information about the patron requesting a purchase.
 | workflow.ldap.username-query-field | Parameter representing the username in the LDAP query.  Generally `uid`.  | If `workflow.requester` is set | 
 | workflow.ldap.info-result-field | LDAP search result field containing information about the requester, including their role and potentially other data like academic department.  Generally `description`. | If `workflow.requester` is set | 
 | workflow.ldap.requester-info-role-pattern | [Java regular expression](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html) to extract the role from the full value returned in the `workflow.ldap.info-result=field`.  The role should be identified in the regular expression by a named group "ROLE".  If supplied, this property be used later for Priority Enrichment. | N |
+| workflow.ldap.info-result-overrides.`username` | Skip the LDAP query for a specific user, based on the purchase request's `requesterUsername`, and return a pre-configured info field string.  This property can be defined multiple times for different `username`s.  Useful for testing the effect of different user roles on Priority Enrichment. | N | 
 
 ### Pricing Enrichment Sections
 
