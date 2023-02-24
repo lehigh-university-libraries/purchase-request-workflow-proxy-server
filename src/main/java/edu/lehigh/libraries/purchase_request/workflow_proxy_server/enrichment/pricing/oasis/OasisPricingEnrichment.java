@@ -61,7 +61,9 @@ public class OasisPricingEnrichment implements EnrichmentService {
             return;
         }
         // The OASIS API generally fails on subtitles
-        title = title.substring(0, title.indexOf(':'));
+        if (title.contains(":")) {
+            title = title.substring(0, title.indexOf(':'));
+        }
 
         String contributor = purchaseRequest.getContributor();
         if (contributor == null) {
