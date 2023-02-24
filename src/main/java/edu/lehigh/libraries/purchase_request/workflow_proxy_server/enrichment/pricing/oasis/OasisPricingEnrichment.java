@@ -60,6 +60,8 @@ public class OasisPricingEnrichment implements EnrichmentService {
             log.debug("Skipping pricing enrichment, no title provided.");
             return;
         }
+        // The OASIS API generally fails on subtitles
+        title = title.substring(0, title.indexOf(':'));
 
         String contributor = purchaseRequest.getContributor();
         if (contributor == null) {
