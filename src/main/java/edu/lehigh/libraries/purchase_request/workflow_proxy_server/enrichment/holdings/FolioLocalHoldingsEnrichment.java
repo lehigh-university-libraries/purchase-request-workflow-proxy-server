@@ -47,6 +47,7 @@ public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
         }
         else {
             log.debug("Cannot enrich holdings, doesn't have both title & contributor, and no ISBN or OCLC number.");
+            return;
         }
         workflowService.enrich(purchaseRequest, EnrichmentType.LOCAL_HOLDINGS, message);
         log.debug("Done creating enrichment for " + purchaseRequest);
