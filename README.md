@@ -331,9 +331,13 @@ OCLC APIs are used by various [holdings enrichment steps](#enrichment) and the [
 
 For connecting to the FOLIO API.
 
+Note: The specified FOLIO user account should have the following permissions:
+- Inventory: View instances, holdings, and items
+- Users: Can view user profile (only required for Budget Enrichment)
+
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.folio.username | Username for the FOLIO API. | Y |
+| workflow.folio.username | Username for the FOLIO API. See permissions required above. | Y |
 | workflow.folio.password | Password for the FOLIO API. | Y |
 | workflow.folio.tenantId | Tenant ID for the FOLIO server environment. | Y |
 | workflow.folio.okapiBaseUrl | Base URL for FOLIO OKAPI API calls. | Y |
