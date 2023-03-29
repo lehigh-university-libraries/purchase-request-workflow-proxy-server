@@ -75,13 +75,12 @@ public class FolioConnection {
         HttpEntity entity = response.getEntity();
         String responseString = EntityUtils.toString(entity);
         int responseCode = response.getStatusLine().getStatusCode();
-        token = response.getFirstHeader(TOKEN_HEADER).getValue();
-
         log.debug("got auth response from folio with response code: " + responseCode);
-
         if (responseCode > 399) {
             throw new Exception(responseString);
         }
+
+        token = response.getFirstHeader(TOKEN_HEADER).getValue();
     }
 
     public JSONObject executeGet(String url, String queryString) throws Exception {
