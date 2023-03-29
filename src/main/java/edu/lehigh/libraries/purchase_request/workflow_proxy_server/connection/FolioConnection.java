@@ -101,6 +101,11 @@ public class FolioConnection {
         HttpUriRequest getRequest = requestBuilder.build();
         CloseableHttpResponse response;
         response = client.execute(getRequest);
+        int responseCode = response.getStatusLine().getStatusCode();
+        if (responseCode > 399) {
+            throw new Exception(response.getStatusLine().getReasonPhrase());
+        }
+
         HttpEntity entity = response.getEntity();
         String responseString = EntityUtils.toString(entity);
         log.debug("Got response with code " + response.getStatusLine() + " and entity " + response.getEntity());
