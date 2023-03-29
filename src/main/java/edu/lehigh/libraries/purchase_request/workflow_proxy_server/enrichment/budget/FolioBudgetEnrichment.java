@@ -1,5 +1,7 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.budget;
 
+import java.util.Map;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,9 +46,10 @@ public class FolioBudgetEnrichment implements EnrichmentService {
         }
 
         String url = "/bl-users";
-        String queryString = "include=users&query=username=" + purchaseRequest.getLibrarianUsername();
+        String queryString = "query=username=" + purchaseRequest.getLibrarianUsername();
+        Map<String, String> extraParameters = Map.of("include", "users");
         try {
-            JSONObject responseObject = connection.executeGet(url, queryString);
+            JSONObject responseObject = connection.executeGet(url, queryString, extraParameters);
             JSONArray compositeUsers = responseObject.getJSONArray("compositeUsers");
             JSONObject compositeUser = compositeUsers.getJSONObject(0);
             JSONObject user = compositeUser.getJSONObject("users");
