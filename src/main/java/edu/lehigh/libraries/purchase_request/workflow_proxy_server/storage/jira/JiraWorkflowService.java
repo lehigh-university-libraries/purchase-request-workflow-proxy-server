@@ -349,7 +349,6 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         List<PurchaseRequest> list = new LinkedList<PurchaseRequest>();
         result.getIssues().forEach((issue) -> {
             PurchaseRequest purchaseRequest = toPurchaseRequest(issue);
-            log.debug("Found purchase request: " + purchaseRequest);
             list.add(purchaseRequest);
         });
         return list;
