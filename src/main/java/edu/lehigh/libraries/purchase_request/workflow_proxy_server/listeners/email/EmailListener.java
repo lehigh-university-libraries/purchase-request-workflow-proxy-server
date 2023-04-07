@@ -12,6 +12,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -29,6 +30,7 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.Workf
 import lombok.extern.slf4j.Slf4j;
 
 @Service
+@ConditionalOnProperty(name="workflow.email.enabled", havingValue="true")
 @ConditionalOnWebApplication
 @Slf4j
 public class EmailListener implements WorkflowServiceListener {

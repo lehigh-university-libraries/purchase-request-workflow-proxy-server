@@ -188,6 +188,7 @@ workflow.priority.by-request-type.suggestion__Faculty=3
 
 spring.mail.host=localhost
 spring.mail.port=25
+workflow.email.enabled=true
 workflow.email.subject-prefix=TEST SERVER (PLEASE IGNORE): 
 workflow.email.from-address=libraryorders@someuniversity.edu
 workflow.email.purchase-requested-address=libraryorders@someuniversity.edu
