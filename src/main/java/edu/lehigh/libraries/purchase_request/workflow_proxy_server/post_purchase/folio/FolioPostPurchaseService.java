@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnWebApplication
 public class FolioPostPurchaseService implements PostPurchaseService {
 
-    private static final String INSTANCES_PATH = "/inventory/instances";
+    private static final String INSTANCES_PATH = "/search/instances";
 
     private final String PROXY_PREFIX;
 
