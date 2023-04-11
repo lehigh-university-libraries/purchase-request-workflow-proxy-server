@@ -10,5 +10,9 @@ public enum EnrichmentType {
     FUND_CODE,
     OBJECT_CODE,
     LINKS,
-    PRIORITY;
+    PRIORITY,
+
+    /* Fields set during the initial PR save, but may be changed later via enrichment. */
+    TITLE,
+    CONTRIBUTOR; 
 }

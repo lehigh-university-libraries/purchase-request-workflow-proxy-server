@@ -27,6 +27,7 @@ public class OclcIdentifiersEnrichment implements EnrichmentService {
     private static final String SCOPE = "wcapi";
 
     private final String CLASSIFICATION_TYPE;
+    private final String TITLE_ISBN_ONLY_PREFIX;
 
     private final WorkflowService workflowService;
     private final OclcConnection oclcConnection;
@@ -36,6 +37,7 @@ public class OclcIdentifiersEnrichment implements EnrichmentService {
         this.workflowService = workflowService;
 
         CLASSIFICATION_TYPE = config.getOclc().getClassificationType();
+        TITLE_ISBN_ONLY_PREFIX = config.getCoreData().getTitle().getIsbnOnlyPrefix();
 
         manager.addListener(this, 1);
         log.debug("OclcIdentifiersEnrichment ready");
@@ -43,8 +45,13 @@ public class OclcIdentifiersEnrichment implements EnrichmentService {
 
     @Override
     public void enrichPurchaseRequest(PurchaseRequest purchaseRequest) {
-        if (purchaseRequest.getOclcNumber() != null && purchaseRequest.getCallNumber() != null) {
-            log.debug("Skipping OCLC enrichment, item already has an OCLC number and call number.");
+        if (purchaseRequest.getOclcNumber() != null && 
+            purchaseRequest.getCallNumber() != null &&
+            purchaseRequest.getTitle() != null && 
+            !purchaseRequest.getTitle().startsWith(TITLE_ISBN_ONLY_PREFIX) &&
+            purchaseRequest.getContributor() != null) {
+
+            log.debug("Skipping OCLC enrichment, item already has an OCLC number, call number, title and contributor.");
             return;
         }
 
@@ -102,6 +109,8 @@ public class OclcIdentifiersEnrichment implements EnrichmentService {
 
         enrichOclcNumber(purchaseRequest, bibRecord);
         enrichCallNumber(purchaseRequest, bibRecord);
+        enrichTitle(purchaseRequest, bibRecord);
+        enrichContributor(purchaseRequest, bibRecord);
     }
 
     private void enrichOclcNumber(PurchaseRequest purchaseRequest, JsonObject bibRecord) {
@@ -139,6 +148,74 @@ public class OclcIdentifiersEnrichment implements EnrichmentService {
         String callNumber = callNumberElement.getAsString();
         log.debug("found call number for item: " + callNumber);
         workflowService.enrich(purchaseRequest, EnrichmentType.CALL_NUMBER, callNumber);
+    }
+
+    private void enrichTitle(PurchaseRequest purchaseRequest, JsonObject bibRecord) {
+        if (purchaseRequest.getTitle() != null && 
+            !purchaseRequest.getTitle().startsWith(TITLE_ISBN_ONLY_PREFIX)) {
+                
+            log.debug("Real title already present, skipping enrichment: " + purchaseRequest.getTitle());
+            return;
+        }
+
+        JsonObject title = bibRecord.getAsJsonObject("title");
+        if (title == null) {
+            log.debug("No title found, cannot enrich title.");
+            return;
+        }
+
+        JsonArray mainTitles = title.getAsJsonArray("mainTitles");
+        if (mainTitles == null || mainTitles.size() < 1) {
+            log.debug("No mainTitles found, cannot enrich title.");
+            return;
+        }
+
+        JsonObject mainTitle = mainTitles.get(0).getAsJsonObject();
+        String titleText = mainTitle.get("text").getAsString();
+        if (titleText == null) {
+            log.debug("No title text found, cannot enrich title.");
+            return;
+        }
+        log.debug("found title for item: " + titleText);
+        titleText = PurchaseRequest.normalizeTitle(titleText);
+        log.debug("normalized title: " + titleText);
+        workflowService.enrich(purchaseRequest, EnrichmentType.TITLE, titleText);
+    }
+
+    private void enrichContributor(PurchaseRequest purchaseRequest, JsonObject bibRecord) {
+        if (purchaseRequest.getContributor() != null) {
+            log.debug("Contributor already present, skipping enrichment: " + purchaseRequest.getContributor());
+            return;
+        }
+
+        JsonObject contributorNode = bibRecord.getAsJsonObject("contributor");
+        if (contributorNode == null) {
+            log.debug("No contributorNode found, cannot enrich contributor.");
+            return;
+        }
+
+        JsonArray creators = contributorNode.getAsJsonArray("creators");
+        if (creators == null || creators.size() < 1) {
+            log.debug("No creators found, cannot enrich contributor.");
+            return;
+        }
+
+        JsonObject creator = creators.get(0).getAsJsonObject();
+        JsonObject firstName = creator.getAsJsonObject("firstName");
+        if (firstName == null) {
+            log.debug("No firstName found, cannot enrich contributor.");
+            return;
+        }
+        JsonObject secondName = creator.getAsJsonObject("secondName");
+        if (secondName == null) {
+            log.debug("No secondName found, cannot enrich contributor.");
+            return;
+        }
+        String contributor = firstName.get("text").getAsString() +
+            " " +
+            secondName.get("text").getAsString();
+        log.debug("found contributor for item: " + contributor);
+        workflowService.enrich(purchaseRequest, EnrichmentType.CONTRIBUTOR, contributor);
     }
 
 }

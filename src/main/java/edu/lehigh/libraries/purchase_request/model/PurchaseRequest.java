@@ -3,16 +3,17 @@ package edu.lehigh.libraries.purchase_request.model;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import edu.lehigh.libraries.purchase_request.model.validation.NoHtml;
+import edu.lehigh.libraries.purchase_request.model.validation.TitleOrIsbn;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @Getter @Setter @EqualsAndHashCode @ToString
+@TitleOrIsbn
 public class PurchaseRequest {
 
     public static final String MATCHING_CHARS_START = "^[";
@@ -45,11 +46,10 @@ public class PurchaseRequest {
     @NoHtml
     private String status;
 
-    @NotNull
     @NoHtml
     private String title;
     public void setTitle(String title) {
-        this.title = normalizeTitle(sanitize(title));
+        this.title = normalizeTitle(title);
     }
 
     @NoHtml
@@ -121,18 +121,16 @@ public class PurchaseRequest {
         return OCLC_NUMBER_PREFIX + oclcNumber;
     }
 
-    private String sanitize(String raw) {
-        if (raw == null) {
-            return null;
-        }
+    static private String sanitize(String raw) {
         // Remove any double-quotes
         return raw.replaceAll("\"", "");
     }
 
-    private String normalizeTitle(String raw) {
+    static public String normalizeTitle(String raw) {
         if (raw == null) {
             return null;
         }
+        raw = sanitize(raw);
         Matcher matcher = TRAILING_SLASH_PATTERN.matcher(raw);
         if (matcher.find()) {
             return matcher.group("BASE");
@@ -140,7 +138,7 @@ public class PurchaseRequest {
         return raw;
     }
 
-    private String normalizeContributor(String raw) {
+    static private String normalizeContributor(String raw) {
         if (raw == null) {
             return null;
         }

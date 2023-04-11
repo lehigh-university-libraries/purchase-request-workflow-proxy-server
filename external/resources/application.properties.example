@@ -75,6 +75,11 @@ workflow.restyaboard.board-id=1
 workflow.restyaboard.new-request-list-id=1
 
 
+# Core Data
+
+workflow.core-data.title.isbn-only-prefix=ISBN Only: 
+
+
 # Identifiers Enrichment
 
 workflow.identifiers=OCLC

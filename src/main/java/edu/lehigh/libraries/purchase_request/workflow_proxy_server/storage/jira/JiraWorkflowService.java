@@ -84,6 +84,8 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String MULTIPLE_LIBRARIANS_USERNAME;
     private String DEFAULT_REPORTER_USERNAME;
 
+    private String TITLE_ISBN_ONLY_PREFIX;
+
     public JiraWorkflowService(Config config) {
         super();
         this.config = config;
@@ -120,6 +122,8 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         MAX_SEARCH_RESULTS = config.getJira().getMaxSearchResults();
         MULTIPLE_LIBRARIANS_USERNAME = config.getJira().getMultipleLibrariansUsername();
         DEFAULT_REPORTER_USERNAME = config.getJira().getDefaultReporterUsername();
+
+        TITLE_ISBN_ONLY_PREFIX = config.getCoreData().getTitle().getIsbnOnlyPrefix();
     }
 
     private void initConnection() {
@@ -241,12 +245,20 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     private void setSummary(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
-        String title = purchaseRequest.getTitle();
-        if (title.length() > SUMMARY_MAX_LENGTH) {
-            log.info("Truncating title to " + SUMMARY_MAX_LENGTH + " characters: " + title);
-            title = title.substring(0, SUMMARY_MAX_LENGTH);
+        setSummary(issueBuilder, purchaseRequest.getTitle(), purchaseRequest.getIsbn());
+    }
+
+    private void setSummary(IssueInputBuilder issueBuilder, String title, String isbn) {
+        if (title != null) {
+            if (title.length() > SUMMARY_MAX_LENGTH) {
+                log.info("Truncating title to " + SUMMARY_MAX_LENGTH + " characters: " + title);
+                title = title.substring(0, SUMMARY_MAX_LENGTH);
+            }
+            issueBuilder.setSummary(title);
         }
-        issueBuilder.setSummary(title);
+        else {
+            issueBuilder.setSummary(TITLE_ISBN_ONLY_PREFIX + isbn);
+        }
     }
 
     private void setReporter(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
@@ -386,6 +398,12 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         else if (EnrichmentType.PRIORITY == type) {
             enrichPriority(purchaseRequest, (Long)data);
         }
+        else if (EnrichmentType.TITLE == type) {
+            enrichTitle(purchaseRequest, (String)data);
+        }
+        else if (EnrichmentType.CONTRIBUTOR == type) {
+            enrichContributor(purchaseRequest, (String)data);
+        }
         else {
             throw new IllegalArgumentException("Unknown enrichment type " + type);
         }
@@ -472,6 +490,20 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private void enrichPriority(PurchaseRequest purchaseRequest, Long priority) {
         IssueInput input = new IssueInputBuilder()
             .setPriorityId(priority)
+            .build();
+        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+    }
+
+    private void enrichTitle(PurchaseRequest purchaseRequest, String title) {
+        IssueInputBuilder inputBuilder = new IssueInputBuilder();
+        setSummary(inputBuilder, title, null);
+        IssueInput input = inputBuilder.build();
+        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+    }
+
+    private void enrichContributor(PurchaseRequest purchaseRequest, String contributor) {
+        IssueInput input = new IssueInputBuilder()
+            .setFieldValue(CONTRIBUTOR_FIELD_ID, contributor)
             .build();
         client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
     }

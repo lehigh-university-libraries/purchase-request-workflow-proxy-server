@@ -290,6 +290,12 @@ For use with `RestyaboardWorkflowService` implementation, connecting via Restyab
 | workflow.restyaboard.board-id | ID of the Restyaboard board to use for purchase requests.  The ID is in the URL when viewing the board. | If `workflow.storage` is `restyaboard` |
 | workflow.restyaboard.new-request-list-id | ID of the list to which new purchase requests should be added. Find the ID [via an API call](https://board.demo.restya.com/api_explorer/#!/lists/get_v1_boards_boardId_lists_json). | If `workflow.storage` is `restyaboard` | 
 
+### Core Data Section
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.core-data.title.isbn-only-prefix | If no title is provided, the ISBN will be used as the purchase request title, prefixed by this value. | Y |
+
 ### Identifiers Enrichment Section
 
 | Property | Description | Required |

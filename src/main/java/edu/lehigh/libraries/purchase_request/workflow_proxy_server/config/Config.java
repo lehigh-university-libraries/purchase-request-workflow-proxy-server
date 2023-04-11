@@ -57,6 +57,7 @@ public class Config {
 
     private Jira jira;
     private Restyaboard restyaboard;
+    private CoreData coreData;
     private Database db;
     private Oclc oclc;
     private LocalHoldings localHoldings;
@@ -316,6 +317,22 @@ public class Config {
 
     }
 
+    @Getter @Setter
+    public static class CoreData {
+
+        private Title title;
+
+        @Getter @Setter
+        public static class Title {
+
+            /**
+             * If no title is provided, the ISBN will be used as the purchase request title, 
+             * prefixed by this value.
+             */
+            private String isbnOnlyPrefix;
+
+        }    
+    }
 
     @Getter @Setter
     /**
