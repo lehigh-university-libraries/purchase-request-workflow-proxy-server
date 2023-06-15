@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -58,27 +59,32 @@ public class EnrichmentManager {
     }
  
     private void enrich(PurchaseRequest purchaseRequest, EnrichmentRequest repeatEnrichmentRequest) {
-        for (Map.Entry<Integer, List<EnrichmentService>> entry: enrichmentServices.entrySet()) {
-            List<EnrichmentService> listAtPriority = entry.getValue();
-            for (EnrichmentService service : listAtPriority) {
-                if (repeatEnrichmentRequest == null ||
-                    repeatEnrichmentRequest.getEnrichments().contains(service.getClass().getSimpleName())) {
-                    try {
-                        service.enrichPurchaseRequest(purchaseRequest);
+        try {
+            MDC.put("key", purchaseRequest.getKey());
+            for (Map.Entry<Integer, List<EnrichmentService>> entry: enrichmentServices.entrySet()) {
+                List<EnrichmentService> listAtPriority = entry.getValue();
+                for (EnrichmentService service : listAtPriority) {
+                    if (repeatEnrichmentRequest == null ||
+                        repeatEnrichmentRequest.getEnrichments().contains(service.getClass().getSimpleName())) {
+                        try {
+                            service.enrichPurchaseRequest(purchaseRequest);
 
-                        // get updated purchase request
-                        purchaseRequest = workflowService.findByKey(purchaseRequest.getKey());
-                    }
-                    catch (Exception e) {
-                        log.error("Caught exception during enrichment: ", e);
+                            // get updated purchase request
+                            purchaseRequest = workflowService.findByKey(purchaseRequest.getKey());
+                        }
+                        catch (Exception e) {
+                            log.error("Caught exception during enrichment: ", e);
+                        }
                     }
                 }
             }
+            log.debug("Done with all enrichment.");
+            if (repeatEnrichmentRequest == null) {
+                workflowService.initialEnrichmentComplete(purchaseRequest);
+            }
         }
-        log.debug("Done with all enrichment.");
-        if (repeatEnrichmentRequest == null) {
-            workflowService.initialEnrichmentComplete(purchaseRequest);
+        finally {
+            MDC.remove("key");
         }
     }
-
 }
