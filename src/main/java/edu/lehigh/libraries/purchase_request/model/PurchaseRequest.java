@@ -127,7 +127,7 @@ public class PurchaseRequest {
     }
 
     static public String normalizeTitle(String raw) {
-        if (raw == null) {
+        if (raw == null || raw.length() == 0) {
             return null;
         }
         raw = sanitize(raw);
@@ -139,7 +139,7 @@ public class PurchaseRequest {
     }
 
     static private String normalizeContributor(String raw) {
-        if (raw == null) {
+        if (raw == null || raw.length() == 0) {
             return null;
         }
         Matcher matcher = TRAILING_YEARS_PATTERN.matcher(raw);
