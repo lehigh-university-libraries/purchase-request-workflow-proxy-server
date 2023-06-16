@@ -60,6 +60,9 @@ public class PurchaseRequest {
 
     @Pattern(regexp = SANITIZED_ISBN_PATTERN)
     private String isbn;
+    public void setIsbn(String isbn) {
+        this.isbn = normalizeIsbn(isbn);
+    }
 
     @Pattern(regexp = SANITIZED_OCLC_NUMBER_PATTERN)
     private String oclcNumber;
@@ -145,6 +148,13 @@ public class PurchaseRequest {
         Matcher matcher = TRAILING_YEARS_PATTERN.matcher(raw);
         if (matcher.find()) {
             return matcher.group("BASE");
+        }
+        return raw;
+    }
+
+    static private String normalizeIsbn(String raw) {
+        if (raw == null || raw.length() == 0) {
+            return null;
         }
         return raw;
     }
