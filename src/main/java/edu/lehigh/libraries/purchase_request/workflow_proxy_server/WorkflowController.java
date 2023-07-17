@@ -72,6 +72,7 @@ public class WorkflowController {
         log.debug("Request: POST /purchase-requests " + purchaseRequest);
         purchaseRequest.setClientName(authentication.getName());
         PurchaseRequest savedRequest = service.save(purchaseRequest); 
+        log.debug("Saved Request: " + savedRequest);
         enrichmentManager.notifyNewPurchaseRequest(savedRequest);
 
         return new ResponseEntity<PurchaseRequest>(savedRequest, HttpStatus.CREATED);
