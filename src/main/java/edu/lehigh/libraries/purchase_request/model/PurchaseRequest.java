@@ -141,7 +141,7 @@ public class PurchaseRequest {
         return raw;
     }
 
-    static private String normalizeContributor(String raw) {
+    static public String normalizeContributor(String raw) {
         if (raw == null || raw.length() == 0) {
             return null;
         }
@@ -152,7 +152,7 @@ public class PurchaseRequest {
         return raw;
     }
 
-    static private String normalizeIsbn(String raw) {
+    static public String normalizeIsbn(String raw) {
         if (raw == null || raw.length() == 0) {
             return null;
         }
