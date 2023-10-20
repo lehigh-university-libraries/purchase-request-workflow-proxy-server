@@ -202,6 +202,10 @@ public class IsbnDbTitlePricingEnrichment extends IsbnDbPricingEnrichment {
 
         @Override
         public int compare(String binding1, String binding2) {
+            if (binding1 == null && binding2 == null) return 0;
+            if (binding1 == null) return 1;
+            if (binding2 == null) return -1;
+
             // Sort hardcovers at the top
             if (!Objects.equals(binding1, binding2)) {
                 if (HARDCOVER.equals(binding1)) {
