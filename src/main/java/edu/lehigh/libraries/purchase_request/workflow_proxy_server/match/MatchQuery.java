@@ -25,7 +25,7 @@ public class MatchQuery {
     @NoHtml
     private String isbn;
     public void setIsbn(String isbn) {
-        this.isbn = PurchaseRequest.normalizeIsbn(isbn);
+        this.isbn = PurchaseRequest.normalizeString(isbn);
     }
 
 }

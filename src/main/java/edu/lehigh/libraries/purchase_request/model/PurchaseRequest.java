@@ -61,7 +61,7 @@ public class PurchaseRequest {
     @Pattern(regexp = SANITIZED_ISBN_PATTERN)
     private String isbn;
     public void setIsbn(String isbn) {
-        this.isbn = normalizeIsbn(isbn);
+        this.isbn = normalizeString(isbn);
     }
 
     @Pattern(regexp = SANITIZED_OCLC_NUMBER_PATTERN)
@@ -93,6 +93,9 @@ public class PurchaseRequest {
 
     @NoHtml
     private String requesterComments;
+    public void setRequesterComments(String requesterComments) {
+        this.requesterComments = normalizeString(requesterComments);
+    }
 
     @NoHtml
     private String requesterInfo;
@@ -152,10 +155,11 @@ public class PurchaseRequest {
         return raw;
     }
 
-    static public String normalizeIsbn(String raw) {
+    static public String normalizeString(String raw) {
         if (raw == null || raw.length() == 0) {
             return null;
         }
+        raw = sanitize(raw);
         return raw;
     }
 
