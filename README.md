@@ -35,7 +35,7 @@ The `WorkflowService` interface defines a system that stores purchase requests a
 
 Supplied implementations:
 
-- `JiraWorkflowService` supports both Jira Cloud (which offers a free tier that should suit this use case) and locally-hosted Jira Server.  Out-of-the-box, this supports simple manual decision making, such as using a Kanban board to drag a request from a New column to one representing Approved requests.  Jira workflows can also support automatic decision-making based on the metadata of the request.
+- `JiraWorkflowService` supports both Jira Cloud (which offers a free tier that should suit this use case).  Out-of-the-box, this supports simple manual decision making, such as using a Kanban board to drag a request from a New column to one representing Approved requests.  Jira workflows can also support automatic decision-making based on the metadata of the request.  `JiraWorkflowService` does not support the discontinued Jira Server product.
 
 - `RestyaboardWorkflowService` supports the Restyaboard Kanban board software.  This is provided as an open source alternative to Jira for a simple, manual workflow.
 
@@ -231,9 +231,10 @@ Keep these properties as-is in your `application.config`:
 
 For use with `JiraWorkflowService` implementation, connecting via Jira's API as the purchase requests storage and workflow engine.
 
+Note: In order for Jira users to be set as the reporter or assignee of an issue, that user must already be an existing reporter, assignee or commenter of some issue in the configured Jira project.  This is a limitation due to new restrictions from Jira's GDPR protections, and will hopefully go away once a solution is found.
+
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.jira.hosting | `cloud` or `server`, depending on the [Jira software deployment](https://www.atlassian.com/blog/platform/cloud-vs-server).  The [free cloud plan](https://www.atlassian.com/software/jira/free) should be sufficient for this app. | If `workflow.storage` is `jira` |
 | workflow.jira.url | URL for the Jira API | If `workflow.storage` is `jira` |
 | workflow.jira.username | Username for the Jira API | If `workflow.storage` is `jira` |
 | workflow.jira.token | [API token](https://support.atlassian.com/atlassian-account/docs/manage-api-tokens-for-your-atlassian-account/) for the Jira account | If `workflow.storage` is `jira` |

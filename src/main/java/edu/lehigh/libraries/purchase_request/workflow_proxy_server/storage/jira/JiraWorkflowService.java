@@ -1,41 +1,22 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.jira;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
-import com.atlassian.httpclient.api.HttpStatus;
-import com.atlassian.httpclient.api.Request.Builder;
-import com.atlassian.jira.rest.client.api.AuthenticationHandler;
-import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.JiraRestClientFactory;
-import com.atlassian.jira.rest.client.api.RestClientException;
-import com.atlassian.jira.rest.client.api.domain.Comment;
-import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.IssueField;
-import com.atlassian.jira.rest.client.api.domain.SearchResult;
-import com.atlassian.jira.rest.client.api.domain.User;
-import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
-import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
-import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
-import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
-
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.utils.URIBuilder;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.model.SearchQuery;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.JiraConnection;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.AbstractWorkflowService;
 import lombok.extern.slf4j.Slf4j;
@@ -46,17 +27,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class JiraWorkflowService extends AbstractWorkflowService {
 
-    private JiraRestClient client;
+    private JiraConnection client;
     private Config config;
 
-    private static final String 
-        HOSTING_CLOUD = "cloud",
-        HOSTING_SERVER = "server";
     private static final int SUMMARY_MAX_LENGTH = 254;
 
     private String REQUEST_TYPE_FIELD_ID = "labels";
 
-    private String HOSTING;
     private String PROJECT_CODE;
     private String CONTRIBUTOR_FIELD_ID;
     private String ISBN_FIELD_ID;
@@ -66,7 +43,6 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String SPEED_FIELD_ID;
     private String DESTINATION_FIELD_ID;
     private String CLIENT_NAME_FIELD_ID;
-    private String REPORTER_NAME_FIELD_ID;
     private String REQUESTER_USERNAME_FIELD_ID;
     private String REQUESTER_INFO_FIELD_ID;
     private String FUND_CODE_FIELD_ID;
@@ -91,11 +67,11 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         this.config = config;
         initMetadata();
         initConnection();
+        initUsers();
         log.debug("JiraWorkflowService ready.");
     }
 
     private void initMetadata() {
-        HOSTING = config.getJira().getHosting();
         PROJECT_CODE = config.getJira().getProject();
         CONTRIBUTOR_FIELD_ID = config.getJira().getContributorFieldId();
         ISBN_FIELD_ID = config.getJira().getIsbnFieldId();
@@ -105,7 +81,6 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         SPEED_FIELD_ID = config.getJira().getSpeedFieldId();
         DESTINATION_FIELD_ID = config.getJira().getDestinationFieldId();
         CLIENT_NAME_FIELD_ID = config.getJira().getClientNameFieldId();
-        REPORTER_NAME_FIELD_ID = config.getJira().getReporterNameFieldId();
         REQUESTER_USERNAME_FIELD_ID = config.getJira().getRequesterUsernameFieldId();
         REQUESTER_INFO_FIELD_ID = config.getJira().getRequesterInfoFieldId();
         FUND_CODE_FIELD_ID = config.getJira().getFundCodeFieldId();
@@ -127,47 +102,31 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     private void initConnection() {
-        if (HOSTING_CLOUD.equals(HOSTING)) {
-            initCloudConnection();
-        }
-        else if (HOSTING_SERVER.equals(HOSTING)) {
-            initServerConnection();
-        }
-        else {
-            log.error("Unknown hosting environment: " + HOSTING);
-        }
+        this.client = new JiraConnection(this.config);
     }
 
-    private void initCloudConnection() {
-        String url = config.getJira().getUrl();
-        String username = config.getJira().getUsername();
-        String password = config.getJira().getToken();
+    Map<String, String> userEmailToAccountId;
 
-        JiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
+    private void initUsers() {
+        userEmailToAccountId = new HashMap<String, String>();
+        JsonObject response;
         try {
-            URI uri = new URI(url);
-            client = factory.createWithBasicHttpAuthentication(uri, username, password);
+            response = client.executeGet("user/search/query", Map.of(
+                "query", "is assignee of " + PROJECT_CODE + 
+                    " or is commenter of " + PROJECT_CODE +
+                    " or is reporter of " + PROJECT_CODE
+            ));
         }
-        catch (URISyntaxException e) {
-            e.printStackTrace();
+        catch (Exception e) {
+            throw new RuntimeException(e);
         }
-    }
-
-    private void initServerConnection() {
-        String url = config.getJira().getUrl();
-        String token = config.getJira().getToken();
-
-        JiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-        try {
-            URI uri = new URI(url);
-            client = factory.create(uri, new AuthenticationHandler() {
-                public void configure(Builder builder) {
-                    builder.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
-                }
-            });
-        }
-        catch (URISyntaxException e) {
-            e.printStackTrace();
+        JsonArray users = response.get("values").getAsJsonArray();        
+        for (JsonElement userElement : users) {
+            JsonObject user = userElement.getAsJsonObject();
+            userEmailToAccountId.put(
+                user.get("emailAddress").getAsString(),
+                user.get("accountId").getAsString()
+            );
         }
     }
 
@@ -179,22 +138,20 @@ public class JiraWorkflowService extends AbstractWorkflowService {
 
     @Override
     public PurchaseRequest findByKey(String key) {
-        Issue issue = getByKey(key);
+        JsonObject issue = getByKey(key);
         if (issue == null) {
             return null;
         }
         return toPurchaseRequest(issue);
     }
 
-    private Issue getByKey(String key) {
+    private JsonObject getByKey(String key) {
         try {
-            return client.getIssueClient().getIssue(key).claim();
+            return client.executeGet("issue/" + key);
         }
-        catch (RestClientException ex) {
-            if (ex.getStatusCode().get() == HttpStatus.NOT_FOUND.code) {
-                return null;
-            }
-            throw ex;
+        catch (Exception ex) {
+            log.error("Error in getByKey", ex);
+            return null;
         }
     }
 
@@ -205,63 +162,85 @@ public class JiraWorkflowService extends AbstractWorkflowService {
 
     @Override
     public PurchaseRequest save(PurchaseRequest purchaseRequest) {
-        IssueInputBuilder issueBuilder = new IssueInputBuilder(PROJECT_CODE, config.getJira().getIssueTypeId());        
-        setSummary(issueBuilder, purchaseRequest);
+        JsonObject issue = new JsonObject();
+        JsonObject fields = new JsonObject();
+        fields.add("project", createStringObject("key", PROJECT_CODE));
+        fields.add("issuetype", createStringObject("id", Long.toString(config.getJira().getIssueTypeId())));
+        setSummary(fields, purchaseRequest);
    
         // Set basic fields
-        issueBuilder.setFieldValue(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
-        issueBuilder.setFieldValue(ISBN_FIELD_ID, purchaseRequest.getIsbn());
-        issueBuilder.setFieldValue(OCLC_NUMBER_FIELD_ID, purchaseRequest.getOclcNumber());
-        issueBuilder.setFieldValue(CALL_NUMBER_FIELD_ID, purchaseRequest.getCallNumber());
-        issueBuilder.setFieldValue(FORMAT_FIELD_ID, purchaseRequest.getFormat());
-        issueBuilder.setFieldValue(SPEED_FIELD_ID, purchaseRequest.getSpeed());
-        issueBuilder.setFieldValue(DESTINATION_FIELD_ID, purchaseRequest.getDestination());
-        issueBuilder.setFieldValue(CLIENT_NAME_FIELD_ID, purchaseRequest.getClientName());
-        issueBuilder.setFieldValue(REQUESTER_USERNAME_FIELD_ID, purchaseRequest.getRequesterUsername());
-        issueBuilder.setFieldValue(REQUESTER_INFO_FIELD_ID, purchaseRequest.getRequesterInfo());
+        fields.addProperty(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
+        fields.addProperty(ISBN_FIELD_ID, purchaseRequest.getIsbn());
+        fields.addProperty(OCLC_NUMBER_FIELD_ID, purchaseRequest.getOclcNumber());
+        fields.addProperty(CALL_NUMBER_FIELD_ID, purchaseRequest.getCallNumber());
+        fields.addProperty(FORMAT_FIELD_ID, purchaseRequest.getFormat());
+        fields.addProperty(SPEED_FIELD_ID, purchaseRequest.getSpeed());
+        fields.addProperty(DESTINATION_FIELD_ID, purchaseRequest.getDestination());
+        fields.addProperty(CLIENT_NAME_FIELD_ID, purchaseRequest.getClientName());
+        fields.addProperty(REQUESTER_USERNAME_FIELD_ID, purchaseRequest.getRequesterUsername());
+        fields.addProperty(REQUESTER_INFO_FIELD_ID, purchaseRequest.getRequesterInfo());
 
         // Set conditional fields
-        if (purchaseRequest.getLibrarianUsername() != null && userExists(purchaseRequest.getLibrarianUsername())) {
-            issueBuilder.setAssigneeName(purchaseRequest.getLibrarianUsername());
-        }
-        setReporter(issueBuilder, purchaseRequest);
-        setRequestType(issueBuilder, purchaseRequest);
+        setAssignee(fields, purchaseRequest);
+        setReporter(fields, purchaseRequest);
+        setRequestType(fields, purchaseRequest);
         if (purchaseRequest.getRequesterComments() != null) {            
-            issueBuilder.setDescription("Patron Comment: " + purchaseRequest.getRequesterComments());        
+            fields.addProperty("description", purchaseRequest.getRequesterComments());  
         }
+        issue.add("fields", fields);
 
         // Save stub issue
-        String key = client.getIssueClient().createIssue(issueBuilder.build()).claim().getKey();
-        Issue issue = getByKey(key);
-        PurchaseRequest createdRequest = toPurchaseRequest(issue);
+        JsonObject response;
+        try {
+            response = client.executePost("issue", issue);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        String key = response.get("key").getAsString();
+        JsonObject createdIssue = getByKey(key);
+        PurchaseRequest createdRequest = toPurchaseRequest(createdIssue);
 
         // Set status if appropriate
         if (purchaseRequest.getStatus() != null) {
-            setInitialStatus(purchaseRequest, issue.getTransitionsUri());
+            setInitialStatus(purchaseRequest);
             createdRequest = findByKey(key);
         }
 
         return createdRequest;
     }
 
-    private void setSummary(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
-        setSummary(issueBuilder, purchaseRequest.getTitle(), purchaseRequest.getIsbn());
+    private void setSummary(JsonObject fields, PurchaseRequest purchaseRequest) {
+        setSummary(fields, purchaseRequest.getTitle(), purchaseRequest.getIsbn());
     }
 
-    private void setSummary(IssueInputBuilder issueBuilder, String title, String isbn) {
+    private void setSummary(JsonObject fields, String title, String isbn) {
         if (title != null) {
             if (title.length() > SUMMARY_MAX_LENGTH) {
                 log.info("Truncating title to " + SUMMARY_MAX_LENGTH + " characters: " + title);
                 title = title.substring(0, SUMMARY_MAX_LENGTH);
             }
-            issueBuilder.setSummary(title);
+            fields.addProperty("summary", title);
         }
         else {
-            issueBuilder.setSummary(TITLE_ISBN_ONLY_PREFIX + isbn);
+            fields.addProperty("summary", TITLE_ISBN_ONLY_PREFIX + isbn);
         }
     }
 
-    private void setReporter(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
+    private void setAssignee(JsonObject fields, PurchaseRequest purchaseRequest) {
+        String assigneeName = purchaseRequest.getLibrarianUsername();
+        if (assigneeName == null) {
+            return;
+        }
+
+        String assigneeId = userEmailToAccountId.get(usernameToEmail(assigneeName));
+        if (assigneeId == null) {
+            log.error("Setting assignee fails, no user exists: " + assigneeName);
+            return;
+        }
+        fields.add("reporter", createStringObject("id", assigneeId));
+    }
+
+    private void setReporter(JsonObject fields, PurchaseRequest purchaseRequest) {
         String reporterName = purchaseRequest.getReporterName();
         if (reporterName == null) {
             if (DEFAULT_REPORTER_USERNAME != null) {
@@ -269,60 +248,70 @@ public class JiraWorkflowService extends AbstractWorkflowService {
                 reporterName = DEFAULT_REPORTER_USERNAME;
             }
             else {
-                log.debug("Cannot set reporter, null");
+                log.error("Cannot set reporter, null");
                 return;
             }
         }
-        
-        if (HOSTING_CLOUD.equals(HOSTING)) {
-            issueBuilder.setFieldValue(REPORTER_NAME_FIELD_ID, reporterName);
+
+        String reporterId = userEmailToAccountId.get(usernameToEmail(reporterName));
+        if (reporterId == null) {
+            log.warn("Unknown reporter, so using default reporter: " + DEFAULT_REPORTER_USERNAME);
+            reporterId = userEmailToAccountId.get(usernameToEmail(DEFAULT_REPORTER_USERNAME));
         }
-        else if (HOSTING_SERVER.equals(HOSTING)) {
-            if (userExists(reporterName)) {
-                issueBuilder.setReporterName(reporterName);
-            }
-            else {
-                log.warn("Tried to setReporter on unknown username: " + reporterName);
-            }
-        }
-        else {
-            throw new IllegalArgumentException("Unknown hosting environment: " + HOSTING);
-        }
+
+        fields.add("reporter", createStringObject("id", reporterId));
     }
 
-    private void setRequestType(IssueInputBuilder issueBuilder, PurchaseRequest purchaseRequest) {
+    private String usernameToEmail(String username) {
+        if (username.contains("@")) {
+            return username;
+        }
+        return username + "@" + config.getEmail().getAddressDomain();
+    }
+
+    private void setRequestType(JsonObject issue, PurchaseRequest purchaseRequest) {
         String requestType = purchaseRequest.getRequestType();
         if (requestType == null) {
             return;
         }
 
-        issueBuilder.setFieldValue(REQUEST_TYPE_FIELD_ID, List.of(requestType));
+        JsonArray labels = new JsonArray();
+        labels.add(requestType);
+        issue.add(REQUEST_TYPE_FIELD_ID, labels);
     }
 
-    private void setInitialStatus(PurchaseRequest purchaseRequest, URI transitionsUri) {
-        TransitionInput transitionInput = null;
+    private void setInitialStatus(PurchaseRequest purchaseRequest) {
+        Integer transitionId;
         if (DEFERRED_STATUS_NAME != null && DEFERRED_STATUS_NAME.equals(purchaseRequest.getStatus())) {
-            transitionInput = new TransitionInput(DEFERRED_STATUS_TRANSITION_ID);
+            transitionId = DEFERRED_STATUS_TRANSITION_ID;
         }
         else if (APPROVED_STATUS_NAME.equals(purchaseRequest.getStatus())) {
-            transitionInput = new TransitionInput(APPROVED_STATUS_TRANSITION_ID);
+            transitionId = APPROVED_STATUS_TRANSITION_ID;
         }
         else {
             return;
         }
 
+        JsonObject transition = createObject("transition", createStringObject("id", Integer.toString(transitionId)));
         log.info("Setting initial status to " + purchaseRequest.getStatus());
-        client.getIssueClient().transition(transitionsUri, transitionInput).claim(); 
+        try {
+            client.executePost("issue/" + purchaseRequest.getKey() + "transitions", transition);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private boolean userExists(String username) {
-        try {
-            client.getUserClient().getUser(username).claim();
-        }
-        catch (RestClientException e) {
-            return false;
-        }
-        return true;
+    private JsonObject createObject(String key, JsonElement value) {
+        JsonObject obj = new JsonObject();
+        obj.add(key, value);
+        return obj;
+    }
+
+    private JsonObject createStringObject(String key, String value) {
+        JsonObject obj = new JsonObject();
+        obj.addProperty(key, value);
+        return obj;
     }
 
     @Override
@@ -332,38 +321,29 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             jql += " and " + "isbn ~ '" + query.getIsbn() + "' ";
         }
         if (query.getReporterName() != null) {
-            if (HOSTING_CLOUD.equals(HOSTING)) {
-                jql += " and " + formatCustomFieldIdForQuery(REPORTER_NAME_FIELD_ID) + " ~ '" + query.getReporterName() + "' ";
-            }
-            else if (HOSTING_SERVER.equals(HOSTING)) {
-                jql += " and " + "reporter = '" + query.getReporterName() + "' ";
-            }
-            else {
-                throw new IllegalArgumentException("Unknown hosting environment: " + HOSTING);
-            }
+            String reporterEmail = usernameToEmail(query.getReporterName());
+            jql += " and " + "reporter" + "='" + reporterEmail + "' ";
         }
         jql += "order by created DESC";
         log.debug("jql: " + jql);
         return searchJql(jql);
     }
 
-    /**
-     * Translate to custom field ID format used in JQL.
-     * 
-     * i.e. from "customfield_12345" to "cf[12345]"
-     */
-    private String formatCustomFieldIdForQuery(String customFieldId) {
-        return "cf[" + customFieldId.replaceAll("[\\D]*", "") + "]";
-    }
-
     private List<PurchaseRequest> searchJql(String jql) {
-        SearchResult result = client.getSearchClient().searchJql(jql, MAX_SEARCH_RESULTS, null, null).claim();
-        List<PurchaseRequest> list = new LinkedList<PurchaseRequest>();
-        result.getIssues().forEach((issue) -> {
-            PurchaseRequest purchaseRequest = toPurchaseRequest(issue);
-            list.add(purchaseRequest);
-        });
-        return list;
+        try {
+            JsonObject result = client.executeGet("search", Map.of(
+                "jql", jql,
+                "maxResults", MAX_SEARCH_RESULTS.toString()
+            ));
+            List<PurchaseRequest> list = new LinkedList<PurchaseRequest>();
+            result.getAsJsonArray("issues").forEach((issue) -> {
+                PurchaseRequest purchaseRequest = toPurchaseRequest(issue.getAsJsonObject());
+                list.add(purchaseRequest);
+            });
+            return list;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override
@@ -410,41 +390,27 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     private void enrichComment(PurchaseRequest purchaseRequest, String message) {
-        URI uri;
-        String baseUrl = config.getJira().getUrl();
+        JsonObject comment = new JsonObject();
+        comment.addProperty("body", message);
         try {
-            uri = new URIBuilder(baseUrl)
-                .setPath("rest/api/2/issue/" + purchaseRequest.getId() + "/comment")
-                .build();
+            client.executePost("issue/" + purchaseRequest.getKey() + "/comment", comment, 2);
         }
-        catch (URISyntaxException e) {
-            log.error("URI Syntax Exception when trying to enrich comment. ", e);
-            return;
+        catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        Comment comment = Comment.valueOf(message);
-        client.getIssueClient().addComment(uri, comment).claim();
         log.debug("Added comment");
     }
 
     private void enrichOclcNumber(PurchaseRequest purchaseRequest, String oclcNumber) {
-        IssueInput input = new IssueInputBuilder()
-            .setFieldValue(OCLC_NUMBER_FIELD_ID, oclcNumber)
-            .build();
-        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+        enrichField(purchaseRequest, OCLC_NUMBER_FIELD_ID, oclcNumber);
     }
 
     private void enrichCallNumber(PurchaseRequest purchaseRequest, String callNumber) {
-        IssueInput input = new IssueInputBuilder()
-            .setFieldValue(CALL_NUMBER_FIELD_ID, callNumber)
-            .build();
-        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+        enrichField(purchaseRequest, CALL_NUMBER_FIELD_ID, callNumber);
     }
 
     private void enrichRequesterInfo(PurchaseRequest purchaseRequest, String requesterInfo) {
-        IssueInput input = new IssueInputBuilder()
-            .setFieldValue(REQUESTER_INFO_FIELD_ID, requesterInfo)
-            .build();
-        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+        enrichField(purchaseRequest, REQUESTER_INFO_FIELD_ID, requesterInfo);
     }
 
     @SuppressWarnings("unchecked")
@@ -462,167 +428,221 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             username = MULTIPLE_LIBRARIANS_USERNAME;
         }
 
-        if (!userExists(username)) {
+        String userId = userEmailToAccountId.get(usernameToEmail(username));
+        if (userId == null) {
             log.error("Enriching assignee fails, no user exists: " + username);
             return;
         }
 
-        IssueInput input = new IssueInputBuilder()
-            .setAssigneeName(username)
-            .build();
-        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+        enrichField(purchaseRequest, "assignee", createStringObject("id", userId));
     }
 
     private void enrichFundCode(PurchaseRequest purchaseRequest, String fundCode) {
-        IssueInput input = new IssueInputBuilder()
-            .setFieldValue(FUND_CODE_FIELD_ID, fundCode)
-            .build();
-        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+        enrichField(purchaseRequest, FUND_CODE_FIELD_ID, fundCode);
     }
 
-    private void enrichObjectCode(PurchaseRequest purchaseRequest, String objetCode) {
-        IssueInput input = new IssueInputBuilder()
-            .setFieldValue(OBJECT_CODE_FIELD_ID, objetCode)
-            .build();
-        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+    private void enrichObjectCode(PurchaseRequest purchaseRequest, String objectCode) {
+        enrichField(purchaseRequest, OBJECT_CODE_FIELD_ID, objectCode);
     }
 
     private void enrichPriority(PurchaseRequest purchaseRequest, Long priority) {
-        IssueInput input = new IssueInputBuilder()
-            .setPriorityId(priority)
-            .build();
-        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+        enrichField(purchaseRequest, "priority", createStringObject("id", Long.toString(priority)));
     }
 
     private void enrichTitle(PurchaseRequest purchaseRequest, String title) {
-        IssueInputBuilder inputBuilder = new IssueInputBuilder();
-        setSummary(inputBuilder, title, null);
-        IssueInput input = inputBuilder.build();
-        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+        JsonObject issueChanges = new JsonObject();
+        JsonObject fields = new JsonObject();
+        setSummary(fields, title, null);
+        issueChanges.add("fields", fields);
+        updateIssue(purchaseRequest, issueChanges);
     }
 
     private void enrichContributor(PurchaseRequest purchaseRequest, String contributor) {
-        IssueInput input = new IssueInputBuilder()
-            .setFieldValue(CONTRIBUTOR_FIELD_ID, contributor)
-            .build();
-        client.getIssueClient().updateIssue(purchaseRequest.getKey(), input).claim();
+        enrichField(purchaseRequest, CONTRIBUTOR_FIELD_ID, contributor);
     }
 
     @Override
     public PurchaseRequest addComment(PurchaseRequest purchaseRequest, PurchaseRequest.Comment comment) {
         enrichComment(purchaseRequest, comment.getText());
 
-        Issue issue = getByKey(purchaseRequest.getKey());
+        JsonObject issue = getByKey(purchaseRequest.getKey());
         PurchaseRequest updatedRequest = toPurchaseRequest(issue);
         return updatedRequest;
     }
 
-    private PurchaseRequest toPurchaseRequest(Issue issue) {
+    private void enrichField(PurchaseRequest purchaseRequest, String fieldName, JsonElement value) {
+        JsonObject issueChanges = new JsonObject();
+        JsonObject fields = new JsonObject();
+        fields.add(fieldName, value);
+        issueChanges.add("fields", fields);
+        updateIssue(purchaseRequest, issueChanges);
+    }
+
+    private void enrichField(PurchaseRequest purchaseRequest, String fieldName, String value) {
+        JsonObject issueChanges = new JsonObject();
+        JsonObject fields = new JsonObject();
+        fields.addProperty(fieldName, value);
+        issueChanges.add("fields", fields);
+        updateIssue(purchaseRequest, issueChanges);
+    }
+
+    private void updateIssue(PurchaseRequest purchaseRequest, JsonObject issueChanges) {
+        try {
+            client.executePut("issue/" + purchaseRequest.getKey(), issueChanges);
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private PurchaseRequest toPurchaseRequest(JsonObject issue) {
         PurchaseRequest purchaseRequest = new PurchaseRequest();
-        purchaseRequest.setKey(issue.getKey());
-        purchaseRequest.setId(issue.getId());
-        purchaseRequest.setStatus(issue.getStatus().getName());
-        purchaseRequest.setTitle(issue.getSummary());
-        purchaseRequest.setContributor(getStringValue(issue.getField(CONTRIBUTOR_FIELD_ID)));
-        purchaseRequest.setIsbn(getStringValue(issue.getField(ISBN_FIELD_ID)));
-        purchaseRequest.setOclcNumber(getStringValue(issue.getField(OCLC_NUMBER_FIELD_ID)));
-        purchaseRequest.setCallNumber(getStringValue(issue.getField(CALL_NUMBER_FIELD_ID)));
-        purchaseRequest.setFormat(getStringValue(issue.getField(FORMAT_FIELD_ID)));
-        purchaseRequest.setSpeed(getStringValue(issue.getField(SPEED_FIELD_ID)));
-        purchaseRequest.setDestination(getStringValue(issue.getField(DESTINATION_FIELD_ID)));
-        purchaseRequest.setClientName(getStringValue(issue.getField(CLIENT_NAME_FIELD_ID)));
-        purchaseRequest.setRequestType(getRequestType(issue));
-        purchaseRequest.setRequesterUsername(getStringValue(issue.getField(REQUESTER_USERNAME_FIELD_ID)));
-        purchaseRequest.setRequesterInfo(getStringValue(issue.getField(REQUESTER_INFO_FIELD_ID)));
-        purchaseRequest.setRequesterComments(issue.getDescription());
-        purchaseRequest.setLibrarianUsername(getUsername(issue.getAssignee()));
-        purchaseRequest.setFundCode(getStringValue(issue.getField(FUND_CODE_FIELD_ID)));
-        purchaseRequest.setObjectCode(getStringValue(issue.getField(OBJECT_CODE_FIELD_ID)));
-        purchaseRequest.setPostRequestComments(getComments(issue));
-        purchaseRequest.setPostPurchaseId(getStringValue(issue.getField(POST_PURCHASE_ID_FIELD_ID)));
-        purchaseRequest.setDecisionReason(getStringValue(issue.getField(DECISION_REASON_FIELD_ID)));
-        purchaseRequest.setCreationDate(formatDateTime(issue.getCreationDate()));
-        purchaseRequest.setUpdateDate(formatDateTime(issue.getUpdateDate()));
+        purchaseRequest.setKey(issue.get("key").getAsString());
+        purchaseRequest.setId(issue.get("id").getAsLong());
+        purchaseRequest.setStatus(getIssueStatusName(issue));
+        purchaseRequest.setTitle(getStringValue(issue, "summary"));
+        purchaseRequest.setContributor(getStringValue(issue, CONTRIBUTOR_FIELD_ID));
+        purchaseRequest.setIsbn(getStringValue(issue, ISBN_FIELD_ID));
+        purchaseRequest.setOclcNumber(getStringValue(issue, OCLC_NUMBER_FIELD_ID));
+        purchaseRequest.setCallNumber(getStringValue(issue, CALL_NUMBER_FIELD_ID));
+        purchaseRequest.setFormat(getStringValue(issue, FORMAT_FIELD_ID));
+        purchaseRequest.setSpeed(getStringValue(issue, SPEED_FIELD_ID));
+        purchaseRequest.setDestination(getStringValue(issue, DESTINATION_FIELD_ID));
+        purchaseRequest.setClientName(getStringValue(issue, CLIENT_NAME_FIELD_ID));
+        purchaseRequest.setRequestType(getIssueRequestType(issue));
+        purchaseRequest.setRequesterUsername(getStringValue(issue, REQUESTER_USERNAME_FIELD_ID));
+        purchaseRequest.setRequesterInfo(getStringValue(issue, REQUESTER_INFO_FIELD_ID));
+        purchaseRequest.setRequesterComments(getIssueRequesterComments(issue));
+        purchaseRequest.setLibrarianUsername(getIssueAssignee(issue));
+        purchaseRequest.setFundCode(getStringValue(issue, FUND_CODE_FIELD_ID));
+        purchaseRequest.setObjectCode(getStringValue(issue, OBJECT_CODE_FIELD_ID));
+        purchaseRequest.setPostRequestComments(getIssueComments(issue));
+        purchaseRequest.setPostPurchaseId(getStringValue(issue, POST_PURCHASE_ID_FIELD_ID));
+        purchaseRequest.setDecisionReason(getStringValue(issue, DECISION_REASON_FIELD_ID));
+        purchaseRequest.setCreationDate(getStringValue(issue, "created"));
+        purchaseRequest.setUpdateDate(getStringValue(issue, "updated"));
         return purchaseRequest;
     }
 
-    private String getStringValue(IssueField field) {
-        if (field == null) {
+    private String getStringValue(JsonObject issue, String fieldName) {
+        JsonObject fields = issue.get("fields").getAsJsonObject();
+        JsonElement value = fields.get(fieldName);
+        if (value.isJsonNull()) {
+            return null;
+        }
+        else if (value.isJsonPrimitive()) {
+            return value.getAsString();
+        }
+        else if (value.isJsonObject()) {
+            // Jira drop-down field values are JSONObjects with a 'value' String within
+            return value.getAsJsonObject().get("value").getAsString();
+        }
+        else {
+            throw new RuntimeException("What kind of value is this? " + value);
+        }
+    }
+
+    private String getIssueStatusName(JsonObject issue) {
+        JsonObject status = issue.getAsJsonObject("fields")
+            .getAsJsonObject("status");
+        return status.get("name").getAsString();
+    }
+
+    private Long getIssueStatusId(JsonObject issue) {
+        JsonObject status = issue.getAsJsonObject("fields")
+            .getAsJsonObject("status");
+        return status.get("id").getAsLong();
+    }
+
+    private String getIssueRequestType(JsonObject issue) {
+        JsonObject fields = issue.get("fields").getAsJsonObject();
+        JsonArray labels = fields.getAsJsonArray("labels");
+        if (labels.size() == 0) {
             return null;
         }
 
-        Object value = field.getValue();
-        if (value == null) {
-            return null;
-        }
+        return labels.get(0).getAsString();
+    }
 
-        // Jira text field values are simple strings
-        if (value instanceof String) {
-            return (String)value;
-        }
+    private String getIssueRequesterComments(JsonObject issue) {
+        JsonElement descriptionElement = issue.get("fields").getAsJsonObject()
+            .get("description");
+        if (descriptionElement.isJsonNull()) return null;
+        JsonObject description = descriptionElement.getAsJsonObject();
+        return getAtlassianDocumentText(description);
+    }
 
-        // Jira drop-down field values are JSONObjects with a 'value' String within
-        JSONObject jsonObject = (JSONObject)value;
+    private String getIssueAssignee(JsonObject issue) {
         try {
-            return jsonObject.getString("value");
-        } catch (JSONException e) {
-            log.error("Could not read value field from JSON object: ", jsonObject);
+            JsonElement assigneeElement = issue.get("fields").getAsJsonObject()
+                .get("assignee");
+            if (assigneeElement.isJsonNull()) {
+                return null;
+            }
+            return assigneeElement.getAsJsonObject()
+                .get("emailAddress").getAsString();
+        }
+        catch (IllegalStateException e) {
+            log.debug("IllegalStateException in getIssueAssignee", e);
             return null;
         }
     }
 
-    private String getRequestType(Issue issue) {
-        Set<String> labels = issue.getLabels();
-        if (labels == null || labels.size() == 0) {
-            return null;
-        }
-
-        return labels.iterator().next();
-    }
-
-    private String getUsername(User user) {
-        if (user == null) {
-            return null;
-        }
-
-        return user.getName();
-    }
-
-    private String formatDateTime(DateTime dateTime) {
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd hh:mm:ss aa");
-        return fmt.print(dateTime);
-    }
-
-    private List<PurchaseRequest.Comment> getComments(Issue issue) {
+    private List<PurchaseRequest.Comment> getIssueComments(JsonObject issue) {
         List<PurchaseRequest.Comment> prComments = new LinkedList<PurchaseRequest.Comment>();
-        for (Comment comment : issue.getComments()) {
+        JsonObject response;
+        try {
+            response = client.executeGet("issue/" + issue.get("key").getAsString() + "/comment");
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        JsonArray comments = response.get("comments").getAsJsonArray();
+        for (JsonElement commentElement : comments) {
+            JsonObject comment = commentElement.getAsJsonObject();
             PurchaseRequest.Comment prComment = new PurchaseRequest.Comment();
-            prComment.setText(comment.getBody());
-            prComment.setCreationDate(comment.getCreationDate().toString());
+            prComment.setText(getAtlassianDocumentText(comment.get("body").getAsJsonObject()));
+            prComment.setCreationDate(comment.get("created").getAsString());
             prComments.add(prComment);
         }
         return prComments;
     }
 
+    private String getAtlassianDocumentText(JsonObject body) {
+        JsonArray commentLines = body.get("content").getAsJsonArray()
+            .get(0).getAsJsonObject()
+            .get("content").getAsJsonArray();
+        StringBuffer comments = new StringBuffer();
+        for (JsonElement commentElement : commentLines) {
+            JsonElement commentLineText = commentElement.getAsJsonObject()
+                .get("text");
+            if (commentLineText != null) {
+                comments.append(commentLineText.getAsString()).append("\n");
+            }
+        }
+        return comments.toString();
+    }
+
     void purchaseRequestUpdated(String key) {
-        Issue issue = getByKey(key);
+        JsonObject issue = getByKey(key);
         if (issue == null) {
             log.warn("Got purchase updated message for unknown key: " + key);
             return;
         }
         
         PurchaseRequest purchaseRequest = toPurchaseRequest(issue);
-        if (APPROVED_STATUS_ID.equals(issue.getStatus().getId())) {
+        Long statusId = getIssueStatusId(issue);
+        if (APPROVED_STATUS_ID.equals(statusId)) {
             notifyPurchaseRequestApproved(purchaseRequest);
         }
-        else if (DENIED_STATUS_ID.contains(issue.getStatus().getId())) {
+        else if (DENIED_STATUS_ID.contains(statusId)) {
             notifyPurchaseRequestDenied(purchaseRequest);
         }
-        else if (ARRIVED_STATUS_ID.equals(issue.getStatus().getId())) {
+        else if (ARRIVED_STATUS_ID.equals(statusId)) {
             notifyPurchaseRequestArrived(purchaseRequest);
         }
         else {
-            log.warn("Ignoring purchase request updated with unhandled status: " + issue.getStatus().getId());
+            log.warn("Ignoring purchase request updated with unhandled status: " + statusId);
         }
     }
     
