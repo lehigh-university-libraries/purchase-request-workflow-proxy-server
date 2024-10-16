@@ -117,7 +117,7 @@ public class JiraConnection {
         mutation.addHeader(new BasicScheme().authenticate(credentials, mutation, null));
         mutation.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
 
-        log.debug(methodName + " entity: " + body.toString());
+        log.debug(methodName + " to URL " + url + "; entity: " + body.toString());
         mutation.setEntity(new StringEntity(body.toString()));
         CloseableHttpResponse response;
         response = client.execute(mutation);
