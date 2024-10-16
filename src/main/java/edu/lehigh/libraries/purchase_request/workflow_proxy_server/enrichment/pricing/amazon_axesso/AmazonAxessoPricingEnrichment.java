@@ -62,6 +62,9 @@ public class AmazonAxessoPricingEnrichment implements EnrichmentService {
         }
 
         List<AmazonAxessoProduct> results = search(keywords);
+        if (results == null) {
+            return;
+        }
         log.debug("results size: " + results.size());
 
         String comment = "Amazon (via Axesso) Pricing"
@@ -89,6 +92,9 @@ public class AmazonAxessoPricingEnrichment implements EnrichmentService {
             + "&withCache=true"
             + "&keyword=" + encodedKeywords;
         JSONObject jsonResult = connection.execute(url);
+        if (jsonResult == null) {
+            return null;
+        }
         List<AmazonAxessoProduct> searchResults = parseResults(jsonResult);
         return searchResults;
     }

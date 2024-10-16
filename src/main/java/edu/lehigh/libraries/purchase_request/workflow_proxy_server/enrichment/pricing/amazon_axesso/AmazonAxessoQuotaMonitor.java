@@ -28,6 +28,10 @@ public class AmazonAxessoQuotaMonitor {
      */
     public boolean incrementUsage(CloseableHttpResponse response) {
         Header[] headers = response.getHeaders(HEADER_REMAINING);
+        if (headers.length < 1) {
+            log.warn("Quota remaining not available.");
+            return false;
+        }
         Header header = headers[0];
         String remainingValue = header.getValue();
         int remaining = Integer.parseInt(remainingValue);

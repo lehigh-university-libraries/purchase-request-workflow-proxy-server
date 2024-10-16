@@ -58,7 +58,7 @@ public class AmazonAxessoConnection {
             // responseString = new String(Files.readString(Paths.get(resource.getFile().getPath())));
         }
         catch (Exception e) {
-            log.error("Could not read fake amazon file.", e);
+            log.error("Could not call AmazonAxesso API.", e);
             return null;
         }
         log.debug("Axesso response string: " + responseString);
