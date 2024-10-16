@@ -44,7 +44,6 @@ public class EmailListener implements WorkflowServiceListener {
         PURCHASE_APPROVED_ADDRESS,
         PURCHASE_DENIED_ADDRESS,
         PURCHASE_ARRIVED_ADDRESS;
-    private final String ADDRESS_DOMAIN;
     private final boolean
         PURCHASE_REQUESTED_HTML, 
         PURCHASE_APPROVED_HTML, 
@@ -82,8 +81,6 @@ public class EmailListener implements WorkflowServiceListener {
         PURCHASE_APPROVED_ADDRESS = config.getEmail().getPurchaseApprovedAddress();
         PURCHASE_DENIED_ADDRESS = config.getEmail().getPurchaseDeniedAddress();
         PURCHASE_ARRIVED_ADDRESS = config.getEmail().getPurchaseArrivedAddress();
-
-        ADDRESS_DOMAIN = config.getEmail().getAddressDomain();
 
         PURCHASE_REQUESTED_HTML = config.getEmail().getPurchaseRequestedHtml();
         PURCHASE_APPROVED_HTML = config.getEmail().getPurchaseApprovedHtml();
@@ -299,7 +296,7 @@ public class EmailListener implements WorkflowServiceListener {
         throws MessagingException {
 
         if (purchaseRequest.getLibrarianUsername() != null) {
-            addToRecipient(message, purchaseRequest.getLibrarianUsername() + '@' + ADDRESS_DOMAIN);
+            addToRecipient(message, purchaseRequest.getLibrarianUsername());
         }
     }
 
@@ -307,7 +304,7 @@ public class EmailListener implements WorkflowServiceListener {
         throws MessagingException {
         
         if (purchaseRequest.getRequesterUsername() != null) {
-            addToRecipient(message, purchaseRequest.getRequesterUsername() + '@' + ADDRESS_DOMAIN);
+            addToRecipient(message, purchaseRequest.getRequesterUsername());
         }
     }
 

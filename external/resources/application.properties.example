@@ -201,7 +201,6 @@ workflow.email.purchase-approved-address=libraryorders@someuniversity.edu
 workflow.email.purchase-denied-address=libraryorders@someuniversity.edu
 workflow.email.purchase-arrived-address=libraryorders@someuniversity.edu
 workflow.email.purchase-denied-html=true
-workflow.email.address-domain=someuniversity.edu
 workflow.email.purchase-requested-delay=PT30S
 workflow.email.purchase-approved-delay=PT30S
 workflow.email.purchase-denied-delay=PT30S
