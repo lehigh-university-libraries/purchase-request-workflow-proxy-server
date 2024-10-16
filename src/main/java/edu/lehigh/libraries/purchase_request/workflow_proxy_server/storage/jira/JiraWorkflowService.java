@@ -202,7 +202,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
 
         // Set status if appropriate
         if (purchaseRequest.getStatus() != null) {
-            setInitialStatus(purchaseRequest);
+            setInitialStatus(purchaseRequest, key);
             createdRequest = findByKey(key);
         }
 
@@ -280,7 +280,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         issue.add(REQUEST_TYPE_FIELD_ID, labels);
     }
 
-    private void setInitialStatus(PurchaseRequest purchaseRequest) {
+    private void setInitialStatus(PurchaseRequest purchaseRequest, String key) {
         Integer transitionId;
         if (DEFERRED_STATUS_NAME != null && DEFERRED_STATUS_NAME.equals(purchaseRequest.getStatus())) {
             transitionId = DEFERRED_STATUS_TRANSITION_ID;
@@ -295,7 +295,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         JsonObject transition = createObject("transition", createStringObject("id", Integer.toString(transitionId)));
         log.info("Setting initial status to " + purchaseRequest.getStatus());
         try {
-            client.executePost("issue/" + purchaseRequest.getKey() + "transitions", transition);
+            client.executePost("issue/" + key + "/transitions", transition);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
