@@ -114,6 +114,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             response = client.executeGet("user/search/query", Map.of(
                 "query", "is assignee of " + PROJECT_CODE + 
                     " or is commenter of " + PROJECT_CODE +
+                    " or is watcher of " + PROJECT_CODE +
                     " or is reporter of " + PROJECT_CODE
             ));
         }
@@ -127,6 +128,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
                 user.get("emailAddress").getAsString(),
                 user.get("accountId").getAsString()
             );
+            log.debug("Added known Jira user " + user.get("displayName").getAsString());
         }
     }
 
