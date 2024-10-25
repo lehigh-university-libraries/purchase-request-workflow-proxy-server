@@ -8,6 +8,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPost;
@@ -54,8 +55,15 @@ public class JiraConnection {
         CredentialsProvider provider = new BasicCredentialsProvider();
         credentials = new UsernamePasswordCredentials(config.getJira().getUsername(), config.getJira().getToken());
         provider.setCredentials(AuthScope.ANY, credentials);
+        int timeout = 5000; // milliseconds
+        RequestConfig requestConfig = RequestConfig.custom()
+            .setConnectTimeout(timeout)
+            .setConnectionRequestTimeout(timeout)
+            .setSocketTimeout(timeout)
+            .build();
         client = HttpClientBuilder.create()
             .setDefaultCredentialsProvider(provider)
+            .setDefaultRequestConfig(requestConfig)
             .build();                
     }
 
@@ -74,20 +82,20 @@ public class JiraConnection {
         HttpUriRequest getRequest = requestBuilder.build();
         getRequest.addHeader(new BasicScheme().authenticate(credentials, getRequest, null));
 
-        CloseableHttpResponse response;
         log.debug(getRequest.toString());
-        response = client.execute(getRequest);
-        int responseCode = response.getStatusLine().getStatusCode();
-        if (responseCode > 399) {
-            throw new Exception(response.getStatusLine().getReasonPhrase());
+        try (CloseableHttpResponse response = client.execute(getRequest)) {
+            int responseCode = response.getStatusLine().getStatusCode();
+            if (responseCode > 399) {
+                throw new Exception(response.getStatusLine().getReasonPhrase());
+            }
+
+            HttpEntity entity = response.getEntity();
+            String responseString = EntityUtils.toString(entity);
+            log.debug("Got response with code " + response.getStatusLine() + " and entity " + response.getEntity());
+
+            JsonObject responseObject = JsonParser.parseString(responseString).getAsJsonObject();
+            return responseObject;
         }
-
-        HttpEntity entity = response.getEntity();
-        String responseString = EntityUtils.toString(entity);
-        log.debug("Got response with code " + response.getStatusLine() + " and entity " + response.getEntity());
-
-        JsonObject responseObject = JsonParser.parseString(responseString).getAsJsonObject();
-        return responseObject;
     }
 
     public JsonObject executePost(String url, JsonObject body) throws Exception {
@@ -119,31 +127,31 @@ public class JiraConnection {
 
         log.debug(methodName + " to URL " + url + "; entity: " + body.toString());
         mutation.setEntity(new StringEntity(body.toString()));
-        CloseableHttpResponse response;
-        response = client.execute(mutation);
-        int responseCode = response.getStatusLine().getStatusCode();
-        if (responseCode > 399) {
+        try (CloseableHttpResponse response = client.execute(mutation)) {
+            int responseCode = response.getStatusLine().getStatusCode();
+            if (responseCode > 399) {
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    String responseString = EntityUtils.toString(entity);
+                    throw new Exception(responseString);
+                }
+                else {
+                    throw new Exception(response.getStatusLine().getReasonPhrase());
+                }
+            }
+
             HttpEntity entity = response.getEntity();
             if (entity != null) {
                 String responseString = EntityUtils.toString(entity);
-                throw new Exception(responseString);
+                log.debug("Got response with code " + response.getStatusLine() + " and entity " + response.getEntity());
+        
+                JsonObject responseObject = JsonParser.parseString(responseString).getAsJsonObject();
+                return responseObject;
             }
             else {
-                throw new Exception(response.getStatusLine().getReasonPhrase());
+                log.debug("Got response with code " + response.getStatusLine() + " and no entity");
+                return null;
             }
-        }
-
-        HttpEntity entity = response.getEntity();
-        if (entity != null) {
-            String responseString = EntityUtils.toString(entity);
-            log.debug("Got response with code " + response.getStatusLine() + " and entity " + response.getEntity());
-    
-            JsonObject responseObject = JsonParser.parseString(responseString).getAsJsonObject();
-            return responseObject;
-        }
-        else {
-            log.debug("Got response with code " + response.getStatusLine() + " and no entity");
-            return null;
         }
     }
 
