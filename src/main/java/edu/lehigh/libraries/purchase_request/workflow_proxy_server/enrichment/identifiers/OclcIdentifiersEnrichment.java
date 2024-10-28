@@ -69,14 +69,23 @@ public class OclcIdentifiersEnrichment implements EnrichmentService {
 
     private void enrichByTitleAndContributor(PurchaseRequest purchaseRequest) {
         log.debug("Enriching by title and contributor.");
+        String title = truncateTitle(purchaseRequest.getTitle());
         String url = OclcConnection.WORLDCAT_BASE_URL + "/bibs?"
             + "heldBySymbol=DLC"
             + "&q=("
-            + "ti:" + ConnectionUtil.encodeUrl(purchaseRequest.getTitle())
+            + "ti:" + ConnectionUtil.encodeUrl(title)
             + ConnectionUtil.encodeUrl(" AND au:\"" + purchaseRequest.getContributor() + "\"")
             + ")";
         
         enrichWithFirstResult(purchaseRequest, url);            
+    }
+
+    private String truncateTitle(String title) {
+        // The API reports an error if the total query length is greater than some unspecified amount,
+        // but possibly matching the 30-word limit described here.
+        // https://help.oclc.org/Discovery_and_Reference/WorldCat_Discovery/Search_in_WorldCat_Discovery/010Search_and_use_query_syntax
+        // In case of long titles, limit the title to 20 words to be safe.
+        return title.replaceAll("^((?:\\W*\\w+){20}).*$", "$1");
     }
 
     private void enrichByIsbn(PurchaseRequest purchaseRequest) {
