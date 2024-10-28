@@ -69,7 +69,7 @@ public class FolioConnection {
             .setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
             .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()).setVersion(HttpVersion.HTTP_1_1)
             .setHeader(TENANT_HEADER, config.getFolio().getTenantId())
-            .setEntity(new StringEntity(postData.toString()))
+            .setEntity(new StringEntity(postData.toString(), "UTF-8"))
             .build();
         CloseableHttpResponse response = client.execute(post);
         HttpEntity entity = response.getEntity();

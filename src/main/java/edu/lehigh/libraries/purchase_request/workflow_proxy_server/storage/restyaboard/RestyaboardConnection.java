@@ -56,7 +56,7 @@ public class RestyaboardConnection {
         HttpUriRequest post = RequestBuilder.post()
             .setUri(uri)
             .setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
-            .setEntity(new StringEntity(postData.toString()))
+            .setEntity(new StringEntity(postData.toString(), "UTF-8"))
             .build();
         CloseableHttpResponse response = client.execute(post);
         HttpEntity entity = response.getEntity();
@@ -76,7 +76,7 @@ public class RestyaboardConnection {
         HttpUriRequest postRequest = RequestBuilder.post()
             .setUri(config.getRestyaboard().getBaseUrl() + API_PATH + url)
             .addParameter("token", token)
-            .setEntity(new StringEntity(body.toString()))
+            .setEntity(new StringEntity(body.toString(), "UTF-8"))
             .build();
         CloseableHttpResponse response = client.execute(postRequest);
         HttpEntity entity = response.getEntity();

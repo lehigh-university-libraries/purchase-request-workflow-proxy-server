@@ -126,7 +126,7 @@ public class JiraConnection {
         mutation.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
 
         log.debug(methodName + " to URL " + url + "; entity: " + body.toString());
-        mutation.setEntity(new StringEntity(body.toString()));
+        mutation.setEntity(new StringEntity(body.toString(), "UTF-8"));
         try (CloseableHttpResponse response = client.execute(mutation)) {
             int responseCode = response.getStatusLine().getStatusCode();
             if (responseCode > 399) {
