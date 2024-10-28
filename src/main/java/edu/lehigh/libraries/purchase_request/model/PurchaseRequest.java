@@ -20,7 +20,7 @@ public class PurchaseRequest {
     public static final String MATCHING_CHARS_END = "]+$";
 
     // for sanitation; not validation for a specific WorkflowService key
-    public static final String SANITIZED_STRING_PATTERN = "^[A-Za-z0-9,_:\\.\\s-]+$";
+    public static final String SANITIZED_STRING_PATTERN = "^[A-Za-z0-9,_:/\\.\\s-]+$";
     public static final String SANITIZED_NUMERIC_PATTERN = "^[0-9]+$";
     public static final String SANITIZED_USERNAME_PATTERN = "^[A-Za-z0-9]+$";
     public static final String SANITIZED_REQUEST_TYPE_PATTERN = "^[A-Za-z0-9_]+$";
