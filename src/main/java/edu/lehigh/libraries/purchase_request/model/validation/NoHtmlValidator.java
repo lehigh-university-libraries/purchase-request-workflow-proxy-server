@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NoHtmlValidator implements ConstraintValidator<NoHtml, String> {
 
-    private static final String ALLOW_CHARS = "['&@]";
+    private static final String ALLOW_CHARS = "['&@=]";
 
     private final PolicyFactory PROHIBIT_ALL_HTML = new HtmlPolicyBuilder().toFactory();
 
