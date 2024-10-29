@@ -16,7 +16,7 @@ abstract class IsbnDbPricingEnrichment implements EnrichmentService {
         this.workflowService = workflowService;
         this.connection = new IsbnDbConnection(config);
 
-        manager.addListener(this);
+        manager.addListener(this, 660);
     }
 
 }

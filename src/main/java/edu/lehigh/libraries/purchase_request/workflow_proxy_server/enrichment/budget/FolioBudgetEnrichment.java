@@ -33,7 +33,7 @@ public class FolioBudgetEnrichment implements EnrichmentService {
         this.workflowService = workflowService;
         connection = new FolioConnection(config);
 
-        manager.addListener(this, 550);
+        manager.addListener(this, 810);
         log.debug("FolioBudgetEnrichment ready.");
     }
 

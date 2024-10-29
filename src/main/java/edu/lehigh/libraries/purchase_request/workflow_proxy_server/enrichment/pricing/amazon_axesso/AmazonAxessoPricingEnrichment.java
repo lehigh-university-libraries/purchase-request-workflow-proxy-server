@@ -43,7 +43,7 @@ public class AmazonAxessoPricingEnrichment implements EnrichmentService {
         MAX_PRODUCTS = config.getAmazonAxesso().getMaxProducts();
 
         this.connection = new AmazonAxessoConnection(config, API_HOST);
-        manager.addListener(this);
+        manager.addListener(this, 650);
         log.debug("AmazonAxessoPricingEnrichment ready");
     }
 

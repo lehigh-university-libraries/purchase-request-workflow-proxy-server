@@ -30,10 +30,6 @@ public class EnrichmentManager {
         enrichmentServices = new TreeMap<Integer, List<EnrichmentService>>();
     }
 
-    public void addListener(EnrichmentService service) {
-        addListener(service, Integer.MAX_VALUE);
-    }
-
     /**
      * Add a listener.
      * 

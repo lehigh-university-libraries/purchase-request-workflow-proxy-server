@@ -39,7 +39,7 @@ public class OclcIdentifiersEnrichment implements EnrichmentService {
         CLASSIFICATION_TYPE = config.getOclc().getClassificationType();
         TITLE_ISBN_ONLY_PREFIX = config.getCoreData().getTitle().getIsbnOnlyPrefix();
 
-        manager.addListener(this, 1);
+        manager.addListener(this, 100);
         log.debug("OclcIdentifiersEnrichment ready");
     }
 

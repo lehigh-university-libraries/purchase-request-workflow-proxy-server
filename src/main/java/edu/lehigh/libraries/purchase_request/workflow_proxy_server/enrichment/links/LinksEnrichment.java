@@ -30,7 +30,7 @@ public class LinksEnrichment implements EnrichmentService {
 
         USE_GOOGLE_SCHOLAR = config.getLinks().isGoogleScholarEnabled();
 
-        manager.addListener(this);
+        manager.addListener(this, 700);
         log.debug("LinksEnrichment ready");
     }
 

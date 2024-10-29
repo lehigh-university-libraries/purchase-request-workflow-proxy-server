@@ -27,7 +27,7 @@ public class OclcGroupHoldingsEnrichment extends OclcHoldingsEnrichment {
 
         GROUP_OCLC_SYMBOLS = config.getGroupHoldings().getOclcSymbols();
 
-        manager.addListener(this);
+        manager.addListener(this, 210);
         log.debug("OclcGroupHoldingsEnrichment listening.");
     }
 

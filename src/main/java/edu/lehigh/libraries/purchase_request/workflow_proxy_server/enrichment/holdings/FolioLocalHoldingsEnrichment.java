@@ -30,7 +30,7 @@ public class FolioLocalHoldingsEnrichment extends HoldingsEnrichment {
         this.workflowService = workflowService;
         this.connection = new FolioConnection(config);
 
-        manager.addListener(this);
+        manager.addListener(this, 200);
         log.debug("FolioLocalHoldingsEnrichment listening.");
     }
 

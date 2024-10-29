@@ -39,7 +39,7 @@ public class LibrarianEnrichment implements EnrichmentService {
         BASE_URL = config.getLibrarianCallNumbers().getBaseUrl();
         NO_CALL_NUMBER_USERNAME = config.getLibrarianCallNumbers().getNoCallNumberUsername();
 
-        manager.addListener(this, 500);
+        manager.addListener(this, 1000);
         log.debug("LibrarianEnrichment ready.");
     }
 

@@ -49,7 +49,7 @@ public class OasisPricingEnrichment implements EnrichmentService {
         LOCAL_CURRENCY = config.getOasis().getLocalCurrency();
         MAX_RESULTS = config.getOasis().getMaxResults();
 
-        manager.addListener(this);
+        manager.addListener(this, 600);
         log.debug("OasisPricingEnrichment ready");
     }
 

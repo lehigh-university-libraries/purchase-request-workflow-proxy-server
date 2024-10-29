@@ -37,7 +37,7 @@ public class DoabPricingEnrichment implements EnrichmentService {
         this.workflowService = workflowService;
 
         this.connection = new DoabConnection();
-        manager.addListener(this);
+        manager.addListener(this, 670);
         log.debug("DoabPricingEnrichment ready");
     }
 

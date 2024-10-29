@@ -23,7 +23,7 @@ public class OclcLocalHoldingsEnrichment extends OclcHoldingsEnrichment {
 
         LOCAL_OCLC_SYMBOL = config.getOclc().getLocalInstitutionSymbol();
 
-        manager.addListener(this);
+        manager.addListener(this, 200);
         log.debug("OclcLocalHoldingsEnrichment listening.");
     }
 
