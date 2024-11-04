@@ -140,21 +140,18 @@ public class JiraWorkflowService extends AbstractWorkflowService {
 
     @Override
     public PurchaseRequest findByKey(String key) {
-        JsonObject issue = getByKey(key);
-        if (issue == null) {
-            return null;
-        }
-        return toPurchaseRequest(issue);
-    }
-
-    private JsonObject getByKey(String key) {
         try {
-            return client.executeGet("issue/" + key);
+            JsonObject issue = getByKey(key);
+            return toPurchaseRequest(issue);
         }
         catch (Exception ex) {
-            log.error("Error in getByKey", ex);
+            log.error("Error in findByKey", ex);
             return null;
         }
+    }
+
+    private JsonObject getByKey(String key) throws Exception {
+        return client.executeGet("issue/" + key);
     }
 
     @Override
@@ -199,7 +196,12 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             throw new RuntimeException(e);
         }
         String key = response.get("key").getAsString();
-        JsonObject createdIssue = getByKey(key);
+        JsonObject createdIssue;
+        try {
+            createdIssue = getByKey(key);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         PurchaseRequest createdRequest = toPurchaseRequest(createdIssue);
 
         // Set status if appropriate
@@ -467,7 +469,13 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     public PurchaseRequest addComment(PurchaseRequest purchaseRequest, PurchaseRequest.Comment comment) {
         enrichComment(purchaseRequest, comment.getText());
 
-        JsonObject issue = getByKey(purchaseRequest.getKey());
+        JsonObject issue;
+        try {
+            issue = getByKey(purchaseRequest.getKey());
+        }
+        catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
         PurchaseRequest updatedRequest = toPurchaseRequest(issue);
         return updatedRequest;
     }
@@ -626,9 +634,12 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     void purchaseRequestUpdated(String key) {
-        JsonObject issue = getByKey(key);
-        if (issue == null) {
-            log.warn("Got purchase updated message for unknown key: " + key);
+        JsonObject issue;
+        try {
+            issue = getByKey(key);
+        }
+        catch(Exception ex) {
+            log.info("Got purchase updated message for unknown key: " + key, ex);
             return;
         }
         
