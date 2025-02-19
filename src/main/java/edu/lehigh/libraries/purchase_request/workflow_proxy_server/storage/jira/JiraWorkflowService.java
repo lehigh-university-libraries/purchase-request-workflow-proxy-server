@@ -124,11 +124,16 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         JsonArray users = response.get("values").getAsJsonArray();        
         for (JsonElement userElement : users) {
             JsonObject user = userElement.getAsJsonObject();
-            userEmailToAccountId.put(
-                user.get("emailAddress").getAsString(),
-                user.get("accountId").getAsString()
-            );
-            log.debug("Added known Jira user " + user.get("displayName").getAsString());
+            if (user.has("emailAddress")) {
+                userEmailToAccountId.put(
+                    user.get("emailAddress").getAsString(),
+                    user.get("accountId").getAsString()
+                );
+                log.debug("Added known Jira user " + user.get("displayName").getAsString());
+            }
+            else {
+                log.warn("Could not add user missing info: " + user.get("accountId").getAsString());
+            }
         }
     }
 
