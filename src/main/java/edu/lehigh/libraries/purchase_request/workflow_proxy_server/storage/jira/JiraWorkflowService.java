@@ -537,7 +537,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String getStringValue(JsonObject issue, String fieldName) {
         JsonObject fields = issue.get("fields").getAsJsonObject();
         JsonElement value = fields.get(fieldName);
-        if (value.isJsonNull()) {
+        if (value == null || value.isJsonNull()) {
             return null;
         }
         else if (value.isJsonPrimitive()) {
