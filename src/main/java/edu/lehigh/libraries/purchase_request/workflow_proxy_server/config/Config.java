@@ -72,6 +72,7 @@ public class Config {
     private LibrarianCallNumbers librarianCallNumbers;
     private Priority priority;
     private Email email;
+    private GoogleDocs googleDocs;
     private GoogleSheets googleSheets;
     private PostPurchase postPurchase;
 
@@ -711,6 +712,34 @@ public class Config {
          * in the email to the requester.
          */
         private Map<String, String> purchaseDeniedReasons;
+    }
+
+    @Getter @Setter
+    public static class GoogleDocs {
+
+        private OutputType catalogingSlip;
+
+        /**
+         * Path to the google-docs-client-secret.json file used to connect to the API.
+         */
+        private String credentialsFilePath;
+        
+        @Getter @Setter
+        public static class OutputType {
+
+            /**
+             * ID of the Google Doc containing the template for a cataloging slip.
+             */
+            private String templateDocId;
+
+            /**
+             * ID of the Google Doc on which to write the filled-in template for
+             * each purchase request.
+             */
+            private String outputDocId;
+            
+        }
+
     }
 
     @Getter @Setter

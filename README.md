@@ -92,6 +92,7 @@ Supplied implementations:
 | Email | Emails configurable recipients about a purchase request when its status changes.  [See Email Listener.](#email-listener) |  [Librarian enrichment](#enrichment) |
 | Full Record Spreadsheet | Exports full details of a new or approved request to a spreadsheet, adding a row. | Google Sheets |
 | MatchMARC Spreadsheet| Exports identifier and budget code metadata to a spreadsheet, adding a row, that is intended to be used with MatchMARC to create a FOLIO Purchase Order. | Google Sheets, [MatchMARC](https://github.com/suranofsky/tech-services-g-sheets-addon)
+| Cataloging Slip Doc | Exports details needed by the cataloging team to process a purchased item. | Google Docs
 
 ### Email Listener
 
@@ -476,10 +477,20 @@ For reporting to Google Sheets spreadsheets.  See [reporting and post-approval p
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.google-sheets.credentials-file-path | Path to the file containing the `google-sheets-client-secret.json` file provided by [Google Cloud](https://developers.google.com/workspace/guides/get-started) to the Google Workspace APIs. | If any of the other `workflow.google-sheets.*` properties are set |
+| workflow.google-sheets.credentials-file-path | Path to the  `google-sheets-client-secret.json` file provided by [Google Cloud](https://developers.google.com/workspace/guides/get-started) to the Google Workspace APIs. | If any of the other `workflow.google-sheets.*` properties are set |
 | workflow.google-sheets.match-marc.approved-spreadsheet-id | ID of a spreadsheet to use for reporting approved items in MatchMARC format. | N |
 | workflow.google-sheets.full-record.requested-spreadsheet-id | ID of a spreadsheet to use for reporting newly requested items in full record format. | N |
 | workflow.google-sheets.full-record.approved-spreadsheet-id | ID of a spreadsheet to use for reporting approved items in full record format. | N |
+
+### Google Docs Listener Section
+
+For reporting to Google Docs.  See [reporting and post-approval processing](#routing--reporting) for additional details.
+
+| Property | Description | Required |
+| -- | -- | -- |
+| workflow.google-docs.credentials-file-path | Path to `google-docs-client-secret.json` file provided by [Google Cloud](https://developers.google.com/workspace/guides/get-started) to the Google Workspace APIs. | If any of the other `workflow.google-docs.*` properties are set |
+| workflow.google-docs.cataloging-slip.template-doc-id | ID of the Google Doc containing the template for a cataloging slip. | N |
+| workflow.google-docs.cataloging-slip.output-doc-id | ID of the Google Doc on which to write the filled-in template for each purchase request. | N |
 
 ### Match Section
 

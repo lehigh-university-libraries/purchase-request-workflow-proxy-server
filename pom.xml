@@ -91,6 +91,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.google.apis</groupId>
+			<artifactId>google-api-services-docs</artifactId>
+			<version>v1-rev61-1.25.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.apis</groupId>
 			<artifactId>google-api-services-sheets</artifactId>
 			<version>v4-rev20210629-1.32.1</version>
 		</dependency>

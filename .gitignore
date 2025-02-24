@@ -36,9 +36,10 @@ build/
 **/application.properties
 
 ### LogBack ###
-logback-spring.xml
+logback-spring.xml*
 
 ### Google ###
+google-docs-client-secret.json
 google-sheets-client-secret.json
 
 ### Email Templates ###

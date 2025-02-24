@@ -209,6 +209,13 @@ workflow.email.purchase-denied-reasons.cost-prohibitive=that book is too expensi
 workflow.email.purchase-denied-reasons.owned=our library already owns that book
 
 
+# Google Docs Listener
+
+workflow.google-docs.credentials-file-path=./google-sheets-client-secret.json
+workflow.google-docs.cataloging-slip.template-doc-id=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+workflow.google-docs.cataloging-slip.output-doc-id=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+
+
 # Google Sheets Listener
 
 workflow.google-sheets.credentials-file-path=./google-sheets-client-secret.json
