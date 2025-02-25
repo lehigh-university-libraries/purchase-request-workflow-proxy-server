@@ -246,7 +246,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             log.error("Setting assignee fails, no user exists: " + assigneeName);
             return;
         }
-        fields.add("reporter", createStringObject("id", assigneeId));
+        fields.add("assignee", createStringObject("id", assigneeId));
     }
 
     private void setReporter(JsonObject fields, PurchaseRequest purchaseRequest) {
