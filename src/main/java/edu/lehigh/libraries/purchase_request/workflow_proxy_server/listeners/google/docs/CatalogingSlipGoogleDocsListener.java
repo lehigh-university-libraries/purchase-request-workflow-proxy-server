@@ -270,6 +270,7 @@ public class CatalogingSlipGoogleDocsListener extends GoogleDocsListener {
         mergeTemplateValue(docsRequests, "title", purchaseRequest.getTitle());
         mergeTemplateValue(docsRequests, "contributor", purchaseRequest.getContributor());
         mergeTemplateValue(docsRequests, "key", purchaseRequest.getKey());
+        mergeTemplateValue(docsRequests, "requester_username", purchaseRequest.getRequesterUsername());
         mergeTemplateValue(docsRequests, "destination", purchaseRequest.getDestination());
         mergeTemplateValue(docsRequests, "description", purchaseRequest.getRequesterComments());
     }
