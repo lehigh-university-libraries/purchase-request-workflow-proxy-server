@@ -30,7 +30,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private JiraConnection client;
     private Config config;
 
-    private static final int SUMMARY_MAX_LENGTH = 254;
+    private static final int SHORT_TEXT_FIELD_MAX_LENGTH = 255;
 
     private String REQUEST_TYPE_FIELD_ID = "labels";
 
@@ -224,10 +224,6 @@ public class JiraWorkflowService extends AbstractWorkflowService {
 
     private void setSummary(JsonObject fields, String title, String isbn) {
         if (title != null) {
-            if (title.length() > SUMMARY_MAX_LENGTH) {
-                log.info("Truncating title to " + SUMMARY_MAX_LENGTH + " characters: " + title);
-                title = title.substring(0, SUMMARY_MAX_LENGTH);
-            }
             addShortTextField(fields, "summary", title);
         }
         else {
@@ -502,8 +498,9 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     private void addShortTextField(JsonObject fields, String fieldName, String value) {
-        if (value != null) {
-            value = value.substring(0, Integer.min(value.length(), 255));
+        if (value != null && value.length() > SHORT_TEXT_FIELD_MAX_LENGTH) {
+            log.info("Truncating " + fieldName + " to " + SHORT_TEXT_FIELD_MAX_LENGTH + " characters: " + value);
+            value = value.substring(0, SHORT_TEXT_FIELD_MAX_LENGTH);
         }
         fields.addProperty(fieldName, value);
     }
