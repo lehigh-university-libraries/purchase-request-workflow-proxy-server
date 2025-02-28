@@ -173,23 +173,23 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         setSummary(fields, purchaseRequest);
    
         // Set basic fields
-        fields.addProperty(CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
-        fields.addProperty(ISBN_FIELD_ID, purchaseRequest.getIsbn());
-        fields.addProperty(OCLC_NUMBER_FIELD_ID, purchaseRequest.getOclcNumber());
-        fields.addProperty(CALL_NUMBER_FIELD_ID, purchaseRequest.getCallNumber());
-        fields.addProperty(FORMAT_FIELD_ID, purchaseRequest.getFormat());
-        fields.addProperty(SPEED_FIELD_ID, purchaseRequest.getSpeed());
-        fields.addProperty(DESTINATION_FIELD_ID, purchaseRequest.getDestination());
-        fields.addProperty(CLIENT_NAME_FIELD_ID, purchaseRequest.getClientName());
-        fields.addProperty(REQUESTER_USERNAME_FIELD_ID, purchaseRequest.getRequesterUsername());
-        fields.addProperty(REQUESTER_INFO_FIELD_ID, purchaseRequest.getRequesterInfo());
+        addShortTextField(fields, CONTRIBUTOR_FIELD_ID, purchaseRequest.getContributor());
+        addShortTextField(fields, ISBN_FIELD_ID, purchaseRequest.getIsbn());
+        addShortTextField(fields, OCLC_NUMBER_FIELD_ID, purchaseRequest.getOclcNumber());
+        addShortTextField(fields, CALL_NUMBER_FIELD_ID, purchaseRequest.getCallNumber());
+        addShortTextField(fields, FORMAT_FIELD_ID, purchaseRequest.getFormat());
+        addShortTextField(fields, SPEED_FIELD_ID, purchaseRequest.getSpeed());
+        addShortTextField(fields, DESTINATION_FIELD_ID, purchaseRequest.getDestination());
+        addShortTextField(fields, CLIENT_NAME_FIELD_ID, purchaseRequest.getClientName());
+        addShortTextField(fields, REQUESTER_USERNAME_FIELD_ID, purchaseRequest.getRequesterUsername());
+        addShortTextField(fields, REQUESTER_INFO_FIELD_ID, purchaseRequest.getRequesterInfo());
 
         // Set conditional fields
         setAssignee(fields, purchaseRequest);
         setReporter(fields, purchaseRequest);
         setRequestType(fields, purchaseRequest);
         if (purchaseRequest.getRequesterComments() != null) {            
-            fields.addProperty("description", purchaseRequest.getRequesterComments());  
+            addParagraphField(fields, "description", purchaseRequest.getRequesterComments());  
         }
         issue.add("fields", fields);
 
@@ -228,10 +228,10 @@ public class JiraWorkflowService extends AbstractWorkflowService {
                 log.info("Truncating title to " + SUMMARY_MAX_LENGTH + " characters: " + title);
                 title = title.substring(0, SUMMARY_MAX_LENGTH);
             }
-            fields.addProperty("summary", title);
+            addShortTextField(fields, "summary", title);
         }
         else {
-            fields.addProperty("summary", TITLE_ISBN_ONLY_PREFIX + isbn);
+            addShortTextField(fields, "summary", TITLE_ISBN_ONLY_PREFIX + isbn);
         }
     }
 
@@ -411,15 +411,15 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     private void enrichOclcNumber(PurchaseRequest purchaseRequest, String oclcNumber) {
-        enrichField(purchaseRequest, OCLC_NUMBER_FIELD_ID, oclcNumber);
+        enrichShortTextField(purchaseRequest, OCLC_NUMBER_FIELD_ID, oclcNumber);
     }
 
     private void enrichCallNumber(PurchaseRequest purchaseRequest, String callNumber) {
-        enrichField(purchaseRequest, CALL_NUMBER_FIELD_ID, callNumber);
+        enrichShortTextField(purchaseRequest, CALL_NUMBER_FIELD_ID, callNumber);
     }
 
     private void enrichRequesterInfo(PurchaseRequest purchaseRequest, String requesterInfo) {
-        enrichField(purchaseRequest, REQUESTER_INFO_FIELD_ID, requesterInfo);
+        enrichShortTextField(purchaseRequest, REQUESTER_INFO_FIELD_ID, requesterInfo);
     }
 
     @SuppressWarnings("unchecked")
@@ -447,11 +447,11 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     private void enrichFundCode(PurchaseRequest purchaseRequest, String fundCode) {
-        enrichField(purchaseRequest, FUND_CODE_FIELD_ID, fundCode);
+        enrichShortTextField(purchaseRequest, FUND_CODE_FIELD_ID, fundCode);
     }
 
     private void enrichObjectCode(PurchaseRequest purchaseRequest, String objectCode) {
-        enrichField(purchaseRequest, OBJECT_CODE_FIELD_ID, objectCode);
+        enrichShortTextField(purchaseRequest, OBJECT_CODE_FIELD_ID, objectCode);
     }
 
     private void enrichPriority(PurchaseRequest purchaseRequest, Long priority) {
@@ -467,7 +467,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     private void enrichContributor(PurchaseRequest purchaseRequest, String contributor) {
-        enrichField(purchaseRequest, CONTRIBUTOR_FIELD_ID, contributor);
+        enrichShortTextField(purchaseRequest, CONTRIBUTOR_FIELD_ID, contributor);
     }
 
     @Override
@@ -493,12 +493,23 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         updateIssue(purchaseRequest, issueChanges);
     }
 
-    private void enrichField(PurchaseRequest purchaseRequest, String fieldName, String value) {
+    private void enrichShortTextField(PurchaseRequest purchaseRequest, String fieldName, String value) {
         JsonObject issueChanges = new JsonObject();
         JsonObject fields = new JsonObject();
-        fields.addProperty(fieldName, value);
+        addShortTextField(fields, fieldName, value);
         issueChanges.add("fields", fields);
         updateIssue(purchaseRequest, issueChanges);
+    }
+
+    private void addShortTextField(JsonObject fields, String fieldName, String value) {
+        if (value != null) {
+            value = value.substring(0, Integer.min(value.length(), 255));
+        }
+        fields.addProperty(fieldName, value);
+    }
+
+    private void addParagraphField(JsonObject fields, String fieldName, String value) {
+        fields.addProperty(fieldName, value);
     }
 
     private void updateIssue(PurchaseRequest purchaseRequest, JsonObject issueChanges) {
