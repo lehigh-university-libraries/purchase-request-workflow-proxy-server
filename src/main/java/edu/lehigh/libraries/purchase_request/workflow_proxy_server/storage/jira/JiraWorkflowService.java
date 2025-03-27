@@ -632,9 +632,12 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     private String getAtlassianDocumentText(JsonObject body) {
-        JsonArray commentLines = body.get("content").getAsJsonArray()
-            .get(0).getAsJsonObject()
-            .get("content").getAsJsonArray();
+        JsonArray contentArray = body.get("content").getAsJsonArray();
+        JsonObject firstContentObject = contentArray.get(0).getAsJsonObject();
+        if (!firstContentObject.has("content")) {
+            return null;
+        }
+        JsonArray commentLines = firstContentObject.get("content").getAsJsonArray();
         StringBuffer comments = new StringBuffer();
         for (JsonElement commentElement : commentLines) {
             JsonElement commentLineText = commentElement.getAsJsonObject()
