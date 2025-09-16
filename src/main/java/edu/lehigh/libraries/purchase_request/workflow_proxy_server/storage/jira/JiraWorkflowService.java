@@ -60,6 +60,8 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String MULTIPLE_LIBRARIANS_USERNAME;
     private String DEFAULT_REPORTER_USERNAME;
 
+    private String[] SEARCH_RESULT_FIELDS;
+
     private String TITLE_ISBN_ONLY_PREFIX;
 
     public JiraWorkflowService(Config config) {
@@ -99,6 +101,25 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         DEFAULT_REPORTER_USERNAME = config.getJira().getDefaultReporterUsername();
 
         TITLE_ISBN_ONLY_PREFIX = config.getCoreData().getTitle().getIsbnOnlyPrefix();
+
+        SEARCH_RESULT_FIELDS = new String[] {
+            "id", "key", "status", "summary", "created", "updated", "labels", "description", "assignee",
+            CONTRIBUTOR_FIELD_ID,
+            ISBN_FIELD_ID,
+            OCLC_NUMBER_FIELD_ID,
+            CALL_NUMBER_FIELD_ID,
+            FORMAT_FIELD_ID,
+            SPEED_FIELD_ID,
+            DESTINATION_FIELD_ID,
+            CLIENT_NAME_FIELD_ID,
+            REQUESTER_USERNAME_FIELD_ID,
+            REQUESTER_INFO_FIELD_ID,
+            FUND_CODE_FIELD_ID,
+            OBJECT_CODE_FIELD_ID,
+            POST_PURCHASE_ID_FIELD_ID,
+            DECISION_REASON_FIELD_ID,
+        };
+
     }
 
     private void initConnection() {
@@ -336,8 +357,9 @@ public class JiraWorkflowService extends AbstractWorkflowService {
 
     private List<PurchaseRequest> searchJql(String jql) {
         try {
-            JsonObject result = client.executeGet("search", Map.of(
+            JsonObject result = client.executeGet("search/jql", Map.of(
                 "jql", jql,
+                "fields", String.join(",", SEARCH_RESULT_FIELDS),
                 "maxResults", MAX_SEARCH_RESULTS.toString()
             ));
             List<PurchaseRequest> list = new LinkedList<PurchaseRequest>();
