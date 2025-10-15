@@ -53,7 +53,8 @@ public class FolioLocalMatchService implements MatchService {
         if (query.getIsbn() != null) {
             queryParameters.add("isbn = \"" + connection.sanitize(query.getIsbn()) + "\"");
         }
-        String queryString = String.join(" AND ", queryParameters);
+        String queryString = "(" + String.join(" AND ", queryParameters) + ")";
+        queryString += " NOT discoverySuppress==\"true\"";
         Map<String, String> extraParams = Map.of("expandAll", Boolean.TRUE.toString());
         JSONObject responseObject;
         try {
