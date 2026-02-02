@@ -55,7 +55,7 @@ public class JiraConnection {
         CredentialsProvider provider = new BasicCredentialsProvider();
         credentials = new UsernamePasswordCredentials(config.getJira().getUsername(), config.getJira().getToken());
         provider.setCredentials(AuthScope.ANY, credentials);
-        int timeout = 5000; // milliseconds
+        int timeout = 25000; // milliseconds
         RequestConfig requestConfig = RequestConfig.custom()
             .setConnectTimeout(timeout)
             .setConnectionRequestTimeout(timeout)
