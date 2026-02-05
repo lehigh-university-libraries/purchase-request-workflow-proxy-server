@@ -2,11 +2,136 @@ package edu.lehigh.libraries.purchase_request.workflow_proxy_server.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class RetryUtilTest {
+
+    /**
+     * Mock HTTP client that can be configured to fail a specified number of times
+     * before returning a successful response. Simulates real HTTP client behavior.
+     */
+    static class MockHttpClient {
+        private final int failuresBeforeSuccess;
+        private final AtomicInteger attempts = new AtomicInteger(0);
+        private final Class<? extends Exception> exceptionType;
+
+        MockHttpClient(int failuresBeforeSuccess) {
+            this(failuresBeforeSuccess, IOException.class);
+        }
+
+        MockHttpClient(int failuresBeforeSuccess, Class<? extends Exception> exceptionType) {
+            this.failuresBeforeSuccess = failuresBeforeSuccess;
+            this.exceptionType = exceptionType;
+        }
+
+        public String executeGet(String url) {
+            int attempt = attempts.incrementAndGet();
+            if (attempt <= failuresBeforeSuccess) {
+                throw createException("Connection failed on attempt " + attempt);
+            }
+            return "{\"status\": \"success\", \"data\": \"response from " + url + "\"}";
+        }
+
+        private RuntimeException createException(String message) {
+            if (exceptionType == ConnectException.class) {
+                return new RuntimeException(new ConnectException(message));
+            } else if (exceptionType == SocketTimeoutException.class) {
+                return new RuntimeException(new SocketTimeoutException(message));
+            } else {
+                return new RuntimeException(new IOException(message));
+            }
+        }
+
+        public int getAttemptCount() {
+            return attempts.get();
+        }
+    }
+
+    // === Tests using MockHttpClient ===
+
+    @Test
+    void mockClient_successOnFirstAttempt() {
+        MockHttpClient client = new MockHttpClient(0);
+
+        String result = RetryUtil.executeWithRetry(() -> client.executeGet("/api/test"));
+
+        assertTrue(result.contains("success"));
+        assertEquals(1, client.getAttemptCount());
+    }
+
+    @Test
+    void mockClient_successAfterTwoFailures() {
+        MockHttpClient client = new MockHttpClient(2);
+
+        String result = RetryUtil.executeWithRetry(
+            () -> client.executeGet("/api/test"),
+            5, 10, 100
+        );
+
+        assertTrue(result.contains("success"));
+        assertEquals(3, client.getAttemptCount());
+    }
+
+    @Test
+    void mockClient_failsAfterMaxRetries() {
+        MockHttpClient client = new MockHttpClient(10); // Always fails within retry limit
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+            RetryUtil.executeWithRetry(
+                () -> client.executeGet("/api/test"),
+                3, 10, 100
+            )
+        );
+
+        assertEquals(4, client.getAttemptCount()); // Initial + 3 retries
+        assertTrue(exception.getMessage().contains("Operation failed after retries"));
+    }
+
+    @Test
+    void mockClient_connectException() {
+        MockHttpClient client = new MockHttpClient(2, ConnectException.class);
+
+        String result = RetryUtil.executeWithRetry(
+            () -> client.executeGet("/api/test"),
+            5, 10, 100
+        );
+
+        assertTrue(result.contains("success"));
+        assertEquals(3, client.getAttemptCount());
+    }
+
+    @Test
+    void mockClient_socketTimeoutException() {
+        MockHttpClient client = new MockHttpClient(1, SocketTimeoutException.class);
+
+        String result = RetryUtil.executeWithRetry(
+            () -> client.executeGet("/api/test"),
+            5, 10, 100
+        );
+
+        assertTrue(result.contains("success"));
+        assertEquals(2, client.getAttemptCount());
+    }
+
+    @Test
+    void mockClient_exactlyMaxRetriesNeeded() {
+        MockHttpClient client = new MockHttpClient(3); // Fails 3 times, succeeds on 4th
+
+        String result = RetryUtil.executeWithRetry(
+            () -> client.executeGet("/api/test"),
+            3, 10, 100 // 3 retries = 4 total attempts
+        );
+
+        assertTrue(result.contains("success"));
+        assertEquals(4, client.getAttemptCount());
+    }
+
+    // === Original unit tests ===
 
     @Test
     void executeWithRetry_successOnFirstAttempt() {
@@ -31,7 +156,7 @@ class RetryUtilTest {
                 throw new RuntimeException("Simulated failure");
             }
             return "success";
-        }, 5, 10, 100); // Short delays for testing
+        }, 5, 10, 100);
 
         assertEquals("success", result);
         assertEquals(3, attempts.get());
@@ -48,7 +173,7 @@ class RetryUtilTest {
             }, 3, 10, 100);
         });
 
-        assertEquals(4, attempts.get()); // Initial + 3 retries
+        assertEquals(4, attempts.get());
         assertTrue(exception.getMessage().contains("Operation failed after retries"));
     }
 
@@ -88,7 +213,7 @@ class RetryUtilTest {
             }, 2, 10, 100);
         });
 
-        assertEquals(3, attempts.get()); // Initial + 2 retries
+        assertEquals(3, attempts.get());
     }
 
     @Test
@@ -102,11 +227,9 @@ class RetryUtilTest {
                 throw new RuntimeException("Simulated failure");
             }
             return "success";
-        }, 5, 50, 100); // baseDelay=50, maxDelay=100
+        }, 5, 50, 100);
 
         long elapsed = System.currentTimeMillis() - startTime;
-        // With delays: 50 + 100 + 100 = 250ms (capped at 100 after 2nd retry)
-        // Allow some tolerance for test execution
         assertTrue(elapsed >= 200, "Expected at least 200ms delay, got " + elapsed);
         assertTrue(elapsed < 500, "Expected less than 500ms delay, got " + elapsed);
     }
