@@ -1,7 +1,5 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection;
 
-import static edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil.executeWithRetry;
-
 import java.time.Instant;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
@@ -36,18 +34,14 @@ public class OclcConnection {
         log.debug("OCLC service ready");
     }
 
-    private void initConnection(String scope) throws Exception {
+    private void initConnection(String scope) {
         String clientId = config.getOclc().getWsKey();
         String clientSecret = config.getOclc().getSecret();
         oclcService = new ServiceBuilder(clientId)
             .apiSecret(clientSecret)
             .defaultScope(scope)
             .build(OclcApi.instance());
-        try {
-            executeWithRetry("OCLC OAuth token", this::getToken);
-        } catch (RuntimeException e) {
-            throw new Exception("Failed to connect to OCLC after retries", e);
-        }
+        getToken();
     }
 
     private void getToken() {
@@ -55,7 +49,8 @@ public class OclcConnection {
             token = oclcService.getAccessTokenClientCredentialsGrant();
         }
         catch (Exception e) {
-            throw new RuntimeException("Error connecting to OCLC", e);
+            log.error("Error connecting to OCLC: ", e);
+            return;
         }
         tokenExpiration = Instant.now().getEpochSecond() + token.getExpiresIn().intValue();
         log.debug("Connected to OCLC");
@@ -68,7 +63,7 @@ public class OclcConnection {
         if (timeLeft - TOKEN_BUFFER_SECONDS <= 0) {
             log.debug("Renewing token.");
             getToken();
-        } 
+        }
     }
 
     public JsonObject execute(String url) throws Exception {
