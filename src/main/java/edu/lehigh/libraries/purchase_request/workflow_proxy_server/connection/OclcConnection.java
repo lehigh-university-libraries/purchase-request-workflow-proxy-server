@@ -44,7 +44,7 @@ public class OclcConnection {
             .defaultScope(scope)
             .build(OclcApi.instance());
         try {
-            executeWithRetry(this::getToken);
+            executeWithRetry("OCLC OAuth token", this::getToken);
         } catch (RuntimeException e) {
             throw new Exception("Failed to connect to OCLC after retries", e);
         }

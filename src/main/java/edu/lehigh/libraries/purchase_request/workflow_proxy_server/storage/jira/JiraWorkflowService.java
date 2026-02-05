@@ -132,7 +132,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
 
     private void initUsers() {
         userEmailToAccountId = new HashMap<String, String>();
-        JsonObject response = executeWithRetry(() -> {
+        JsonObject response = executeWithRetry("Jira user search", () -> {
             try {
                 return client.executeGet("user/search/query", Map.of(
                     "query", "is assignee of " + PROJECT_CODE +

@@ -60,7 +60,7 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
         BOARD_ID = config.getRestyaboard().getBoardId();
         NEW_REQUEST_LIST_ID = config.getRestyaboard().getNewRequestListId();
 
-        JSONArray listsResponse = executeWithRetry(this::getLists);
+        JSONArray listsResponse = executeWithRetry("Restyaboard board lists", this::getLists);
         listsResponse.forEach(item -> {
             JSONObject list = (JSONObject)item;
             if (NEW_REQUEST_LIST_ID.longValue() == list.getLong("id")) {

@@ -44,7 +44,7 @@ public class FolioConnection {
 
         initConnection();
         try {
-            executeWithRetry(this::initToken);
+            executeWithRetry("FOLIO authentication", this::initToken);
         } catch (RuntimeException e) {
             throw new Exception("Failed to connect to FOLIO after retries", e);
         }

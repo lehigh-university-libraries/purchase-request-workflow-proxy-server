@@ -38,7 +38,7 @@ public class RestyaboardConnection {
 
         initConnection();
         try {
-            executeWithRetry(this::initToken);
+            executeWithRetry("Restyaboard authentication", this::initToken);
         } catch (RuntimeException e) {
             throw new Exception("Failed to connect to Restyaboard after retries", e);
         }
