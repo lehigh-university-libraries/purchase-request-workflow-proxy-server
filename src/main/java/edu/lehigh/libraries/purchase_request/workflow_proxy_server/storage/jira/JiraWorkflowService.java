@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil.executeWithRetry;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Service;
@@ -130,19 +132,19 @@ public class JiraWorkflowService extends AbstractWorkflowService {
 
     private void initUsers() {
         userEmailToAccountId = new HashMap<String, String>();
-        JsonObject response;
-        try {
-            response = client.executeGet("user/search/query", Map.of(
-                "query", "is assignee of " + PROJECT_CODE + 
-                    " or is commenter of " + PROJECT_CODE +
-                    " or is watcher of " + PROJECT_CODE +
-                    " or is reporter of " + PROJECT_CODE
-            ));
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        JsonArray users = response.get("values").getAsJsonArray();        
+        JsonObject response = executeWithRetry(() -> {
+            try {
+                return client.executeGet("user/search/query", Map.of(
+                    "query", "is assignee of " + PROJECT_CODE +
+                        " or is commenter of " + PROJECT_CODE +
+                        " or is watcher of " + PROJECT_CODE +
+                        " or is reporter of " + PROJECT_CODE
+                ));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        JsonArray users = response.get("values").getAsJsonArray();
         for (JsonElement userElement : users) {
             JsonObject user = userElement.getAsJsonObject();
             if (user.has("emailAddress")) {
