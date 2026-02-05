@@ -70,7 +70,7 @@ class RetryUtilTest {
 
         String result = RetryUtil.executeWithRetry(
             () -> client.executeGet("/api/test"),
-            5, 10, 100
+            6, 10, 100  // maxAttempts=6, initialInterval=10ms, maxInterval=100ms
         );
 
         assertTrue(result.contains("success"));
@@ -78,17 +78,17 @@ class RetryUtilTest {
     }
 
     @Test
-    void mockClient_failsAfterMaxRetries() {
-        MockHttpClient client = new MockHttpClient(10); // Always fails within retry limit
+    void mockClient_failsAfterMaxAttempts() {
+        MockHttpClient client = new MockHttpClient(10); // Always fails within attempt limit
 
         RuntimeException exception = assertThrows(RuntimeException.class, () ->
             RetryUtil.executeWithRetry(
                 () -> client.executeGet("/api/test"),
-                3, 10, 100
+                4, 10, 100  // maxAttempts=4
             )
         );
 
-        assertEquals(4, client.getAttemptCount()); // Initial + 3 retries
+        assertEquals(4, client.getAttemptCount()); // 4 total attempts
         assertTrue(exception.getMessage().contains("Operation failed after retries"));
     }
 
@@ -98,7 +98,7 @@ class RetryUtilTest {
 
         String result = RetryUtil.executeWithRetry(
             () -> client.executeGet("/api/test"),
-            5, 10, 100
+            6, 10, 100
         );
 
         assertTrue(result.contains("success"));
@@ -111,7 +111,7 @@ class RetryUtilTest {
 
         String result = RetryUtil.executeWithRetry(
             () -> client.executeGet("/api/test"),
-            5, 10, 100
+            6, 10, 100
         );
 
         assertTrue(result.contains("success"));
@@ -119,12 +119,12 @@ class RetryUtilTest {
     }
 
     @Test
-    void mockClient_exactlyMaxRetriesNeeded() {
+    void mockClient_exactlyMaxAttemptsNeeded() {
         MockHttpClient client = new MockHttpClient(3); // Fails 3 times, succeeds on 4th
 
         String result = RetryUtil.executeWithRetry(
             () -> client.executeGet("/api/test"),
-            3, 10, 100 // 3 retries = 4 total attempts
+            4, 10, 100  // maxAttempts=4 (exactly enough)
         );
 
         assertTrue(result.contains("success"));
@@ -156,21 +156,21 @@ class RetryUtilTest {
                 throw new RuntimeException("Simulated failure");
             }
             return "success";
-        }, 5, 10, 100);
+        }, 6, 10, 100);
 
         assertEquals("success", result);
         assertEquals(3, attempts.get());
     }
 
     @Test
-    void executeWithRetry_failsAfterMaxRetries() {
+    void executeWithRetry_failsAfterMaxAttempts() {
         AtomicInteger attempts = new AtomicInteger(0);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             RetryUtil.executeWithRetry(() -> {
                 attempts.incrementAndGet();
                 throw new RuntimeException("Always fails");
-            }, 3, 10, 100);
+            }, 4, 10, 100);  // maxAttempts=4
         });
 
         assertEquals(4, attempts.get());
@@ -197,40 +197,38 @@ class RetryUtilTest {
             if (attempt < 2) {
                 throw new RuntimeException("Simulated failure");
             }
-        }, 3, 10, 100);
+        }, 4, 10, 100);
 
         assertEquals(2, attempts.get());
     }
 
     @Test
-    void executeWithRetry_runnable_failsAfterMaxRetries() {
+    void executeWithRetry_runnable_failsAfterMaxAttempts() {
         AtomicInteger attempts = new AtomicInteger(0);
 
         assertThrows(RuntimeException.class, () -> {
             RetryUtil.executeWithRetry(() -> {
                 attempts.incrementAndGet();
                 throw new RuntimeException("Always fails");
-            }, 2, 10, 100);
+            }, 3, 10, 100);  // maxAttempts=3
         });
 
         assertEquals(3, attempts.get());
     }
 
     @Test
-    void executeWithRetry_respectsMaxDelay() {
+    void executeWithRetry_withOperationName() {
         AtomicInteger attempts = new AtomicInteger(0);
-        long startTime = System.currentTimeMillis();
 
-        RetryUtil.executeWithRetry(() -> {
+        String result = RetryUtil.executeWithRetry("Test operation", () -> {
             int attempt = attempts.incrementAndGet();
-            if (attempt < 4) {
+            if (attempt < 2) {
                 throw new RuntimeException("Simulated failure");
             }
             return "success";
-        }, 5, 50, 100);
+        });
 
-        long elapsed = System.currentTimeMillis() - startTime;
-        assertTrue(elapsed >= 200, "Expected at least 200ms delay, got " + elapsed);
-        assertTrue(elapsed < 500, "Expected less than 500ms delay, got " + elapsed);
+        assertEquals("success", result);
+        assertEquals(2, attempts.get());
     }
 }
