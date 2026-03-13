@@ -5,8 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil.executeWithRetry;
-
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Service;
@@ -21,6 +19,7 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.JiraConnection;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.AbstractWorkflowService;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -132,7 +131,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
 
     private void initUsers() {
         userEmailToAccountId = new HashMap<String, String>();
-        JsonObject response = executeWithRetry("Jira user search", () -> {
+        JsonObject response = RetryUtil.executeWithRetry("Jira user search", () -> {
             try {
                 return client.executeGet("user/search/query", Map.of(
                     "query", "is assignee of " + PROJECT_CODE +

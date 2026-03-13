@@ -1,7 +1,5 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection;
 
-import static edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil.executeWithRetry;
-
 import java.net.URI;
 import java.util.Map;
 
@@ -24,6 +22,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -44,7 +43,7 @@ public class FolioConnection {
 
         initConnection();
         try {
-            executeWithRetry("FOLIO authentication", this::initToken);
+            RetryUtil.executeWithRetry("FOLIO authentication", this::initToken);
         } catch (RuntimeException e) {
             throw new Exception("Failed to connect to FOLIO after retries", e);
         }

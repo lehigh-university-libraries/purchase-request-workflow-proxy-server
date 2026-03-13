@@ -1,7 +1,5 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.restyaboard;
 
-import static edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil.executeWithRetry;
-
 import java.net.URI;
 import java.util.Map;
 
@@ -20,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -38,7 +37,7 @@ public class RestyaboardConnection {
 
         initConnection();
         try {
-            executeWithRetry("Restyaboard authentication", this::initToken);
+            RetryUtil.executeWithRetry("Restyaboard authentication", this::initToken);
         } catch (RuntimeException e) {
             throw new Exception("Failed to connect to Restyaboard after retries", e);
         }

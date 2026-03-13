@@ -1,7 +1,5 @@
 package edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.restyaboard;
 
-import static edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil.executeWithRetry;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +15,7 @@ import edu.lehigh.libraries.purchase_request.model.SearchQuery;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.AbstractWorkflowService;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -60,7 +59,7 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
         BOARD_ID = config.getRestyaboard().getBoardId();
         NEW_REQUEST_LIST_ID = config.getRestyaboard().getNewRequestListId();
 
-        JSONArray listsResponse = executeWithRetry("Restyaboard board lists", this::getLists);
+        JSONArray listsResponse = RetryUtil.executeWithRetry("Restyaboard board lists", this::getLists);
         listsResponse.forEach(item -> {
             JSONObject list = (JSONObject)item;
             if (NEW_REQUEST_LIST_ID.longValue() == list.getLong("id")) {
