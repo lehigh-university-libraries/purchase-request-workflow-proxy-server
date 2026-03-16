@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.services.docs.v1.Docs;
@@ -37,8 +37,8 @@ abstract class GoogleDocsListener extends GoogleListener {
         CREDENTIALS_FILE_PATH = config.getGoogleDocs().getCredentialsFilePath();
     }
 
-    protected void buildService(NetHttpTransport HTTP_TRANSPORT, JsonFactory JSON_FACTORY, Credential credential) {
-        docsService = new Docs.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
+    protected void buildService(NetHttpTransport HTTP_TRANSPORT, JsonFactory JSON_FACTORY, HttpRequestInitializer httpRequestInitializer) {
+        docsService = new Docs.Builder(HTTP_TRANSPORT, JSON_FACTORY, httpRequestInitializer)
             .setApplicationName(APPLICATION_NAME)
             .build();
     }
@@ -48,7 +48,7 @@ abstract class GoogleDocsListener extends GoogleListener {
         return Collections.singletonList(DocsScopes.DOCUMENTS);
     }
 
-    protected void confirmWritePermission(Credential credential) throws IOException {
+    protected void confirmWritePermission() throws IOException {
         // No clear way to implement this for Google Docs.
     }
 

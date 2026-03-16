@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.services.sheets.v4.Sheets;
@@ -45,18 +45,18 @@ abstract class GoogleSheetsListener extends GoogleListener {
 
     abstract List<Object> getHeaders();
 
-    protected void buildService(NetHttpTransport HTTP_TRANSPORT, JsonFactory JSON_FACTORY, Credential credential) {
-        sheetsService = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential)
+    protected void buildService(NetHttpTransport HTTP_TRANSPORT, JsonFactory JSON_FACTORY, HttpRequestInitializer httpRequestInitializer) {
+        sheetsService = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, httpRequestInitializer)
             .setApplicationName(APPLICATION_NAME)
             .build();
-    } 
+    }
 
     @Override
     protected Collection<String> getScopes() {
         return Collections.singletonList(SheetsScopes.SPREADSHEETS);
     }
 
-    protected void confirmWritePermission(Credential credential) throws IOException {
+    protected void confirmWritePermission() throws IOException {
         // Set the column header as both a convenience and a start-time test of write permissions.
         ValueRange body = valueRange(getHeaders());
         for (String spreadsheetId: ALL_RESOURCES_TO_TEST) {
