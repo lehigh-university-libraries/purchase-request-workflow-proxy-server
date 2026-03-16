@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.model.SearchQuery;
@@ -27,7 +28,6 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.Match;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.MatchQuery;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.match.MatchService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.WorkflowService;
-import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -103,7 +103,7 @@ public class WorkflowController {
         log.debug("Request: POST /purchase-requests/" + key + "/re-enrich " + repeatEnrichmentRequest);
         PurchaseRequest purchaseRequest = service.findByKey(key);
         if (purchaseRequest == null) {
-            throw new NotFoundException();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
         enrichmentManager.notifyRepeatEnrichment(purchaseRequest, repeatEnrichmentRequest);
     }
@@ -134,11 +134,5 @@ public class WorkflowController {
         log.debug("found illegal arguments");
     }
 
-    @ResponseStatus(value=HttpStatus.NOT_FOUND)
-    @ExceptionHandler(NotFoundException.class)
-    public void notFoundException() {
-        // no op
-        log.debug("PR not found");
-    }
 
 }
