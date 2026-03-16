@@ -1,7 +1,7 @@
 package edu.lehigh.libraries.purchase_request.model.validation;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 

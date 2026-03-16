@@ -3,7 +3,7 @@ package edu.lehigh.libraries.purchase_request.model;
 import java.util.List;
 import java.util.regex.Matcher;
 
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.Pattern;
 
 import edu.lehigh.libraries.purchase_request.model.validation.NoHtml;
 import edu.lehigh.libraries.purchase_request.model.validation.TitleOrIsbn;

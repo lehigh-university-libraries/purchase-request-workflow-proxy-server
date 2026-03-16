@@ -30,19 +30,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
-            .and()
-            .csrf().disable()
-            .authorizeHttpRequests().requestMatchers(PROTECTED_URLS).authenticated()
-            .and()
-            .authorizeHttpRequests().requestMatchers(PUBLIC_URLS).permitAll()
-            .and()
-            .httpBasic().realmName("purchase-request-workflow")
-            .and()
-            .formLogin().disable()
-            .logout().disable();
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .cors(cors -> cors.configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues()))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(PROTECTED_URLS).authenticated()
+                .requestMatchers(PUBLIC_URLS).permitAll()
+            )
+            .httpBasic(httpBasic -> httpBasic.realmName("purchase-request-workflow"))
+            .formLogin(formLogin -> formLogin.disable())
+            .logout(logout -> logout.disable());
         return httpSecurity.build();
     }
 

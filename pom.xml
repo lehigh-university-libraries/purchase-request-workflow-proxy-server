@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.18</version>
+		<version>3.4.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>edu.lehigh.libraries</groupId>
@@ -14,7 +14,7 @@
 	<name>purchase-request-workflow-proxy-server</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>21</java.version>
 		<start-class>edu.lehigh.libraries.purchase_request.workflow_proxy_server.WorkflowApplication</start-class>
 	</properties>
 	<packaging>war</packaging>
