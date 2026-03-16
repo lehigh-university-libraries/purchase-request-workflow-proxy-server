@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -35,7 +36,11 @@ public class RestyaboardConnection {
         this.config = config;
 
         initConnection();
-        initToken();
+        try {
+            RetryUtil.executeWithRetry("Restyaboard authentication", this::initToken);
+        } catch (RuntimeException e) {
+            throw new Exception("Failed to connect to Restyaboard after retries", e);
+        }
 
         log.debug("Restyaboard connection ready");
     }
@@ -45,31 +50,35 @@ public class RestyaboardConnection {
             .build();                
     }
 
-    private void initToken() throws Exception {
-        String url = config.getRestyaboard().getBaseUrl() + API_PATH + LOGIN_PATH;
-        URI uri = new URIBuilder(url).build();
+    private void initToken() {
+        try {
+            String url = config.getRestyaboard().getBaseUrl() + API_PATH + LOGIN_PATH;
+            URI uri = new URIBuilder(url).build();
 
-        JSONObject postData = new JSONObject();
-        postData.put("email", config.getRestyaboard().getUsername());
-        postData.put("password", config.getRestyaboard().getPassword());
+            JSONObject postData = new JSONObject();
+            postData.put("email", config.getRestyaboard().getUsername());
+            postData.put("password", config.getRestyaboard().getPassword());
 
-        HttpUriRequest post = RequestBuilder.post()
-            .setUri(uri)
-            .setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
-            .setEntity(new StringEntity(postData.toString(), "UTF-8"))
-            .build();
-        CloseableHttpResponse response = client.execute(post);
-        HttpEntity entity = response.getEntity();
-        String responseString = EntityUtils.toString(entity);
-        JSONObject jsonObject = new JSONObject(responseString);
+            HttpUriRequest post = RequestBuilder.post()
+                .setUri(uri)
+                .setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
+                .setEntity(new StringEntity(postData.toString(), "UTF-8"))
+                .build();
+            CloseableHttpResponse response = client.execute(post);
+            HttpEntity entity = response.getEntity();
+            String responseString = EntityUtils.toString(entity);
+            JSONObject jsonObject = new JSONObject(responseString);
 
-        int responseCode = response.getStatusLine().getStatusCode();
-        log.debug("got auth response from restyaboard with response code: " + responseCode);
-        if (responseCode > 399) {
-            throw new Exception(responseString);
+            int responseCode = response.getStatusLine().getStatusCode();
+            log.debug("got auth response from restyaboard with response code: " + responseCode);
+            if (responseCode > 399) {
+                throw new RuntimeException("Restyaboard auth failed: " + responseString);
+            }
+
+            token = jsonObject.getString("access_token");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize Restyaboard token", e);
         }
-
-        token = jsonObject.getString("access_token");
     }
 
     public JSONObject executePost(String url, JSONObject body) throws Exception {

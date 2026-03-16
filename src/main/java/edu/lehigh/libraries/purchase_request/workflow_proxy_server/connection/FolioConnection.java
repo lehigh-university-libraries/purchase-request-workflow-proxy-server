@@ -22,6 +22,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,7 +42,11 @@ public class FolioConnection {
         this.config = config;
 
         initConnection();
-        initToken();
+        try {
+            RetryUtil.executeWithRetry("FOLIO authentication", this::initToken);
+        } catch (RuntimeException e) {
+            throw new Exception("Failed to connect to FOLIO after retries", e);
+        }
 
         log.debug("FOLIO connection ready");
     }
@@ -55,32 +60,36 @@ public class FolioConnection {
             .build();                
     }
 
-    private void initToken() throws Exception {
-        String url = config.getFolio().getOkapiBaseUrl() + LOGIN_PATH;
-        URI uri = new URIBuilder(url).build();
+    private void initToken() {
+        try {
+            String url = config.getFolio().getOkapiBaseUrl() + LOGIN_PATH;
+            URI uri = new URIBuilder(url).build();
 
-        JSONObject postData = new JSONObject();
-        postData.put("username", config.getFolio().getUsername());
-        postData.put("password", config.getFolio().getPassword());
-        postData.put("tenant", config.getFolio().getTenantId());
+            JSONObject postData = new JSONObject();
+            postData.put("username", config.getFolio().getUsername());
+            postData.put("password", config.getFolio().getPassword());
+            postData.put("tenant", config.getFolio().getTenantId());
 
-        HttpUriRequest post = RequestBuilder.post()
-            .setUri(uri)
-            .setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
-            .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()).setVersion(HttpVersion.HTTP_1_1)
-            .setHeader(TENANT_HEADER, config.getFolio().getTenantId())
-            .setEntity(new StringEntity(postData.toString(), "UTF-8"))
-            .build();
-        CloseableHttpResponse response = client.execute(post);
-        HttpEntity entity = response.getEntity();
-        String responseString = EntityUtils.toString(entity);
-        int responseCode = response.getStatusLine().getStatusCode();
-        log.debug("got auth response from folio with response code: " + responseCode);
-        if (responseCode > 399) {
-            throw new Exception(responseString);
+            HttpUriRequest post = RequestBuilder.post()
+                .setUri(uri)
+                .setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
+                .setHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType()).setVersion(HttpVersion.HTTP_1_1)
+                .setHeader(TENANT_HEADER, config.getFolio().getTenantId())
+                .setEntity(new StringEntity(postData.toString(), "UTF-8"))
+                .build();
+            CloseableHttpResponse response = client.execute(post);
+            HttpEntity entity = response.getEntity();
+            String responseString = EntityUtils.toString(entity);
+            int responseCode = response.getStatusLine().getStatusCode();
+            log.debug("got auth response from folio with response code: " + responseCode);
+            if (responseCode > 399) {
+                throw new RuntimeException("FOLIO auth failed: " + responseString);
+            }
+
+            token = response.getFirstHeader(TOKEN_HEADER).getValue();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize FOLIO token", e);
         }
-
-        token = response.getFirstHeader(TOKEN_HEADER).getValue();
     }
 
     public JSONObject executeGet(String url, String queryString) throws Exception {

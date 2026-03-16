@@ -19,6 +19,7 @@ import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.JiraConnection;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.AbstractWorkflowService;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -130,19 +131,19 @@ public class JiraWorkflowService extends AbstractWorkflowService {
 
     private void initUsers() {
         userEmailToAccountId = new HashMap<String, String>();
-        JsonObject response;
-        try {
-            response = client.executeGet("user/search/query", Map.of(
-                "query", "is assignee of " + PROJECT_CODE + 
-                    " or is commenter of " + PROJECT_CODE +
-                    " or is watcher of " + PROJECT_CODE +
-                    " or is reporter of " + PROJECT_CODE
-            ));
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        JsonArray users = response.get("values").getAsJsonArray();        
+        JsonObject response = RetryUtil.executeWithRetry("Jira user search", () -> {
+            try {
+                return client.executeGet("user/search/query", Map.of(
+                    "query", "is assignee of " + PROJECT_CODE +
+                        " or is commenter of " + PROJECT_CODE +
+                        " or is watcher of " + PROJECT_CODE +
+                        " or is reporter of " + PROJECT_CODE
+                ));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+        JsonArray users = response.get("values").getAsJsonArray();
         for (JsonElement userElement : users) {
             JsonObject user = userElement.getAsJsonObject();
             if (user.has("emailAddress")) {

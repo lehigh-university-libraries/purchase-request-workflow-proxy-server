@@ -63,7 +63,7 @@ public class OclcConnection {
         if (timeLeft - TOKEN_BUFFER_SECONDS <= 0) {
             log.debug("Renewing token.");
             getToken();
-        } 
+        }
     }
 
     public JsonObject execute(String url) throws Exception {

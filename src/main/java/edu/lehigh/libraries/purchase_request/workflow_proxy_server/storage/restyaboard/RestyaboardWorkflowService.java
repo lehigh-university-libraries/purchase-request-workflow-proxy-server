@@ -15,6 +15,7 @@ import edu.lehigh.libraries.purchase_request.model.SearchQuery;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.storage.AbstractWorkflowService;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.util.RetryUtil;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -58,7 +59,7 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
         BOARD_ID = config.getRestyaboard().getBoardId();
         NEW_REQUEST_LIST_ID = config.getRestyaboard().getNewRequestListId();
 
-        JSONArray listsResponse = getLists();
+        JSONArray listsResponse = RetryUtil.executeWithRetry("Restyaboard board lists", this::getLists);
         listsResponse.forEach(item -> {
             JSONObject list = (JSONObject)item;
             if (NEW_REQUEST_LIST_ID.longValue() == list.getLong("id")) {
@@ -69,15 +70,13 @@ public class RestyaboardWorkflowService extends AbstractWorkflowService {
 
     private JSONArray getLists() {
         String url = "/boards/" + BOARD_ID + "/lists.json";
-        JSONObject result;
         try {
-            result = connection.executeGet(url);
+            JSONObject result = connection.executeGet(url);
+            return result.getJSONArray("data");
         }
         catch (Exception e) {
-            log.error("Could not load lists: ", e);
-            return null;
+            throw new RuntimeException("Could not load lists", e);
         }
-        return result.getJSONArray("data");
     }
 
     @Override
