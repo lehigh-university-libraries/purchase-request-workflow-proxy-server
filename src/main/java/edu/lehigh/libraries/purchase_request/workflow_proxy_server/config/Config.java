@@ -257,6 +257,11 @@ public class Config {
         private String objectCodeFieldId;
 
         /**
+         * ID of the Jira custom field representing the permanent library location for this item.
+         */
+        private String permanentLocationFieldId;
+
+        /**
          * ID of the Jira custom field representing the unique ID of the purchased item within the LMS.
          */
         private String postPurchaseIdFieldId;

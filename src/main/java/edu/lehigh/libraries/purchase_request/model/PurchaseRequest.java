@@ -109,6 +109,9 @@ public class PurchaseRequest {
     @NoHtml
     private String objectCode;
 
+    @NoHtml
+    private String permanentLocation;
+
     private List<Comment> postRequestComments;
 
     @NoHtml
