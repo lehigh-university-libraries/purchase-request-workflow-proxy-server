@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -51,10 +52,9 @@ public class CatalogingSlipGoogleDocsListener extends GoogleDocsListener {
 
     String TEMPLATE_DOC_ID;
     String OUTPUT_DOC_ID;
-    
+
     CatalogingSlipGoogleDocsListener(WorkflowService workflowService, Config config) throws IOException, GeneralSecurityException {
         super(workflowService, config);
-
         log.debug("CatalogingSlipGoogleDocsListener listening.");
     }
 
@@ -76,20 +76,26 @@ public class CatalogingSlipGoogleDocsListener extends GoogleDocsListener {
     }
 
     void writePurchase(PurchaseRequest purchaseRequest) {
-        // Load template
         Document templateDoc = loadTemplateDoc();
-        List<StructuralElement> templateContent = templateDoc.getBody().getContent();
-        
-        // Build structure of new content
-        List<Request> docsRequests = new ArrayList<Request>();
-        int startIndex = getOutputDocStartIndex();
-        copyStructuralElements(docsRequests, templateContent, startIndex);
+        List<Request> pendingRequests = new ArrayList<>();
+        int index = getOutputDocEndIndex();
 
-        // Merge content of purchase request
-        mergeTemplateValues(docsRequests, purchaseRequest);
+        for (StructuralElement element : templateDoc.getBody().getContent()) {
+            if (element.getParagraph() != null) {
+                index = copyParagraphElements(pendingRequests, element.getParagraph().getElements(), index);
+            }
+            else if (element.getTable() != null) {
+                if (!pendingRequests.isEmpty()) {
+                    executeBatchUpdate(pendingRequests);
+                    pendingRequests.clear();
+                }
+                copyTable(element.getTable());
+                index = getOutputDocEndIndex();
+            }
+        }
 
-        // Write output to Google Doc
-        executeBatchUpdate(docsRequests);
+        mergeTemplateValues(pendingRequests, purchaseRequest);
+        executeBatchUpdate(pendingRequests);
     }
 
     private Document loadTemplateDoc() {
@@ -102,81 +108,94 @@ public class CatalogingSlipGoogleDocsListener extends GoogleDocsListener {
     }
 
     private void writePageBreak() {
-        List<Request> docsRequests = new ArrayList<Request>();
-        int startIndex = getOutputDocStartIndex();
-        docsRequests.add(new Request()
+        int startIndex = getOutputDocEndIndex();
+        executeBatchUpdate(Collections.singletonList(new Request()
             .setInsertPageBreak(new InsertPageBreakRequest()
                 .setLocation(new Location().setIndex(startIndex))
             )
-        );
-        executeBatchUpdate(docsRequests);
+        ));
     }
 
-    private int getOutputDocStartIndex() {
+    private int getOutputDocEndIndex() {
         Document outputDoc;
         try {
             outputDoc = docsService.documents().get(OUTPUT_DOC_ID).execute();
         }
         catch (IOException e) {
-            throw new RuntimeException("Could not get output doc start index.", e);
+            throw new RuntimeException("Could not get output doc end index.", e);
         }
-        List<StructuralElement> structuralElements = outputDoc.getBody().getContent();
-        return structuralElements.get(structuralElements.size() - 1).getEndIndex() - 1;
+        List<StructuralElement> elements = outputDoc.getBody().getContent();
+        return elements.get(elements.size() - 1).getEndIndex() - 1;
     }
 
-    private int copyStructuralElements(List<Request> docsRequests, List<StructuralElement> structuralElements,
-        int parentIndex) {
-            
-        int index = parentIndex;
-        for (StructuralElement structuralElement : structuralElements) {
-            if (structuralElement.getParagraph() != null) {
-                List<ParagraphElement> paragraphElements = structuralElement.getParagraph().getElements();
-                index = copyParagraphElements(docsRequests, paragraphElements, index);
-            }
+    private void copyTable(Table templateTable) {
+        int rows = templateTable.getTableRows().size();
+        int cols = templateTable.getTableRows().get(0).getTableCells().size();
 
-            if (structuralElement.getTable() != null) {
-                Table table = structuralElement.getTable();
-                // Cannot accurately measure index change from adding table
-                copyTable(docsRequests, index, table);
-            }
+        // Phase A: Insert empty table structure
+        executeBatchUpdate(Collections.singletonList(new Request().setInsertTable(
+            new InsertTableRequest()
+                .setEndOfSegmentLocation(new EndOfSegmentLocation())
+                .setRows(rows)
+                .setColumns(cols)
+        )));
+
+        // Phase B: Fetch output doc to get actual cell start indexes
+        Document outputDoc;
+        try {
+            outputDoc = docsService.documents().get(OUTPUT_DOC_ID).execute();
         }
-        return index;
-    }
+        catch (IOException e) {
+            throw new RuntimeException("Could not read output doc after table insert.", e);
+        }
+        StructuralElement tableElement = findLastTableElement(outputDoc);
+        Table outputTable = tableElement.getTable();
+        Location tableStartLocation = new Location().setIndex(tableElement.getStartIndex());
 
-    private void copyTable(List<Request> docsRequests, int parentIndex, Table table) {
-        int tableStartIndex = parentIndex + 1;
-        Location tableStartLocation = new Location().setIndex(tableStartIndex);
-        docsRequests.add(new Request().setInsertTable(new InsertTableRequest()
-            .setEndOfSegmentLocation(new EndOfSegmentLocation())
-            .setRows(table.getTableRows().size())
-            .setColumns(table.getTableRows().get(0).getTableCells().size())));
-
-        // Recommended practice is to iterate backwards, so that content length doesn't affect the indexes
-        ListIterator<TableRow> rowIterator = table.getTableRows().listIterator(table.getRows());
+        // Phase C: Fill cells in reverse position order (highest index first) so each
+        // insertion doesn't shift the pre-read positions of cells at lower indexes.
+        List<Request> cellRequests = new ArrayList<>();
+        ListIterator<TableRow> rowIterator = templateTable.getTableRows().listIterator(rows);
         while (rowIterator.hasPrevious()) {
             int rowIndex = rowIterator.previousIndex();
-            TableRow row = rowIterator.previous();
-            ListIterator<TableCell> cellIterator = row.getTableCells().listIterator(row.getTableCells().size());
+            TableRow templateRow = rowIterator.previous();
+            TableRow outputRow = outputTable.getTableRows().get(rowIndex);
+
+            ListIterator<TableCell> cellIterator = templateRow.getTableCells().listIterator(templateRow.getTableCells().size());
             while (cellIterator.hasPrevious()) {
                 int cellIndex = cellIterator.previousIndex();
-                TableCell cell = cellIterator.previous();
-                copyTableCell(docsRequests, table, cell, tableStartLocation, tableStartIndex, rowIndex, cellIndex);
+                TableCell templateCell = cellIterator.previous();
+                TableCell outputCell = outputRow.getTableCells().get(cellIndex);
+
+                int cellStartIndex = outputCell.getContent().get(0).getStartIndex();
+                copyCellContent(cellRequests, templateCell.getContent(), cellStartIndex);
+                copyTableColumnSpan(cellRequests, templateCell, tableStartLocation, rowIndex, cellIndex);
+                if (rowIndex == 0) {
+                    copyTableColumnWidths(cellRequests, templateTable, tableStartLocation, cellIndex);
+                }
             }
+        }
+        if (!cellRequests.isEmpty()) {
+            executeBatchUpdate(cellRequests);
         }
     }
 
-    private void copyTableCell(List<Request> docsRequests, Table table, TableCell cell, Location tableStartLocation, 
-        int tableStartIndex, int rowIndex, int cellIndex) {
+    private StructuralElement findLastTableElement(Document doc) {
+        List<StructuralElement> elements = doc.getBody().getContent();
+        for (int i = elements.size() - 1; i >= 0; i--) {
+            if (elements.get(i).getTable() != null) {
+                return elements.get(i);
+            }
+        }
+        throw new RuntimeException("No table found in output doc after table insert.");
+    }
 
-        // Copy the content and styles
-        List<StructuralElement> cellElements = cell.getContent();
-        int cellLocationIndex = tableStartIndex + 3 + (rowIndex * 5) + (cellIndex * 2);
-        copyStructuralElements(docsRequests, cellElements, cellLocationIndex);
-        copyTableColumnSpan(docsRequests, cell, tableStartLocation, rowIndex, cellIndex);
-
-        // On row zero, set the column widths
-        if (rowIndex == 0) {
-            copyTableColumnWidths(docsRequests, table, tableStartLocation, cellIndex);
+    private void copyCellContent(List<Request> docsRequests, List<StructuralElement> cellElements, int startIndex) {
+        int index = startIndex;
+        for (StructuralElement element : cellElements) {
+            if (element.getParagraph() != null) {
+                index = copyParagraphElements(docsRequests, element.getParagraph().getElements(), index);
+            }
         }
     }
 
@@ -210,28 +229,24 @@ public class CatalogingSlipGoogleDocsListener extends GoogleDocsListener {
         ));
     }
 
-    private int copyParagraphElements(List<Request> docsRequests, List<ParagraphElement> paragraphElements,
-        int parentIndex ) {
-        
+    private int copyParagraphElements(List<Request> docsRequests, List<ParagraphElement> paragraphElements, int parentIndex) {
         int index = parentIndex;
         for (ParagraphElement paragraphElement : paragraphElements) {
             if (paragraphElement.getTextRun() != null) {
-                String content = paragraphElement.getTextRun().getContent();
-                docsRequests.add(new Request()
-                    .setInsertText(new InsertTextRequest()
-                        // Have to leave single newlines alone, but can trim the rest
-                        .setText(content.length() > 2 ? content.trim() : content)
-                        .setLocation(new Location().setIndex(index))
-                    )
-                );
-                if (paragraphElement.getTextRun().getTextStyle() != null) {
-                    copyTextStyle(docsRequests, paragraphElement.getTextRun().getTextStyle(), index, content);
+                String raw = paragraphElement.getTextRun().getContent();
+                String content = raw.endsWith("\n") ? raw.substring(0, raw.length() - 1) : raw;
+                if (!content.isEmpty()) {
+                    docsRequests.add(new Request()
+                        .setInsertText(new InsertTextRequest()
+                            .setText(content)
+                            .setLocation(new Location().setIndex(index))
+                        )
+                    );
+                    if (paragraphElement.getTextRun().getTextStyle() != null) {
+                        copyTextStyle(docsRequests, paragraphElement.getTextRun().getTextStyle(), index, content);
+                    }
+                    index += content.length();
                 }
-                index += paragraphElement.getEndIndex() - paragraphElement.getStartIndex();
-            }
-            if (paragraphElement.getPageBreak() != null) {
-                throw new RuntimeException(
-                        "Cannot handle page break in template, but one is entered automatically before its content.");
             }
         }
         return index;
