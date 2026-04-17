@@ -158,7 +158,15 @@ public class Config {
         private List<Long> deniedStatusId;
 
         /**
-         * ID of the Jira status that indicates a purchase request has arrived at its destination.
+         * ID of the Jira status that indicates a purchase request has been received by library staff.
+         * 
+         * A list of statuses with IDs can be retrieved with {{jira.url}}/status
+         */
+        private Long receivedStatusId;
+
+        /**
+         * ID of the Jira status that indicates a purchase request has arrived at its
+         * patron-accessible destination.
          * 
          * A list of statuses with IDs can be retrieved with {{jira.url}}/status
          */

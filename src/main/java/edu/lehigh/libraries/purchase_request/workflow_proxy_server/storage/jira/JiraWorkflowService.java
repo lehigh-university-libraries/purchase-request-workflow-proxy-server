@@ -57,6 +57,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String APPROVED_STATUS_NAME;
     private Integer APPROVED_STATUS_TRANSITION_ID;
     private List<Long> DENIED_STATUS_ID;
+    private Long RECEIVED_STATUS_ID;
     private Long ARRIVED_STATUS_ID;
     private Integer MAX_SEARCH_RESULTS;
     private String MULTIPLE_LIBRARIANS_USERNAME;
@@ -98,6 +99,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         APPROVED_STATUS_NAME = config.getJira().getApprovedStatusName();
         APPROVED_STATUS_TRANSITION_ID = config.getJira().getApprovedStatusTransitionId();
         DENIED_STATUS_ID = config.getJira().getDeniedStatusId();
+        RECEIVED_STATUS_ID = config.getJira().getReceivedStatusId();
         ARRIVED_STATUS_ID = config.getJira().getArrivedStatusId();
         MAX_SEARCH_RESULTS = config.getJira().getMaxSearchResults();
         MULTIPLE_LIBRARIANS_USERNAME = config.getJira().getMultipleLibrariansUsername();
@@ -699,6 +701,9 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         }
         else if (DENIED_STATUS_ID.contains(statusId)) {
             notifyPurchaseRequestDenied(purchaseRequest);
+        }
+        else if (RECEIVED_STATUS_ID.equals(statusId)) {
+            notifyPurchaseRequestReceived(purchaseRequest);
         }
         else if (ARRIVED_STATUS_ID.equals(statusId)) {
             notifyPurchaseRequestArrived(purchaseRequest);

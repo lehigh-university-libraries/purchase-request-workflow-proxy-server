@@ -4,12 +4,14 @@ import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 
 public interface WorkflowServiceListener {
 
-    void purchaseRequested(PurchaseRequest purchaseRequest);
+    default void purchaseRequested(PurchaseRequest purchaseRequest) {}
 
-    void purchaseApproved(PurchaseRequest purchaseRequest);
-    
-    void purchaseDenied(PurchaseRequest purchaseRequest);
+    default void purchaseApproved(PurchaseRequest purchaseRequest) {}
 
-    void purchaseArrived(PurchaseRequest purchaseRequest);
+    default void purchaseDenied(PurchaseRequest purchaseRequest) {}
+
+    default void purchaseReceived(PurchaseRequest purchaseRequest) {}
+
+    default void purchaseArrived(PurchaseRequest purchaseRequest) {}
     
 }

@@ -84,6 +84,7 @@ The `WorkflowServiceListener` interface supports actions that take place after n
 - Purchase Requested
 - Purchase Approved
 - Purchase Denied (TBD)
+- Purchase Received
 
 Supplied implementations:
 
@@ -257,7 +258,8 @@ These parameters define the IDs and names of Jira statuses and the transitions b
 | workflow.jira.approvedStatusName | Name of the Jira status used to identify approved purchases.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` |
 | workflow.jira.approvedStatusTransitionId | ID of the Jira transition that takes an issue from New to Approved. Find the ID [via an API call](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-transitions-get) |  If `workflow.storage` is `jira` |
 | workflow.jira.deniedStatusId | ID of the Jira status to use identify denied purchase requests.  If multiple Jira status values signify a denied request, this property may be a comma-separated list.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` | 
-| workflow.jira.arrivedStatusId | ID of the Jira status to use identify purchases that have arrived at their destination.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` | 
+| workflow.jira.receivedStatusId | ID of the Jira status to use identify purchases that been received by library staff.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` | 
+| workflow.jira.arrivedStatusId | ID of the Jira status to use identify purchases that have arrived at their patron-accessible destination.  See `approvedStatusId` for finding value. | If `workflow.storage` is `jira` | 
 
 #### Jira Field IDs
 

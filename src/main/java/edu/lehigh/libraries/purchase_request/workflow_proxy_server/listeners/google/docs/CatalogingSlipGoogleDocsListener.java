@@ -67,29 +67,12 @@ public class CatalogingSlipGoogleDocsListener extends GoogleDocsListener {
     }
 
     @Override
-    public void purchaseRequested(PurchaseRequest purchaseRequest) {
-        // nothing to do for requested purchases
-    }
-
-    @Override
-    public void purchaseApproved(PurchaseRequest purchaseRequest) {
-        // TODO: Ultimately this should happen on the new Received status
- 
+    public void purchaseReceived(PurchaseRequest purchaseRequest) {
         if (OUTPUT_DOC_ID != null) {
-            log.debug("Writing approved purchase.");
+            log.debug("Writing received purchase.");
             writePageBreak();
             writePurchase(purchaseRequest);
         }
-    }
-
-    @Override
-    public void purchaseDenied(PurchaseRequest purchaseRequest) {
-        // nothing to do for denied purchases        
-    }
-
-    @Override
-    public void purchaseArrived(PurchaseRequest purchaseRequest) {
-        // nothing to do for arrived purchases        
     }
 
     void writePurchase(PurchaseRequest purchaseRequest) {

@@ -48,6 +48,7 @@ workflow.jira.approvedStatusId=12345
 workflow.jira.approvedStatusName=Approved
 workflow.jira.approvedStatusTransitionId=1
 workflow.jira.deniedStatusId=12345
+workflow.jira.receivedStatusId=12345
 workflow.jira.arrivedStatusId=12345
 
 workflow.jira.contributorFieldId=customfield_12345
