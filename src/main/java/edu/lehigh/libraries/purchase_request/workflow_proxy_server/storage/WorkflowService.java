@@ -31,4 +31,8 @@ public interface WorkflowService {
         throw new UnsupportedOperationException("Not supported by this storage backend");
     }
 
+    default List<String> getFundCodeOptions() {
+        throw new UnsupportedOperationException("Not supported by this storage backend");
+    }
+
 }

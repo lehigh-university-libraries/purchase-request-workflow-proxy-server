@@ -211,6 +211,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         addShortTextField(fields, REQUESTER_USERNAME_FIELD_ID, purchaseRequest.getRequesterUsername());
         addShortTextField(fields, REQUESTER_INFO_FIELD_ID, purchaseRequest.getRequesterInfo());
         addSelectField(fields, PERMANENT_LOCATION_FIELD_ID, purchaseRequest.getPermanentLocation());
+        addSelectField(fields, FUND_CODE_FIELD_ID, purchaseRequest.getFundCode());
 
         // Set conditional fields
         setAssignee(fields, purchaseRequest);
@@ -714,6 +715,14 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     }
 
     public List<String> getPermanentLocationOptions() {
+        return getFieldOptions(PERMANENT_LOCATION_FIELD_ID);
+    }
+
+    public List<String> getFundCodeOptions() {
+        return getFieldOptions(FUND_CODE_FIELD_ID);
+    }
+
+    private List<String> getFieldOptions(String fieldId) {
         try {
             JsonObject response = client.executeGet("issue/createmeta", Map.of(
                 "projectKeys", PROJECT_CODE,
@@ -724,7 +733,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
                 .getAsJsonArray("projects").get(0).getAsJsonObject()
                 .getAsJsonArray("issuetypes").get(0).getAsJsonObject()
                 .getAsJsonObject("fields")
-                .getAsJsonObject(PERMANENT_LOCATION_FIELD_ID)
+                .getAsJsonObject(fieldId)
                 .getAsJsonArray("allowedValues");
             List<String> options = new LinkedList<>();
             for (JsonElement element : allowedValues) {
