@@ -225,8 +225,8 @@ Keep these properties as-is in your `application.config`:
     spring.datasource.url=jdbc:mysql://${workflow.db.host:localhost}:3306/${workflow.db.name}
     spring.datasource.username=${workflow.db.username}
     spring.datasource.password=${workflow.db.password}
-    spring.datasource.driver-class-name=com.mysql.jdbc.Driver
-    spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+    spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+    spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
 
 ### Jira Section
 
