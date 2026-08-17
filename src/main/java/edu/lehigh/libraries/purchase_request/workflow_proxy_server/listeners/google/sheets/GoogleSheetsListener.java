@@ -83,16 +83,6 @@ abstract class GoogleSheetsListener extends GoogleListener {
         }
     }
 
-    @Override
-    public void purchaseDenied(PurchaseRequest purchaseRequest) {
-        // nothing to do for denied purchases        
-    }
-
-    @Override
-    public void purchaseArrived(PurchaseRequest purchaseRequest) {
-        // nothing to do for arrived purchases        
-    }
-
     abstract void writePurchase(PurchaseRequest purchaseRequest, String spreadsheetId);
 
     static ValueRange valueRange(List<Object> row) {

@@ -158,7 +158,15 @@ public class Config {
         private List<Long> deniedStatusId;
 
         /**
-         * ID of the Jira status that indicates a purchase request has arrived at its destination.
+         * ID of the Jira status that indicates a purchase request has been received by library staff.
+         * 
+         * A list of statuses with IDs can be retrieved with {{jira.url}}/status
+         */
+        private Long receivedStatusId;
+
+        /**
+         * ID of the Jira status that indicates a purchase request has arrived at its
+         * patron-accessible destination.
          * 
          * A list of statuses with IDs can be retrieved with {{jira.url}}/status
          */
@@ -255,6 +263,11 @@ public class Config {
          * ID of the Jira custom field representing a budget object or purpose code for this request.
          */
         private String objectCodeFieldId;
+
+        /**
+         * ID of the Jira custom field representing the permanent library location for this item.
+         */
+        private String permanentLocationFieldId;
 
         /**
          * ID of the Jira custom field representing the unique ID of the purchased item within the LMS.

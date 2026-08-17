@@ -48,6 +48,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String REQUESTER_INFO_FIELD_ID;
     private String FUND_CODE_FIELD_ID;
     private String OBJECT_CODE_FIELD_ID;
+    private String PERMANENT_LOCATION_FIELD_ID;
     private String POST_PURCHASE_ID_FIELD_ID;
     private String DECISION_REASON_FIELD_ID;
     private String DEFERRED_STATUS_NAME;
@@ -56,6 +57,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String APPROVED_STATUS_NAME;
     private Integer APPROVED_STATUS_TRANSITION_ID;
     private List<Long> DENIED_STATUS_ID;
+    private Long RECEIVED_STATUS_ID;
     private Long ARRIVED_STATUS_ID;
     private Integer MAX_SEARCH_RESULTS;
     private String MULTIPLE_LIBRARIANS_USERNAME;
@@ -88,6 +90,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         REQUESTER_INFO_FIELD_ID = config.getJira().getRequesterInfoFieldId();
         FUND_CODE_FIELD_ID = config.getJira().getFundCodeFieldId();
         OBJECT_CODE_FIELD_ID = config.getJira().getObjectCodeFieldId();
+        PERMANENT_LOCATION_FIELD_ID = config.getJira().getPermanentLocationFieldId();
         POST_PURCHASE_ID_FIELD_ID = config.getJira().getPostPurchaseIdFieldId();
         DECISION_REASON_FIELD_ID = config.getJira().getDecisionReasonFieldId();
         DEFERRED_STATUS_NAME = config.getJira().getDeferredStatusName();
@@ -96,6 +99,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         APPROVED_STATUS_NAME = config.getJira().getApprovedStatusName();
         APPROVED_STATUS_TRANSITION_ID = config.getJira().getApprovedStatusTransitionId();
         DENIED_STATUS_ID = config.getJira().getDeniedStatusId();
+        RECEIVED_STATUS_ID = config.getJira().getReceivedStatusId();
         ARRIVED_STATUS_ID = config.getJira().getArrivedStatusId();
         MAX_SEARCH_RESULTS = config.getJira().getMaxSearchResults();
         MULTIPLE_LIBRARIANS_USERNAME = config.getJira().getMultipleLibrariansUsername();
@@ -117,6 +121,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             REQUESTER_INFO_FIELD_ID,
             FUND_CODE_FIELD_ID,
             OBJECT_CODE_FIELD_ID,
+            PERMANENT_LOCATION_FIELD_ID,
             POST_PURCHASE_ID_FIELD_ID,
             DECISION_REASON_FIELD_ID,
         };
@@ -205,6 +210,8 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         addShortTextField(fields, CLIENT_NAME_FIELD_ID, purchaseRequest.getClientName());
         addShortTextField(fields, REQUESTER_USERNAME_FIELD_ID, purchaseRequest.getRequesterUsername());
         addShortTextField(fields, REQUESTER_INFO_FIELD_ID, purchaseRequest.getRequesterInfo());
+        addSelectField(fields, PERMANENT_LOCATION_FIELD_ID, purchaseRequest.getPermanentLocation());
+        addSelectField(fields, FUND_CODE_FIELD_ID, purchaseRequest.getFundCode());
 
         // Set conditional fields
         setAssignee(fields, purchaseRequest);
@@ -520,6 +527,11 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         updateIssue(purchaseRequest, issueChanges);
     }
 
+    private void addSelectField(JsonObject fields, String fieldName, String value) {
+        if (value == null) return;
+        fields.add(fieldName, createStringObject("value", value));
+    }
+
     private void addShortTextField(JsonObject fields, String fieldName, String value) {
         if (value != null && value.length() > SHORT_TEXT_FIELD_MAX_LENGTH) {
             log.info("Truncating " + fieldName + " to " + SHORT_TEXT_FIELD_MAX_LENGTH + " characters: " + value);
@@ -562,6 +574,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         purchaseRequest.setLibrarianUsername(getIssueAssignee(issue));
         purchaseRequest.setFundCode(getStringValue(issue, FUND_CODE_FIELD_ID));
         purchaseRequest.setObjectCode(getStringValue(issue, OBJECT_CODE_FIELD_ID));
+        purchaseRequest.setPermanentLocation(getStringValue(issue, PERMANENT_LOCATION_FIELD_ID));
         purchaseRequest.setPostRequestComments(getIssueComments(issue));
         purchaseRequest.setPostPurchaseId(getStringValue(issue, POST_PURCHASE_ID_FIELD_ID));
         purchaseRequest.setDecisionReason(getStringValue(issue, DECISION_REASON_FIELD_ID));
@@ -690,6 +703,9 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         else if (DENIED_STATUS_ID.contains(statusId)) {
             notifyPurchaseRequestDenied(purchaseRequest);
         }
+        else if (RECEIVED_STATUS_ID.equals(statusId)) {
+            notifyPurchaseRequestReceived(purchaseRequest);
+        }
         else if (ARRIVED_STATUS_ID.equals(statusId)) {
             notifyPurchaseRequestArrived(purchaseRequest);
         }
@@ -697,5 +713,36 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             log.warn("Ignoring purchase request updated with unhandled status: " + statusId);
         }
     }
-    
+
+    public List<String> getPermanentLocationOptions() {
+        return getFieldOptions(PERMANENT_LOCATION_FIELD_ID);
+    }
+
+    public List<String> getFundCodeOptions() {
+        return getFieldOptions(FUND_CODE_FIELD_ID);
+    }
+
+    private List<String> getFieldOptions(String fieldId) {
+        try {
+            JsonObject response = client.executeGet("issue/createmeta", Map.of(
+                "projectKeys", PROJECT_CODE,
+                "issuetypeIds", Long.toString(config.getJira().getIssueTypeId()),
+                "expand", "projects.issuetypes.fields"
+            ));
+            JsonArray allowedValues = response
+                .getAsJsonArray("projects").get(0).getAsJsonObject()
+                .getAsJsonArray("issuetypes").get(0).getAsJsonObject()
+                .getAsJsonObject("fields")
+                .getAsJsonObject(fieldId)
+                .getAsJsonArray("allowedValues");
+            List<String> options = new LinkedList<>();
+            for (JsonElement element : allowedValues) {
+                options.add(element.getAsJsonObject().get("value").getAsString());
+            }
+            return options;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

@@ -48,6 +48,7 @@ workflow.jira.approvedStatusId=12345
 workflow.jira.approvedStatusName=Approved
 workflow.jira.approvedStatusTransitionId=1
 workflow.jira.deniedStatusId=12345
+workflow.jira.receivedStatusId=12345
 workflow.jira.arrivedStatusId=12345
 
 workflow.jira.contributorFieldId=customfield_12345
@@ -61,6 +62,7 @@ workflow.jira.clientNameFieldId=customfield_12345
 workflow.jira.requesterUsernameFieldId=customfield_12345
 workflow.jira.requesterInfoFieldId=customfield_12345
 workflow.jira.fundCodeFieldId=customfield_12345
+workflow.jira.permanentLocationFieldId=customfield_12345
 workflow.jira.objectCodeFieldId=customfield_12345
 workflow.jira.postPurchaseIdFieldId=customfield_12345
 workflow.jira.decisionReasonFieldId=customfield_12345

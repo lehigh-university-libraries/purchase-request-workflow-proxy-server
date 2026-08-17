@@ -114,6 +114,18 @@ public class WorkflowController {
         return service.search(query);
     }
 
+    @GetMapping("/permanent-location")
+    List<String> getPermanentLocationOptions() {
+        log.debug("Request: GET /permanent-location");
+        return service.getPermanentLocationOptions();
+    }
+
+    @GetMapping("/fund-code")
+    List<String> getFundCodeOptions() {
+        log.debug("Request: GET /fund-code");
+        return service.getFundCodeOptions();
+    }
+
     @GetMapping("/search-matches")
     List<Match> searchMatches(MatchQuery query) {
         log.debug("Request: GET /search-matches? " + query);

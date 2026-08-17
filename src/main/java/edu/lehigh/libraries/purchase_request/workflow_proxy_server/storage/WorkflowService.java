@@ -27,4 +27,12 @@ public interface WorkflowService {
 
     void addListener(WorkflowServiceListener listener);
 
+    default List<String> getPermanentLocationOptions() {
+        throw new UnsupportedOperationException("Not supported by this storage backend");
+    }
+
+    default List<String> getFundCodeOptions() {
+        throw new UnsupportedOperationException("Not supported by this storage backend");
+    }
+
 }
