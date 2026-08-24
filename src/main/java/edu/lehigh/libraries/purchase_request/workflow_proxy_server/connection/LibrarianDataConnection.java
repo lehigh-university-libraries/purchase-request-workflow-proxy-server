@@ -9,14 +9,19 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class LibrarianCallNumbersConnection {
+public class LibrarianDataConnection {
 
     private CloseableHttpClient client;    
 
-    public LibrarianCallNumbersConnection() {
+    private final String BASE_URL;
+
+    public LibrarianDataConnection(Config config) {
+        BASE_URL = config.getLibrarian().getBaseUrl();
+
         initConnection();
     }
 
@@ -40,7 +45,7 @@ public class LibrarianCallNumbersConnection {
 
     private String executeGet(String url) throws Exception {
         HttpUriRequest getRequest = RequestBuilder.get()
-            .setUri(url)
+            .setUri(BASE_URL + url)
             .build();
 
         CloseableHttpResponse response = client.execute(getRequest);

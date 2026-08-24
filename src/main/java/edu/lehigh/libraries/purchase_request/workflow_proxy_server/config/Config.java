@@ -69,7 +69,7 @@ public class Config {
     private AmazonAxesso amazonAxesso;
     private Oasis oasis;
     private Links links;
-    private LibrarianCallNumbers librarianCallNumbers;
+    private Librarian librarian;
     private Priority priority;
     private Email email;
     private GoogleDocs googleDocs;
@@ -520,6 +520,11 @@ public class Config {
          */
         private Map<String, String> infoResultOverrides = Collections.emptyMap();
 
+        /**
+         * Regex to extract the department from the returned full value of the infoResultField,
+         * in a group "DEPARTMENT". 
+         */
+        private Pattern requesterInfoDepartmentPattern;
     }
 
     @Getter @Setter
@@ -623,18 +628,36 @@ public class Config {
     }
 
     @Getter @Setter
-    public static class LibrarianCallNumbers {
-
+    public static class Librarian {
+     
         /**
          * Base URL of a web service that retrieves a list of librarians given a call number
          */
         private String baseUrl;
 
-        /**
-         * Username of a librarian to assign if the request has no call number.
-         */
-        private String noCallNumberUsername = null;
+        private CallNumbers callNumbers;
+        private RequesterInfo requesterInfo;
+    
+        @Getter @Setter
+        public static class CallNumbers {
 
+            /**
+             * Username of a librarian to assign if the request has no call number.
+             */
+            private String noCallNumberUsername = null;
+
+        }
+
+        @Getter @Setter
+        public static class RequesterInfo {
+    
+            /**
+             * Username of a librarian to assign if the request has a requester with no associated department.
+             */
+            private String requesterButNoDepartmentUsername = null;
+    
+        }
+    
     }
 
     @Getter @Setter

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import edu.lehigh.libraries.purchase_request.model.PurchaseRequest;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.config.Config;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.ConnectionUtil;
-import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.LibrarianCallNumbersConnection;
+import edu.lehigh.libraries.purchase_request.workflow_proxy_server.connection.LibrarianDataConnection;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentManager;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentService;
 import edu.lehigh.libraries.purchase_request.workflow_proxy_server.enrichment.EnrichmentType;
@@ -22,25 +22,23 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@ConditionalOnProperty(name="workflow.librarian-call-numbers", havingValue="service")
+@ConditionalOnProperty(name="workflow.librarian.call-numbers.enabled", havingValue="true")
 @ConditionalOnWebApplication
-public class LibrarianEnrichment implements EnrichmentService {
+public class CallNumberLibrarianEnrichment implements EnrichmentService {
 
     private final WorkflowService workflowService;
-    private final LibrarianCallNumbersConnection connection;
+    private final LibrarianDataConnection connection;
 
-    private final String BASE_URL;
     private final String NO_CALL_NUMBER_USERNAME;
 
-    LibrarianEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) {
+    CallNumberLibrarianEnrichment(EnrichmentManager manager, WorkflowService workflowService, Config config) {
         this.workflowService = workflowService;
-        connection = new LibrarianCallNumbersConnection();
+        connection = new LibrarianDataConnection(config);
 
-        BASE_URL = config.getLibrarianCallNumbers().getBaseUrl();
-        NO_CALL_NUMBER_USERNAME = config.getLibrarianCallNumbers().getNoCallNumberUsername();
+        NO_CALL_NUMBER_USERNAME = config.getLibrarian().getCallNumbers().getNoCallNumberUsername();
 
-        manager.addListener(this, 1000);
-        log.debug("LibrarianEnrichment ready.");
+        manager.addListener(this, 1050);
+        log.debug("CallNumberLibrarianEnrichment ready.");
     }
 
     @Override
@@ -64,7 +62,8 @@ public class LibrarianEnrichment implements EnrichmentService {
             }
         }
 
-        String url = BASE_URL + "/search?callNumber=" + ConnectionUtil.encodeUrl(callNumber);
+        log.debug("Enriching librarian by call number: " + callNumber);
+        String url = "/search?callNumber=" + ConnectionUtil.encodeUrl(callNumber);
         JSONArray responseArray;
         try {
             responseArray = connection.executeGetForArray(url);

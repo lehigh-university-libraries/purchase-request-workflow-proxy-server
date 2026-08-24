@@ -53,7 +53,7 @@ Supplied implementations:
 | Consortial Holdings | Identify holdings at consortia with borrowing relationships. | OCLC WorldCat |
 | Pricing | Gather list price information. | OASIS, Amazon, IsbnDB, and/or DOAB |
 | Requester | Identify the patron's university role (i.e. faculty, undergraduate) and department as provided by the university's directory information. | LDAP | 
-| Librarian Selector | Identify the librarian(s) who should decide the purchase request, based on the item's call number. | [Librarian Call Numbers](https://github.com/lehigh-university-libraries/librarian-call-numbers) |
+| Librarian Selector | Identify the librarian(s) who should decide the purchase request, based on the item's call number or the requester's department. | [Librarian Call Numbers](https://github.com/lehigh-university-libraries/librarian-call-numbers) |
 | Budget Codes | Set budget codes to use if the purchase is approved, based on the librarian enrichment. | FOLIO |
 | Identifiers | For use by the other enrichments, use supplied title & contributor to suggest (if not already supplied) an OCLC number and Dewey call number from Library of Congress holdings. | OCLC WorldCat 
 | Links | Provide links to quickly query additional data sources. | No requirements.  Links to Google Scholar. |
@@ -374,8 +374,9 @@ Used for information about the patron requesting a purchase.
 | spring.ldap.base | Base string for LDAP queries. | If `workflow.requester` is set |
 | workflow.ldap.username-query-field | Parameter representing the username in the LDAP query.  Generally `uid`.  | If `workflow.requester` is set | 
 | workflow.ldap.info-result-field | LDAP search result field containing information about the requester, including their role and potentially other data like academic department.  Generally `description`. | If `workflow.requester` is set | 
-| workflow.ldap.requester-info-role-pattern | [Java regular expression](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html) to extract the role from the full value returned in the `workflow.ldap.info-result=field`.  The role should be identified in the regular expression by a named group "ROLE".  If supplied, this property be used later for Priority Enrichment. | N |
+| workflow.ldap.requester-info-role-pattern | [Java regular expression](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html) to extract the role from the full value returned in the `workflow.ldap.info-result=field`.  The role should be identified in the regular expression by a named group "ROLE".  If supplied, this property may be used later for Priority Enrichment. | N |
 | workflow.ldap.info-result-overrides.`username` | Skip the LDAP query for a specific user, based on the purchase request's `requesterUsername`, and return a pre-configured info field string.  This property can be defined multiple times for different `username`s.  Useful for testing the effect of different user roles on Priority Enrichment. | N | 
+| workflow.ldap.requester-info-department-pattern | [Java regular expression](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html) to extract the role from the full value returned in the `workflow.ldap.info-result=field`.  The department should be identified in the regular expression by a named group "DEPARTMENT".  If supplied, this property may be used later in Librarian Enrichment. | N |
 
 ### Pricing Enrichment Sections
 
@@ -439,9 +440,11 @@ Librarian Enrichment makes use of a separate [Librarian Call Numbers](https://gi
 
 | Property | Description | Required |
 | -- | -- | -- |
-| workflow.librarian-call-numbers | `service` to enable librarian enrichment. | N |
-| workflow.librarian-call-numbers.base-url | Base URL of the Librarian Call Numbers service. | If `workflow.librarian-call-numbers` is set |
-| workflow.librarian-call-numbers.no-call-number-username | Username of a librarian to assign if the request has no call number (after [Identifiers Enrichment](#identifiers-enrichment-section)). | N |
+| workflow.librarian.base-url | Base URL of the Librarian Call Numbers service. | If `workflow.librarian.call-numbers.enabled` or `workflow.librarian.requester-info.enabled` is true |
+| workflow.librarian.call-numbers.enabled | `true` to enable librarian enrichment by call number. | N |
+| workflow.librarian.call-numbers.no-call-number-username | Username of a librarian to assign if the request has no call number (after [Identifiers Enrichment](#identifiers-enrichment-section)). | N |
+| workflow.librarian.requester-info.enabled | `true` to enable librarian enrichment by requster. | N |
+| workflow.librarian.requester-info.requester-but-no-department-username | Username of a librarian to assign if the request has a requester with no associated department. | N |
 
 ### Priority Enrichment Section
 

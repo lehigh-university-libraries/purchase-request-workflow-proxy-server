@@ -138,6 +138,7 @@ workflow.ldap.username-query-field=uid
 workflow.ldap.info-result-field=description
 workflow.ldap.requester-info-role-pattern=(?<ROLE>.*)\\s-\\s(?<DEPARTMENT>.*)
 workflow.ldap.info-result-overrides.staff_username=Faculty - But Not Really
+workflow.ldap.requester-info-department-pattern=(?<ROLE>.*)\\s-\\s(?<DEPARTMENT>.*)
 
 
 # IsbnDB Pricing Enrichment
@@ -179,9 +180,11 @@ workflow.links.google-scholar-enabled=true
 
 # Librarian Enrichment
 
-workflow.librarian-call-numbers=service
-workflow.librarian-call-numbers.base-url=http://hostname.someuniversity.edu:8080
-workflow.librarian-call-numbers.no-call-number-username=librarians
+workflow.librarian.base-url=http://hostname.someuniversity.edu:8080
+workflow.librarian.call-numbers.enabled=false
+workflow.librarian.call-numbers.no-call-number-username=librarians
+workflow.librarian.requester-info.enabled=true
+workflow.librarian.requester-info.requester-but-no-department-username=librarians
 
 
 # Priority Enrichment
