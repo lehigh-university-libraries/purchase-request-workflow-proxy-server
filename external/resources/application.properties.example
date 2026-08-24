@@ -64,6 +64,7 @@ workflow.jira.requesterInfoFieldId=customfield_12345
 workflow.jira.fundCodeFieldId=customfield_12345
 workflow.jira.permanentLocationFieldId=customfield_12345
 workflow.jira.objectCodeFieldId=customfield_12345
+workflow.jira.purchaseOrderNumberFieldId=customfield_12345
 workflow.jira.postPurchaseIdFieldId=customfield_12345
 workflow.jira.decisionReasonFieldId=customfield_12345
 

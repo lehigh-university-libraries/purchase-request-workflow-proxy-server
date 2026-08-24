@@ -270,6 +270,11 @@ public class Config {
         private String permanentLocationFieldId;
 
         /**
+         * ID of the Jira custom field representing the purchase order number for this request.
+         */
+        private String purchaseOrderNumberFieldId;
+
+        /**
          * ID of the Jira custom field representing the unique ID of the purchased item within the LMS.
          */
         private String postPurchaseIdFieldId;

@@ -280,6 +280,7 @@ Each of the following configuration parameters defines the Jira ID of a custom f
 | workflow.jira.fundCodeFieldId | Stores the requested budget fund code to assign to an item purchase. | If `workflow.storage` is `jira` and `workflow.enrichment.budget-code` is set | 
 | workflow.jira.objectCodeFieldId | Stores the requested budget object code to assign to an item purchase. | If `workflow.storage` is `jira` and `workflow.enrichment.budget-code` is set | 
 | workflow.jira.permanentLocationFieldId | Stores the permanent library location for the item. Allowed values are fetched via `GET /permanent-location`. | If `workflow.storage` is `jira` | 
+| workflow.jira.purchaseOrderNumberFieldId | Stores the purchase order number for the item. | If `workflow.storage` is `jira` | 
 | workflow.jira.postPurchaseIdFieldId | Stores the unique ID of a purchased item, for use in emails about Arrived purchase requests. | If `workflow.storage` is `jira` | 
 | workflow.jira.decisionReasonFieldId | Stores the selector-indicated reason behind a purchase decision, for use in emails about decided purchase requests. | If `workflow.storage` is `jira` | 
 

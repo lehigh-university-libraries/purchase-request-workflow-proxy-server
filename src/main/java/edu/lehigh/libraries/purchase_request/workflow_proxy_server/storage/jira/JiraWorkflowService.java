@@ -49,6 +49,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
     private String FUND_CODE_FIELD_ID;
     private String OBJECT_CODE_FIELD_ID;
     private String PERMANENT_LOCATION_FIELD_ID;
+    private String PURCHASE_ORDER_NUMBER_FIELD_ID;
     private String POST_PURCHASE_ID_FIELD_ID;
     private String DECISION_REASON_FIELD_ID;
     private String DEFERRED_STATUS_NAME;
@@ -91,6 +92,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         FUND_CODE_FIELD_ID = config.getJira().getFundCodeFieldId();
         OBJECT_CODE_FIELD_ID = config.getJira().getObjectCodeFieldId();
         PERMANENT_LOCATION_FIELD_ID = config.getJira().getPermanentLocationFieldId();
+        PURCHASE_ORDER_NUMBER_FIELD_ID = config.getJira().getPurchaseOrderNumberFieldId();
         POST_PURCHASE_ID_FIELD_ID = config.getJira().getPostPurchaseIdFieldId();
         DECISION_REASON_FIELD_ID = config.getJira().getDecisionReasonFieldId();
         DEFERRED_STATUS_NAME = config.getJira().getDeferredStatusName();
@@ -122,6 +124,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
             FUND_CODE_FIELD_ID,
             OBJECT_CODE_FIELD_ID,
             PERMANENT_LOCATION_FIELD_ID,
+            PURCHASE_ORDER_NUMBER_FIELD_ID,
             POST_PURCHASE_ID_FIELD_ID,
             DECISION_REASON_FIELD_ID,
         };
@@ -576,6 +579,7 @@ public class JiraWorkflowService extends AbstractWorkflowService {
         purchaseRequest.setObjectCode(getStringValue(issue, OBJECT_CODE_FIELD_ID));
         purchaseRequest.setPermanentLocation(getStringValue(issue, PERMANENT_LOCATION_FIELD_ID));
         purchaseRequest.setPostRequestComments(getIssueComments(issue));
+        purchaseRequest.setPurchaseOrderNumber(getStringValue(issue, PURCHASE_ORDER_NUMBER_FIELD_ID));
         purchaseRequest.setPostPurchaseId(getStringValue(issue, POST_PURCHASE_ID_FIELD_ID));
         purchaseRequest.setDecisionReason(getStringValue(issue, DECISION_REASON_FIELD_ID));
         purchaseRequest.setCreationDate(getStringValue(issue, "created"));

@@ -115,6 +115,9 @@ public class PurchaseRequest {
     private List<Comment> postRequestComments;
 
     @NoHtml
+    private String purchaseOrderNumber;
+
+    @NoHtml
     private String postPurchaseId;
 
     @NoHtml
